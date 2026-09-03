@@ -125,9 +125,9 @@ export const DOSSIERS: readonly EmployeeDossier[] = [
     certificates: [{ name: "AWS Developer Associate", expires: "Mar 2027" }, { name: "İSG Temel Eğitimi", expires: "Oca 2027" }],
     assets: [{ name: "MacBook Pro 16\"", tag: "AST-0311", since: "Mar 2021" }, { name: "Yubikey", tag: "AST-0812", since: "Haz 2023" }],
     lifecycle: [
-      { date: "1 Haz 2026", event: "Ücret değişikliği", detail: "82.000 → 95.000 ₺" },
-      { date: "1 Haz 2024", event: "Terfi", detail: "Backend Geliştirici → Kıdemli Backend Geliştirici" },
-      { date: "1 Haz 2023", event: "Çalışma modeli", detail: "Ofis → Hibrit" },
+      { date: "1 Haz 2026", event: "Ücret değişikliği", detail: "82.000 › 95.000 ₺" },
+      { date: "1 Haz 2024", event: "Terfi", detail: "Backend Geliştirici › Kıdemli Backend Geliştirici" },
+      { date: "1 Haz 2023", event: "Çalışma modeli", detail: "Ofis › Hibrit" },
       { date: "15 Haz 2021", event: "Deneme süresi tamamlandı", detail: "Belirsiz süreliye geçiş" },
       { date: "15 Mar 2021", event: "İşe giriş", detail: "Backend Geliştirici, G5" },
     ],
@@ -362,8 +362,8 @@ export const TRANSFERS = [
 ] as const;
 
 export const PROMOTIONS = [
-  { id: "pr1", employeeId: "e1", from: "Kıdemli Backend Geliştirici · G6", to: "Staff Mühendis · G7", effective: "1 Eki 2026", salary: "95.000 → 112.000 ₺", state: "Öneri", aiNote: "Performans + ayrılma riski birlikte: en yüksek etkili terfi adayı" },
-  { id: "pr2", employeeId: "e7", from: "Frontend Geliştirici · G5", to: "Kıdemli Frontend Geliştirici · G6", effective: "1 Haz 2026", salary: "58.000 → 68.000 ₺", state: "Tamamlandı", aiNote: "Tasarım sistemi teslimi kanıt" },
+  { id: "pr1", employeeId: "e1", from: "Kıdemli Backend Geliştirici · G6", to: "Staff Mühendis · G7", effective: "1 Eki 2026", salary: "95.000 › 112.000 ₺", state: "Öneri", aiNote: "Performans + ayrılma riski birlikte: en yüksek etkili terfi adayı" },
+  { id: "pr2", employeeId: "e7", from: "Frontend Geliştirici · G5", to: "Kıdemli Frontend Geliştirici · G6", effective: "1 Haz 2026", salary: "58.000 › 68.000 ₺", state: "Tamamlandı", aiNote: "Tasarım sistemi teslimi kanıt" },
   { id: "pr3", employeeId: "e4", from: "İK İş Ortağı · G6", to: "İK Müdürü · G7", effective: "1 Oca 2027", salary: "Bütçe döneminde", state: "Planlandı", aiNote: "Yedekleme planında 'hazır' " },
 ] as const;
 
@@ -397,7 +397,7 @@ export const TASKS = [
   { id: "t4", kind: "Hata", title: "Slack izin senkronu yetki hatası", due: "Gecikmiş", tone: "critical" as Tone, page: "/entegrasyonlar/", aiVerdict: "Yeniden bağlantı 1 dk" },
   { id: "t5", kind: "Talep", title: "Düzeltme talebi · Ayşe Aydın · eksik IN", due: "Yarın", tone: "info" as Tone, page: "/pdks/", aiVerdict: "Onaya hazır" },
   { id: "t6", kind: "Görev", title: "Mert Kaya ilk değerlendirme formu", due: "16 Eyl", tone: "warning" as Tone, page: "/ozluk/", aiVerdict: "Deneme süresi bitiyor" },
-  { id: "t7", kind: "Onay", title: "Transfer · Selin Çelik → Ürün", due: "20 Eyl", tone: "info" as Tone, page: "/transferler/", aiVerdict: "Bütçe uyumlu" },
+  { id: "t7", kind: "Onay", title: "Transfer · Selin Çelik › Ürün", due: "20 Eyl", tone: "info" as Tone, page: "/transferler/", aiVerdict: "Bütçe uyumlu" },
   { id: "t8", kind: "Uyarı", title: "İlk yardım sertifikası süresi doldu", due: "Gecikmiş", tone: "critical" as Tone, page: "/belgeler/", aiVerdict: "Kurs planla" },
   { id: "t9", kind: "Onay", title: "Değişken ödeme · Mert Kaya · 6.400 ₺", due: "24 Eyl", tone: "info" as Tone, page: "/degisken-odemeler/", aiVerdict: "Politika kademe 1" },
   { id: "t10", kind: "Görev", title: "MUHSGK Ağustos doğrulaması", due: "24 Eyl", tone: "warning" as Tone, page: "/beyannameler/", aiVerdict: "4 meslek kodu eksik" },

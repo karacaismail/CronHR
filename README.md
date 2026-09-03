@@ -35,6 +35,20 @@ npm run preview # dist/ önizleme
 Mimari omurga: **Vardiya planlar → PDKS ölçer → İzin açıklar → Puantaj hesaplar → Bordro paraya çevirir.**
 Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Bileşen standardı, hareket ve ölçek
+
+- **Dropdown:** yerel `<select>` kullanılmaz; `src/islands/Select.tsx` (APG select-only combobox)
+  her tarayıcı ve cihazda aynı görünür; klavye, typeahead, viewport'a göre yukarı/aşağı açılır.
+  Form kontrolleri (`appearance: none`), onay/radyo kutuları ve kaydırma çubukları standarttır.
+- **Hareket:** `src/scripts/motion.ts` (GSAP + ScrollTrigger): akış sırasıyla giriş, KPI sayaç,
+  grafik çizimi, kaydırmayla ortaya çıkma, 0,08 parallax; CSS mikro-etkileşimler (hover/press,
+  sekme çizgisi, anahtar yayı). `prefers-reduced-motion`, erişilebilirlik modu ve
+  `localStorage cronhr-motion=off` hareketi tamamen kapatır; güvenlik payı içeriği asla gizli bırakmaz.
+- **Ölçek:** 320px (iPhone 4) tabanlı; 1600/1920/2560/3840/5120 kırılımlarında içerik genişliği ve
+  arayüz oranı (zoom) adaptif büyür.
+- **Testler:** `npm test` (vitest: token kontrastı, Flat 2.0/emoji/select sözleşmesi, Select
+  bileşeni klavye davranışı, hareket çekirdeği), `npm run verify` (derleme + dist sözleşmesi).
+
 ## Temalar ve erişilebilirlik
 
 - Üç görünüm: **Açık** ve **Koyu** (WCAG 2.2 AA), **Erişilebilirlik** (WCAG 2.2 AAA: 7:1

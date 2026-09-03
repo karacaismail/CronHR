@@ -241,10 +241,10 @@ export interface Automation {
 export const AUTOMATIONS: readonly Automation[] = [
   { id: "a1", name: "Haftalık devamsızlık raporu", schedule: "Her pazartesi 09:00", cron: "0 9 * * 1", kind: "Rapor", lastRun: "1 Eyl 09:00", nextRun: "8 Eyl 09:00", status: "Aktif", runs: 34, aiNote: "Rapor AI özetiyle gönderiliyor; açılma oranı %92" },
   { id: "a2", name: "Deneme süresi uyarısı (7 gün kala)", schedule: "Her gün 08:30", cron: "30 8 * * *", kind: "Hatırlatma", lastRun: "4 Eyl 08:30", nextRun: "5 Eyl 08:30", status: "Aktif", runs: 212, aiNote: "Bugün Mert Kaya için tetiklendi" },
-  { id: "a3", name: "Ayrılma riski > 70 → İK'ya bildir", schedule: "Sürekli (olay tabanlı)", cron: "olay", kind: "AI kuralı", lastRun: "3 Eyl 14:12", nextRun: "Olay geldiğinde", status: "Aktif", runs: 9, aiNote: "Son 30 günde 3 kez tetiklendi; 2'si görüşmeyle sonuçlandı" },
+  { id: "a3", name: "Ayrılma riski > 70 › İK'ya bildir", schedule: "Sürekli (olay tabanlı)", cron: "olay", kind: "AI kuralı", lastRun: "3 Eyl 14:12", nextRun: "Olay geldiğinde", status: "Aktif", runs: 9, aiNote: "Son 30 günde 3 kez tetiklendi; 2'si görüşmeyle sonuçlandı" },
   { id: "a4", name: "Bordro taslağını finansla paylaş", schedule: "Ayın 25'i 17:00", cron: "0 17 25 * *", kind: "Onay akışı", lastRun: "25 Ağu 17:00", nextRun: "25 Eyl 17:00", status: "Aktif", runs: 11, aiNote: "Anomali listesi paylaşım öncesi otomatik ekleniyor" },
   { id: "a5", name: "Doğum günü kutlama mesajı", schedule: "Her gün 09:15", cron: "15 9 * * *", kind: "Hatırlatma", lastRun: "4 Eyl 09:15", nextRun: "5 Eyl 09:15", status: "Aktif", runs: 248, aiNote: "Mesajlar kişiye göre AI ile yazılıyor" },
-  { id: "a6", name: "Slack → izin talebi senkronu", schedule: "Her 15 dakikada", cron: "*/15 * * * *", kind: "Entegrasyon", lastRun: "4 Eyl 10:45", nextRun: "4 Eyl 11:00", status: "Hatalı", runs: 4_120, aiNote: "Yetki belirteci 2 gündür geçersiz; yeniden bağlantı gerekli" },
+  { id: "a6", name: "Slack › izin talebi senkronu", schedule: "Her 15 dakikada", cron: "*/15 * * * *", kind: "Entegrasyon", lastRun: "4 Eyl 10:45", nextRun: "4 Eyl 11:00", status: "Hatalı", runs: 4_120, aiNote: "Yetki belirteci 2 gündür geçersiz; yeniden bağlantı gerekli" },
   { id: "a7", name: "Zorunlu eğitim hatırlatması", schedule: "Her çarşamba 10:00", cron: "0 10 * * 3", kind: "Hatırlatma", lastRun: "2 Eyl 10:00", nextRun: "9 Eyl 10:00", status: "Duraklatıldı", runs: 18, aiNote: "KVKK son tarihi yaklaşıyor; yeniden başlatılması önerilir" },
 ];
 

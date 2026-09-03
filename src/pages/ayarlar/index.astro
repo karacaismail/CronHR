@@ -4,6 +4,7 @@ import AiBrief from "../../components/AiBrief.astro";
 import Panel from "../../components/Panel.astro";
 import Badge from "../../components/Badge.astro";
 import AiHint from "../../islands/AiHint";
+import Select from "../../islands/Select";
 import { Buildings, CreditCard, Code, Globe, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react";
 const SECTIONS = ["Genel", "Organizasyon", "Kullanıcılar ve Roller", "Yerelleştirme", "Bildirimler", "Entegrasyonlar", "Güvenlik", "Veri", "Faturalama", "Geliştirici", "AI"];
 
@@ -48,8 +49,8 @@ const AI_DATA = [
       <Fragment slot="icon"><Buildings size={15} /></Fragment>
       <div class="grid grid-2" style="gap:12px">
         <div class="field"><label class="field-label" for="s-name">Şirket adı</label><input id="s-name" class="input" value="Karaca Teknoloji A.Ş." /></div>
-        <div class="field"><label class="field-label" for="s-tz">Saat dilimi</label><select id="s-tz" class="select"><option>Europe/Istanbul (UTC+3)</option></select></div>
-        <div class="field"><label class="field-label" for="s-week">Çalışma haftası</label><select id="s-week" class="select"><option>Pazartesi – Cuma</option><option>Pazartesi – Cumartesi</option></select></div>
+        <Select client:load id="s-tz" label="Saat dilimi" options={[{ value: "europe-istanbul-utc-3", label: "Europe/Istanbul (UTC+3)" }]} />
+        <Select client:load id="s-week" label="Çalışma haftası" options={[{ value: "pazartesi-cuma", label: "Pazartesi – Cuma" }, { value: "pazartesi-cumartesi", label: "Pazartesi – Cumartesi" }]} />
         <div class="field"><label class="field-label" for="s-leave">Yıllık izin (varsayılan) <span class="field-ai"><Sparkle size={11} weight="fill" /> AI: kıdeme göre 14/20/26</span></label><input id="s-leave" class="input" value="14 gün" /></div>
       </div>
     </Panel>

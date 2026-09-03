@@ -7,6 +7,7 @@ import Badge from "../../components/Badge.astro";
 import Avatar from "../../components/Avatar.astro";
 import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
+import Select from "../../islands/Select";
 import { GOALS, PERFORMANCE_DISTRIBUTION, employee } from "../../data/hr";
 import { Plus, Sparkle } from "@phosphor-icons/react";
 
@@ -69,10 +70,7 @@ const tone = { Yolunda: "good", Riskli: "warning", Geride: "critical", Tamamland
         <Bars items={PERFORMANCE_DISTRIBUTION.map((p, i) => ({ label: p.label, value: p.value, tone: i === 0 ? "good" : i === 2 ? "warning" : i === 3 ? "critical" : "accent" }))} unit=" kişi" />
       </Panel>
       <Panel title="AI ile değerlendirme yaz" sub="Hedef verisi ve geri bildirimlerden taslak">
-        <div class="field">
-          <label class="field-label" for="perf-person">Çalışan</label>
-          <select id="perf-person" class="select"><option>Ahmet Yıldız</option><option>Mert Kaya</option><option>Elif Demir</option></select>
-        </div>
+        <Select client:load id="perf-person" label="Çalışan" options={[{ value: "ahmet-yildiz", label: "Ahmet Yıldız" }, { value: "mert-kaya", label: "Mert Kaya" }, { value: "elif-demir", label: "Elif Demir" }]} />
         <div class="field">
           <label class="field-label" for="perf-tone">Ton <span class="field-ai"><Sparkle size={11} weight="fill" /> AI önerdi: dengeli</span></label>
           <span class="segment"><button type="button">Takdir</button><button type="button" aria-pressed="true">Dengeli</button><button type="button">Gelişim</button></span>

@@ -37,12 +37,12 @@ function flatten(node: OrgNode, depth = 0): { node: OrgNode; depth: number }[] {
   <div class="grid grid-4">
     <Kpi label="Tüzel kişilik" value="2" delta="4 SGK işyeri" dir="flat" />
     <Kpi label="Departman / ekip" value="7 / 6" delta="1 vekil eksik" dir="down" />
-    <Kpi label="Yönetici başına kişi" value="8,6" delta="hedef ≤ 10" dir="up" ai="Mühendislik'te 42 → yetki devri" />
+    <Kpi label="Yönetici başına kişi" value="8,6" delta="hedef ≤ 10" dir="up" ai="Mühendislik'te 42 › yetki devri" />
     <Kpi label="Masraf merkezi" value="13" delta="%100 tanımlı" dir="up" />
   </div>
 
   <div class="grid grid-main">
-    <Panel title="Organizasyon ağacı" sub="Şirket → departman → ekip · başkan, kadro, açık pozisyon">
+    <Panel title="Organizasyon ağacı" sub="Şirket › departman › ekip · başkan, kadro, açık pozisyon">
       <Fragment slot="icon"><TreeStructure size={15} /></Fragment>
       <div class="org">
         {flatten(ORG_TREE).map(({ node, depth }) => (

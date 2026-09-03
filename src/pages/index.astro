@@ -40,7 +40,7 @@ const today = AUTOMATIONS.filter((a) => a.nextRun.startsWith("4 Eyl") || a.nextR
     time="08:12'de üretildi"
     lead="Bugün <strong>3 konu</strong> dikkat istiyor. Kadro sağlıklı büyüyor (120, +2), devamsızlık yılın ortalamasının altında; ancak bir ayrılma riski yükseldi ve bir entegrasyon 2 gündür hatalı."
     points={[
-      { tone: "critical", text: "<strong>Ahmet Yıldız</strong> ayrılma riski 61 → 78. 18 aydır ünvan değişimi yok, fazla mesai %40 arttı. Bu hafta birebir görüşme önerilir." },
+      { tone: "critical", text: "<strong>Ahmet Yıldız</strong> ayrılma riski 61 › 78. 18 aydır ünvan değişimi yok, fazla mesai %40 arttı. Bu hafta birebir görüşme önerilir." },
       { tone: "warning", text: "<strong>Slack izin senkronu</strong> yetki hatası veriyor; 3 talep manuel girilmiş olabilir. Yeniden bağlantı 1 dakika sürer." },
       { tone: "info", text: "<strong>Bordro taslağı</strong> hazır: 4 anomali, toplam etki 99.050 ₺. Finansla paylaşım 25 Eylül'de otomatik." },
     ]}
@@ -48,7 +48,7 @@ const today = AUTOMATIONS.filter((a) => a.nextRun.startsWith("4 Eyl") || a.nextR
     askQuery="Bugün dikkat etmem gereken 3 şey ne?"
   />
 
-  <Panel title="İşgücü zinciri · bugün" sub="Vardiya planlar → PDKS ölçer → İzin açıklar → Puantaj hesaplar → Bordro paraya çevirir">
+  <Panel title="İşgücü zinciri · bugün" sub="Vardiya planlar › PDKS ölçer › İzin açıklar › Puantaj hesaplar › Bordro paraya çevirir">
     <Fragment slot="tools"><a class="btn btn-ghost btn-sm" href={`${base}/gorevler/`}>Görevlerim · 11</a></Fragment>
     <Pipeline compact />
   </Panel>

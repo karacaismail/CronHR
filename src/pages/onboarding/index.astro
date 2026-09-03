@@ -44,7 +44,7 @@ import { Check, Sparkle } from "@phosphor-icons/react";
             <li class="check"><span class="check-box" data-done={(["Tamam", "Hazır"] as string[]).includes(t.state)}>{(["Tamam", "Hazır"] as string[]).includes(t.state) ? <Check size={11} weight="bold" /> : null}</span><span>{t.task}</span><span class="check-owner">{t.owner} · {t.state}</span></li>
           ))}
         </ul>
-        <AiHint client:visible label="Sonraki adım" variant="chip" title={`${o.name} · AI önerisi`} answer={o.employeeId === "c8" ? "Kritik yol: gizlilik sözleşmesi imzası → SGK bildirgesi (14 Eyl) → başlangıç. İmza için kişiye kısa bir WhatsApp/e-posta hatırlatması yeterli; ekipman ve hesaplar hazır." : "Teklif kabulü gelmeden diğer adımlar bloke. 2 gün içinde yanıt yoksa kısa bir arama önerilir; sözleşme taslağı hazır."} actions={["Hatırlatma gönder", "Planı aç"]} />
+        <AiHint client:visible label="Sonraki adım" variant="chip" title={`${o.name} · AI önerisi`} answer={o.employeeId === "c8" ? "Kritik yol: gizlilik sözleşmesi imzası › SGK bildirgesi (14 Eyl) › başlangıç. İmza için kişiye kısa bir WhatsApp/e-posta hatırlatması yeterli; ekipman ve hesaplar hazır." : "Teklif kabulü gelmeden diğer adımlar bloke. 2 gün içinde yanıt yoksa kısa bir arama önerilir; sözleşme taslağı hazır."} actions={["Hatırlatma gönder", "Planı aç"]} />
       </Panel>
     ))}
   </div>

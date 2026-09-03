@@ -15,7 +15,7 @@ const stateTone = { "Hesaplandı": "neutral", "Onay bekliyor": "warning", "Onayl
 const totals = TIMESHEET.reduce((a, r) => ({ normal: a.normal + r.normalHours, ot: a.ot + r.overtime, night: a.night + r.night }), { normal: 0, ot: 0, night: 0 });
 ---
 
-<AdminLayout pageId="puantaj" description="Time Calculation Engine: vardiya (plan) + PDKS (gerçek) + izin (haklı yokluk) + fazla mesai/düzeltme → hesaplanmış çalışma ve payroll units. Bordro ham hareketi değil, bunu okur.">
+<AdminLayout pageId="puantaj" description="Time Calculation Engine: vardiya (plan) + PDKS (gerçek) + izin (haklı yokluk) + fazla mesai/düzeltme › hesaplanmış çalışma ve payroll units. Bordro ham hareketi değil, bunu okur.">
   <Fragment slot="actions">
     <button type="button" class="btn"><Calculator size={14} /> Yeniden hesapla</button>
     <button type="button" class="btn btn-ai" data-ask-ai="Bu ayın puantajını bordroya hazırla"><Sparkle size={14} weight="fill" /> Bordroya hazırla</button>
@@ -27,7 +27,7 @@ const totals = TIMESHEET.reduce((a, r) => ({ normal: a.normal + r.normalHours, o
     points={[
       { tone: "critical", text: "<strong>Emre Doğan</strong> 62 saat fazla mesai; politika sınırı 72. Pazar nöbeti devredilirse 54'e iner." },
       { tone: "warning", text: "<strong>Mert Kaya</strong>'nın 3 mazeret günü ücretsiz işlenmiş; politika ücretli diyor. Düzeltme bordroya +2.150 ₺ ekler." },
-      { tone: "info", text: "<strong>Ayşe Aydın</strong>'ın eksik IN düzeltme talebi onaylanınca devamsızlık 1 → 0 olur ve satır otomatik yeniden hesaplanır." },
+      { tone: "info", text: "<strong>Ayşe Aydın</strong>'ın eksik IN düzeltme talebi onaylanınca devamsızlık 1 › 0 olur ve satır otomatik yeniden hesaplanır." },
     ]}
     chips={["Fazla mesai sınırına yaklaşanları göster", "Onay bekleyen puantajları listele", "Bu sayfayı açıkla"]}
   />

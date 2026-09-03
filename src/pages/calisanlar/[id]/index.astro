@@ -116,7 +116,7 @@ const statusTone = { Aktif: "good", Deneme: "info", "İzinli": "neutral", "Ayrı
         <tbody>
           {d.salaryHistory.map((s, i) => (
             <tr style={i > 0 ? "opacity:.7" : ""}>
-              <td class="strong">{s.from}{s.to ? ` – ${s.to}` : " → devam"}</td>
+              <td class="strong">{s.from}{s.to ? ` – ${s.to}` : " › devam"}</td>
               <td class="num strong">{tl(s.value)}</td>
               <td class="muted">{s.reason}</td>
               <td>{i === 0 ? `${d.bank.name} · ${d.bank.iban}` : ""}</td>
@@ -162,7 +162,7 @@ const statusTone = { Aktif: "good", Deneme: "info", "İzinli": "neutral", "Ayrı
     </Panel>
     <Panel title="Geçmiş ve denetim" sub="Kim, neyi, ne zaman değiştirdi"><Fragment slot="icon"><span id="geçmiş"></span></Fragment>
       <div class="timeline">
-        <div class="tl-item"><div class="tl-rail"><span class="tl-dot" data-tone="ai"></span><span class="tl-line"></span></div><div><div class="strong">AI risk skoru güncellendi</div><div class="small muted">61 → {e.attritionRisk} · sistem</div><div class="tl-time">Bugün 06:00</div></div></div>
+        <div class="tl-item"><div class="tl-rail"><span class="tl-dot" data-tone="ai"></span><span class="tl-line"></span></div><div><div class="strong">AI risk skoru güncellendi</div><div class="small muted">61 › {e.attritionRisk} · sistem</div><div class="tl-time">Bugün 06:00</div></div></div>
         <div class="tl-item"><div class="tl-rail"><span class="tl-dot"></span><span class="tl-line"></span></div><div><div class="strong">İletişim adresi görüntülendi</div><div class="small muted">Zeynep Arslan · Özlük · okuma</div><div class="tl-time">Dün 15:20</div></div></div>
         <div class="tl-item"><div class="tl-rail"><span class="tl-dot" data-tone="good"></span><span class="tl-line"></span></div><div><div class="strong">Belge yüklendi</div><div class="small muted">KVKK aydınlatma metni v3 · çalışan</div><div class="tl-time">12 Ağu 2026</div></div></div>
         <div class="tl-item"><div class="tl-rail"><span class="tl-dot"></span><span class="tl-line"></span></div><div><div class="strong">Ücret alanı düzenlendi</div><div class="small muted">İsmail Karaca · Bordro · yazma · onay: Zeynep Arslan</div><div class="tl-time">1 Haz 2026</div></div></div>

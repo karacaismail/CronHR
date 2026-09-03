@@ -1893,3 +1893,243 @@ button.token:hover {
   .profile-head { grid-template-columns: auto minmax(0, 1fr); }
   .profile-stats { grid-column: 1 / -1; min-inline-size: 0; }
 }
+
+/* ============================ FLAT 2.0 · form kontrolü standardizasyonu */
+/* Yerel görünümler kapatılır; her tarayıcı ve cihazda aynı kutu. */
+.input,
+.textarea,
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+input[type="time"] {
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--ink-faint);
+  opacity: 1;
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+/* Yerel select artık kullanılmaz; kalan bir örnek çıkarsa aynı kutuya bürünür. */
+select.select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-inline-end: 32px;
+}
+
+/* Onay/radyo: yerel yerine düz kutular. */
+input[type="checkbox"],
+input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  inline-size: 18px;
+  block-size: 18px;
+  border: 1.5px solid var(--border-control);
+  border-radius: 4px;
+  background: var(--surface);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+input[type="radio"] { border-radius: 100%; }
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background: var(--accent-bg);
+  border-color: var(--accent-bg);
+}
+
+input[type="checkbox"]:checked::after {
+  content: "";
+  inline-size: 10px;
+  block-size: 6px;
+  border-inline-start: 2px solid var(--on-accent);
+  border-block-end: 2px solid var(--on-accent);
+  rotate: -45deg;
+  translate: 0 -1px;
+}
+
+input[type="radio"]:checked::after {
+  content: "";
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 100%;
+  background: var(--on-accent);
+}
+
+/* Kaydırma çubukları: ince ve temaya uyumlu (Safari/Chrome/Firefox). */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+*::-webkit-scrollbar { inline-size: 8px; block-size: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* ====================================== mikro-animasyonlar (CSS katmanı) */
+/* GSAP giriş/kaydırma koreografisini tamamlar; hepsi ≤ 240ms, transform+opacity. */
+
+.btn,
+.icon-btn,
+.ai-chip,
+.token,
+.theme-switch button,
+.segment > button {
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 140ms ease;
+}
+
+.btn:hover:not(:disabled),
+.ai-chip:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled),
+.ai-chip:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.icon-btn:hover { transform: scale(1.06); }
+.icon-btn:active { transform: scale(0.94); }
+
+.kpi,
+.panel {
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.kpi:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-2);
+}
+
+.subnav-item::after {
+  content: "";
+  position: absolute;
+  inset-inline: 12px;
+  inset-block-end: -1px;
+  block-size: 2px;
+  background: var(--accent);
+  scale: 0 1;
+  transform-origin: left;
+  transition: scale 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.subnav-item { position: relative; border-bottom-color: transparent; }
+.subnav-item[aria-current="page"]::after,
+.subnav-item:hover::after { scale: 1 1; }
+.subnav-item[aria-current="page"] { border-bottom-color: transparent; }
+
+.nav-item { transition: background 140ms ease, color 140ms ease, padding-inline-start 160ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.nav-leaf:hover { padding-inline-start: 16px; }
+
+.badge { transition: transform 140ms ease; }
+.list-item:hover .badge,
+.table tbody tr:hover .badge { transform: translateY(-1px); }
+
+.switch { transition: background 180ms ease; }
+.switch::after { transition: translate 220ms cubic-bezier(0.2, 0.8, 0.2, 1), scale 180ms ease; }
+.switch:active::after { scale: 1.08; }
+
+.check-box { transition: background 160ms ease, border-color 160ms ease, transform 160ms ease; }
+.check-box[data-done="true"] { animation: pop 260ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+@keyframes pop {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.list-icon { transition: transform 160ms ease; }
+.list-item:hover .list-icon { transform: scale(1.06); }
+
+.avatar { transition: transform 160ms ease; }
+.person:hover .avatar { transform: scale(1.06); }
+
+.pipe-link { transition: border-color 140ms ease, box-shadow 140ms ease, transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+.pipe-link:hover { transform: translateY(-2px); }
+
+/* Tema geçişi: yüzeyler 200ms'de yumuşakça değişir (düzen değişmez). */
+body,
+.sidebar,
+.panel,
+.kpi,
+.ai-brief,
+.topbar,
+.context-switch,
+.btn,
+.input,
+.textarea {
+  transition-property: background-color, color, border-color;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* Hareket kapalı (reduced-motion / a11y modu): dönüşüm ve animasyon yok. */
+:root[data-motion="off"] *,
+:root[data-motion="off"] *::before,
+:root[data-motion="off"] *::after {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}
+
+:root[data-motion="off"] .btn:hover,
+:root[data-motion="off"] .ai-chip:hover,
+:root[data-motion="off"] .icon-btn:hover,
+:root[data-motion="off"] .pipe-link:hover,
+:root[data-motion="off"] .kanban-card:hover { transform: none; }
+
+/* =============================== adaptif ölçek: 320px → 5K (5120px) */
+/* Taban tasarım 320px (iPhone 4). Yukarı doğru: kırılım başına genişleyen içerik,
+ * 1920+ için içerik genişliği artar, 2560+ için arayüz orantılı büyütülür
+ * (zoom: modern Safari/Chrome/Firefox'ta desteklenir; düzen bozulmaz). */
+@media (min-width: 1600px) {
+  :root { --content-max: 1400px; --sidebar-w: 256px; }
+}
+
+@media (min-width: 1920px) {
+  :root { --content-max: 1560px; }
+}
+
+@media (min-width: 2560px) {
+  :root { --content-max: 1680px; }
+  .app { zoom: 1.25; }
+}
+
+@media (min-width: 3840px) {
+  .app { zoom: 1.75; }
+}
+
+@media (min-width: 5120px) {
+  .app { zoom: 2.25; }
+}
+
+/* 320px tabanı: tek sütun, sıkı boşluk, kart 8px gutter. */
+@media (max-width: 359px) {
+  .content { padding-inline: 8px; gap: 12px; }
+  .page-title { font-size: 18px; }
+  .page-actions .btn { min-block-size: 34px; padding-inline: 10px; }
+  .kpi-value { font-size: 22px; }
+  .panel-head, .panel-body { padding-inline: 12px; }
+  .table th, .table td { padding-inline: 10px; }
+  .ai-brief { grid-template-columns: minmax(0, 1fr); }
+  .ai-brief-orb { display: none; }
+}

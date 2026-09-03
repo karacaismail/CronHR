@@ -84,6 +84,9 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
       </div>
     </div>
     <script>
+      import "../scripts/motion";
+    </script>
+    <script>
       // Tema değiştirici: aria-pressed senkronu + localStorage + olay.
       const applyThemeButtons = () => {
         const t = document.documentElement.dataset.theme ?? "light";

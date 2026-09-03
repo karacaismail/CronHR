@@ -6,6 +6,7 @@ import Panel from "../../components/Panel.astro";
 import Badge from "../../components/Badge.astro";
 import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
+import Select from "../../islands/Select";
 import { DOCS, employee } from "../../data/hr";
 import { FileText, Sparkle, UploadSimple } from "@phosphor-icons/react";
 
@@ -62,8 +63,8 @@ const statusTone = { "Geçerli": "good", "Süresi doluyor": "warning", "Süresi 
         <Bars items={[{ label: "Sözleşme", value: 412 }, { label: "Bordro", value: 396 }, { label: "Form", value: 251 }, { label: "Sertifika", value: 143, tone: "info" }, { label: "Politika", value: 82, tone: "info" }]} unit="" />
       </Panel>
       <Panel title="AI ile belge oluştur" sub="Şablon + çalışan verisi">
-        <div class="field"><label class="field-label" for="doc-type">Belge türü</label><select id="doc-type" class="select"><option>Kalıcı iş sözleşmesi</option><option>Gizlilik sözleşmesi</option><option>Çalışma belgesi</option><option>Referans mektubu</option></select></div>
-        <div class="field"><label class="field-label" for="doc-person">Çalışan</label><select id="doc-person" class="select"><option>Mert Kaya</option><option>Barış Uçar</option><option>Deniz Koç</option></select></div>
+        <Select client:load id="doc-type" label="Belge türü" options={[{ value: "kalici-is-sozlesmesi", label: "Kalıcı iş sözleşmesi" }, { value: "gizlilik-sozlesmesi", label: "Gizlilik sözleşmesi" }, { value: "calisma-belgesi", label: "Çalışma belgesi" }, { value: "referans-mektubu", label: "Referans mektubu" }]} />
+        <Select client:load id="doc-person" label="Çalışan" options={[{ value: "mert-kaya", label: "Mert Kaya" }, { value: "baris-ucar", label: "Barış Uçar" }, { value: "deniz-koc", label: "Deniz Koç" }]} />
         <AiHint client:visible label="Taslağı hazırla" variant="chip" title="Kalıcı iş sözleşmesi · Mert Kaya" answer="Taslak hazır: mevcut deneme sözleşmesindeki ünvan, ücret ve çalışma yeri alındı; deneme maddesi kaldırıldı; ihbar süresi 4 hafta olarak politikaya göre eklendi; KVKK aydınlatma metni v3 bağlandı. Değişen 3 madde işaretlendi, hukuk kontrolüne gönderilmeden imzaya çıkamaz." actions={["Önizle", "Hukuka gönder"]} />
       </Panel>
     </div>

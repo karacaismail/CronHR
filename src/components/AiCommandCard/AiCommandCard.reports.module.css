@@ -77,8 +77,8 @@
   gap: 3px;
 }
 
-.kpiDeltaUp { color: #0ca30c; }
-.kpiDeltaDown { color: #d03b3b; }
+.kpiDeltaUp { color: var(--good-ink, #0a7a0a); }
+.kpiDeltaDown { color: var(--critical-ink, #a12b2b); }
 
 /* ---------------------------------------------------------------- charts */
 

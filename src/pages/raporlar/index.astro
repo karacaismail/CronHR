@@ -64,7 +64,7 @@ const READY = [
 
   <div class="grid grid-main">
     <Panel title="AI ile rapor üret" sub="Ne istediğinizi yazın; tablo, grafik ve yorumla döner">
-      <textarea class="textarea" placeholder="Örn: Son 6 ayda Mühendislik ekibinin fazla mesai maliyetini, nöbet dağılımını ve ayrılma riskini tek sayfada özetle; yönetim kurulu için 3 madde öneri ekle."></textarea>
+      <textarea class="textarea" aria-label="Rapor isteği" placeholder="Örn: Son 6 ayda Mühendislik ekibinin fazla mesai maliyetini, nöbet dağılımını ve ayrılma riskini tek sayfada özetle; yönetim kurulu için 3 madde öneri ekle."></textarea>
       <div class="row-between">
         <span class="token-row"><span class="token">Son 6 ay</span><span class="token">Mühendislik</span><span class="token">Fazla mesai</span><span class="token">Ayrılma riski</span></span>
         <AiHint client:visible label="Raporu üret" variant="chip" title="Mühendislik · 6 aylık özet" answer="Rapor hazır (4 sayfa): 1) Fazla mesai maliyeti 6 ayda +%31, nöbetlerin %61'i 3 kişide. 2) Nöbet dağılımı: Emre Doğan 14 gece/ay, ekip ortalaması 5. 3) Ayrılma riski: 2 çalışan izleme eşiğinde, ortak sinyal ünvan durağanlığı. Öneriler: nöbet rotasyonu kuralı, Kıdemli+ patikası, Kubernetes eğitimiyle nöbet yükünün azaltılması." actions={["PDF olarak indir", "Yönetime gönder"]} />

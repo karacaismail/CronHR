@@ -47,7 +47,7 @@ const tone = { "Bağlı": "good", "Hatalı": "critical", "Duraklatıldı": "neut
         <Fragment slot="icon"><Lightning size={15} /></Fragment>
         <div class="table-wrap">
           <table class="table">
-            <thead><tr><th>Olay</th><th>Son</th><th>Yanıt</th></tr></thead>
+            <thead><tr><th scope="col">Olay</th><th scope="col">Son</th><th scope="col">Yanıt</th></tr></thead>
             <tbody>
               {WEBHOOKS.map((w) => <tr><td><div class="mono">{w.event}</div><div class="small faint" style="max-inline-size:220px;overflow:hidden;text-overflow:ellipsis">{w.url}</div></td><td class="muted">{w.last}</td><td><Badge tone={w.status === "200" ? "good" : w.status === "—" ? "neutral" : "critical"} plain>{w.status}</Badge></td></tr>)}
             </tbody>

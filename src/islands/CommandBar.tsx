@@ -21,11 +21,18 @@ interface CommandBarProps {
 export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
   const page = resolvePage(currentPageId);
   const [expanded, setExpanded] = useState(false);
+  const [reducedByTheme, setReducedByTheme] = useState(false);
 
   useEffect(() => {
     const onAsk = () => setExpanded(true);
+    const readTheme = () => setReducedByTheme(document.documentElement.dataset.theme === "a11y");
+    readTheme();
     window.addEventListener("cronhr:ask", onAsk);
-    return () => window.removeEventListener("cronhr:ask", onAsk);
+    window.addEventListener("cronhr:theme", readTheme);
+    return () => {
+      window.removeEventListener("cronhr:ask", onAsk);
+      window.removeEventListener("cronhr:theme", readTheme);
+    };
   }, []);
 
   const menuItems = useMemo<AiCommandMenuItem[]>(
@@ -82,6 +89,7 @@ export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
       onNotificationActivate={() => go("/bildirimler/")}
       onProfileActivate={() => go("/calisan-portali/")}
       onLogoActivate={() => go("/")}
+      motionPreference={reducedByTheme ? "reduced" : "system"}
     />
   );
 }

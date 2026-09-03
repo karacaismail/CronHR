@@ -18,7 +18,7 @@
   block-size: 22px;
   flex: 0 0 auto;
   border-radius: 100%;
-  color: #fff;
+  color: var(--ai-cc-on-accent);
   background: var(--ai-cc-accent);
 }
 

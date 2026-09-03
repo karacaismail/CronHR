@@ -41,14 +41,14 @@ const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
   <div class="grid grid-main">
     <Panel title="Çalışanlar" sub="AI risk skoru ile" flush>
       <Fragment slot="tools">
-        <label class="row" style="gap:6px"><MagnifyingGlass size={14} color="var(--ink-faint)" /><input class="input" placeholder="İsim, ünvan, ekip" style="min-block-size:30px;inline-size:180px" /></label>
+        <label class="row" style="gap:6px"><MagnifyingGlass size={14} color="var(--ink-faint)" /><input class="input" aria-label="Çalışan ara" placeholder="İsim, ünvan, ekip" style="min-block-size:30px;inline-size:180px" /></label>
         <button type="button" class="btn btn-sm"><Funnel size={13} /> Filtre</button>
         <button type="button" class="btn btn-ai btn-sm" data-ask-ai="Ayrılma riski yüksek çalışanları listele"><Sparkle size={12} weight="fill" /> Riskli olanlar</button>
       </Fragment>
       <div class="table-wrap">
         <table class="table">
           <thead>
-            <tr><th>Çalışan</th><th>Departman</th><th>Konum</th><th>Başlangıç</th><th>Durum</th><th>Ayrılma riski</th><th class="cell-ai">AI</th></tr>
+            <tr><th scope="col">Çalışan</th><th scope="col">Departman</th><th scope="col">Konum</th><th scope="col">Başlangıç</th><th scope="col">Durum</th><th scope="col">Ayrılma riski</th><th scope="col" class="cell-ai">AI</th></tr>
           </thead>
           <tbody>
             {EMPLOYEES.map((e) => (
@@ -81,7 +81,7 @@ const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
         <Bars items={DEPARTMENTS.map((d) => ({ label: d.name, value: d.headcount, tone: d.open > 0 ? "accent" : "info", hint: `${d.open} açık pozisyon` }))} unit=" kişi" />
       </Panel>
       <Panel title="AI ile hızlı kayıt" sub="Serbest metinden çalışan profili oluştur">
-        <textarea class="textarea" placeholder="Örn: Ayşe Kara, 15 Eylül'de Ürün ekibine Ürün Tasarımcısı olarak başlıyor, İstanbul hibrit, yöneticisi Elif Demir."></textarea>
+        <textarea class="textarea" aria-label="Çalışan bilgisi" placeholder="Örn: Ayşe Kara, 15 Eylül'de Ürün ekibine Ürün Tasarımcısı olarak başlıyor, İstanbul hibrit, yöneticisi Elif Demir."></textarea>
         <div class="row-between">
           <span class="field-ai"><Sparkle size={12} weight="fill" /> Alanlar AI ile doldurulur, siz onaylarsınız.</span>
           <button type="button" class="btn btn-ai btn-sm"><Sparkle size={12} weight="fill" /> Taslak oluştur</button>

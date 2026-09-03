@@ -27,7 +27,7 @@
   border-block-end: 1px solid var(--ai-cc-border);
   border-radius: 0;
   /* Kırık beyaz — tereyağı(10)↔beyaz(1) skalasında 6. */
-  background: #fcfbf7;
+  background: var(--ai-cc-item-bg);
   padding: 10px;
   text-align: start;
   cursor: pointer;
@@ -54,7 +54,7 @@
 }
 
 .menuItemButton:not(:disabled):hover {
-  background: #ffffff;
+  background: var(--ai-cc-item-hover);
 }
 
 /* Dokununca/basınca PARLAR: saf beyaz + içten accent ışıması. */

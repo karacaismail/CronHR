@@ -35,6 +35,18 @@ npm run preview # dist/ önizleme
 Mimari omurga: **Vardiya planlar → PDKS ölçer → İzin açıklar → Puantaj hesaplar → Bordro paraya çevirir.**
 Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Temalar ve erişilebilirlik
+
+- Üç görünüm: **Açık** ve **Koyu** (WCAG 2.2 AA), **Erişilebilirlik** (WCAG 2.2 AAA: 7:1
+  kontrast, 16px taban yazı, 44px hedefler, hareket yok, altı çizili bağlantılar, 3px odak
+  halkası). Değiştirici üst çubukta ve kenar çubuğunda; seçim `localStorage`'da,
+  varsayılan sistem tercihi (`prefers-contrast`, `prefers-color-scheme`).
+- Tokenlar `src/styles/global.css` (light) ve `src/styles/themes.css` (dark, a11y). Hiçbir
+  temada gradient yok. Kontrast her token çifti için ölçülür; axe-core taraması üç temada
+  sıfır ihlal.
+- Skip link, landmark'lar, `scope="col"` başlıklar, odaklanabilir kaydırma alanları,
+  `aria-live` AI yanıtları, Escape ile kapanma ve odak geri dönüşü.
+
 Kurallar: emoji yok (Phosphor), radius en fazla 8px (kapsül/daire istisnası),
 AI önerisi asla onaysız uygulanmaz.
 

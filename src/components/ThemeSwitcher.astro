@@ -1,0 +1,15 @@
+---
+import { Eye, Moon, Sun } from "@phosphor-icons/react";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class:list={["theme-switch", className]} role="group" aria-label="Görünüm modu" data-theme-switch>
+  <button type="button" data-set-theme="light" aria-pressed="false" aria-label="Açık mod" title="Açık mod (WCAG 2.2 AA)"><Sun size={16} /></button>
+  <button type="button" data-set-theme="dark" aria-pressed="false" aria-label="Koyu mod" title="Koyu mod (WCAG 2.2 AA)"><Moon size={16} /></button>
+  <button type="button" data-set-theme="a11y" aria-pressed="false" aria-label="Erişilebilirlik modu" title="Erişilebilirlik modu (WCAG 2.2 AAA: yüksek kontrast, büyük hedefler, hareket yok)"><Eye size={16} /></button>
+</div>

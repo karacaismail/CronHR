@@ -70,7 +70,7 @@ function flatten(node: OrgNode, depth = 0): { node: OrgNode; depth: number }[] {
       <Panel title="İşyerleri" sub="SGK işyeri sicil numarası ile" flush>
         <div class="table-wrap">
           <table class="table">
-            <thead><tr><th>İşyeri</th><th>Tür</th><th class="num">Kişi</th><th>SGK sicil</th></tr></thead>
+            <thead><tr><th scope="col">İşyeri</th><th scope="col">Tür</th><th scope="col" class="num">Kişi</th><th scope="col">SGK sicil</th></tr></thead>
             <tbody>
               {WORKPLACES.map((w) => (
                 <tr><td class="strong">{w.name}</td><td>{w.type}</td><td class="num">{w.employees}</td><td class="mono faint">{w.sgkNo}</td></tr>

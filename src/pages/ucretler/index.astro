@@ -46,7 +46,7 @@ const fmt = (v: number) => new Intl.NumberFormat("tr-TR").format(v);
     <Panel title="Kademe bantları" sub="Aylık brüt · min / orta / maks · kişi · bant dışı" flush>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Kademe</th><th class="num">Min</th><th class="num">Orta</th><th class="num">Maks</th><th class="num">Kişi</th><th>Bant dışı</th><th class="cell-ai">AI</th></tr></thead>
+          <thead><tr><th scope="col">Kademe</th><th scope="col" class="num">Min</th><th scope="col" class="num">Orta</th><th scope="col" class="num">Maks</th><th scope="col" class="num">Kişi</th><th scope="col">Bant dışı</th><th scope="col" class="cell-ai">AI</th></tr></thead>
           <tbody>
             {BANDS.map((b) => (
               <tr><td class="strong">{b.grade}</td><td class="num">{fmt(b.min)} ₺</td><td class="num strong">{fmt(b.mid)} ₺</td><td class="num">{fmt(b.max)} ₺</td><td class="num">{b.count}</td><td>{b.outliers ? <Badge tone="warning">{b.outliers} kişi</Badge> : <Badge tone="good">Tutarlı</Badge>}</td><td class="cell-ai"><AiHint client:visible title={`${b.grade} bandı`} answer={b.outliers ? `${b.outliers} çalışan bant dışında. Piyasa verisi (İstanbul, 2026 Q3) orta noktayı %4 yukarı işaret ediyor; revizyon döneminde bant güncellemesi önerilir.` : "Bant içi dağılım dengeli; piyasa ile uyumlu."} actions={b.outliers ? ["Bant dışını listele"] : []} mode="popover" /></td></tr>

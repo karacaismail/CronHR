@@ -14,8 +14,8 @@ export const SERIES = { blue: "#2a78d6", orange: "#eb6834", aqua: "#1baf7a" } as
 export const STATUS = { good: "#0ca30c", warning: "#fab219", serious: "#ec835a", critical: "#d03b3b" } as const;
 // Ordinal sequential ramp (blue, starts at step 250 for surface contrast).
 const SEQ_RAMP = ["#86b6ef", "#6da7ec", "#5598e7", "#3987e5", "#2a78d6", "#256abf"] as const;
-const GRID = "#e7e8ea";
-const INK_MUTED = "#5b6371";
+const GRID = "var(--border, #e7e8ea)";
+const INK_MUTED = "var(--ink-muted, #5b6371)";
 
 function roundedTopBar(x: number, yTop: number, width: number, height: number, r: number): string {
   const radius = Math.min(r, width / 2, height);
@@ -135,7 +135,7 @@ export function BarChart({ heading, data, unit }: BarChartProps) {
                   textAnchor="middle"
                   fontSize={11}
                   fontWeight={600}
-                  fill="#1c1e21"
+                  fill="var(--ink, #1c1e21)"
                 >
                   {d.value}
                 </text>
@@ -214,7 +214,7 @@ export function LineChart({ heading, labels, series, unit }: LineChartProps) {
                 y={y(last) + 4}
                 fontSize={11}
                 fontWeight={600}
-                fill="#1c1e21"
+                fill="var(--ink, #1c1e21)"
               >
                 {last}
               </text>
@@ -266,7 +266,7 @@ export function FunnelChart({ heading, data, unit }: FunnelChartProps) {
                 y={yRow + rowH / 2 + 4}
                 fontSize={11}
                 fontWeight={600}
-                fill="#1c1e21"
+                fill="var(--ink, #1c1e21)"
               >
                 {d.value}
               </text>

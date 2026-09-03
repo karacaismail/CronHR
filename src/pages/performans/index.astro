@@ -40,7 +40,7 @@ const tone = { Yolunda: "good", Riskli: "warning", Geride: "critical", Tamamland
     <Panel title="Hedefler" sub="AI tahmini her satırda" flush>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Hedef</th><th>Sahibi</th><th>İlerleme</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <thead><tr><th scope="col">Hedef</th><th scope="col">Sahibi</th><th scope="col">İlerleme</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
           <tbody>
             {GOALS.map((g) => {
               const e = employee(g.owner);

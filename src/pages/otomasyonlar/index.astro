@@ -37,7 +37,7 @@ const kindTone = { Rapor: "info", "Hatırlatma": "ai", "Onay akışı": "warning
 
   <Panel title="Doğal dille otomasyon kur" sub="Ne olmasını istediğinizi yazın; AI tetikleyici, zamanlama ve aksiyonu çıkarır">
     <div class="row" style="gap:8px;align-items:stretch">
-      <input class="input" value="Her pazartesi 09:00'da, geçen haftanın devamsızlık özetini ekip liderlerine gönder ve %5'i aşan ekipleri işaretle" style="flex:1 1 auto" />
+      <input class="input" aria-label="Otomasyon kuralı" value="Her pazartesi 09:00'da, geçen haftanın devamsızlık özetini ekip liderlerine gönder ve %5'i aşan ekipleri işaretle" style="flex:1 1 auto" />
       <AiHint client:visible label="Kuralı çıkar" variant="chip" title="Anlaşılan kural" answer="Tetikleyici: zamanlama, her pazartesi 09:00 (cron 0 9 * * 1). Kapsam: önceki hafta, tüm ekipler. Aksiyon: devamsızlık özet raporu, alıcılar 7 ekip lideri, kanal e-posta + Slack. Koşul: devamsızlık > %5 olan ekipler kırmızı işaretlenir ve İK'ya kopya gider. Tahmini çalışma süresi 12 saniye." actions={["Otomasyonu oluştur", "Düzenle"]} />
     </div>
     <div class="token-row">
@@ -48,7 +48,7 @@ const kindTone = { Rapor: "info", "Hatırlatma": "ai", "Onay akışı": "warning
   <Panel title="Otomasyonlar" sub="Zamanlama, son ve sonraki çalıştırma" flush>
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>Otomasyon</th><th>Tür</th><th>Zamanlama</th><th>Son</th><th>Sonraki</th><th class="num">Çalıştırma</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+        <thead><tr><th scope="col">Otomasyon</th><th scope="col">Tür</th><th scope="col">Zamanlama</th><th scope="col">Son</th><th scope="col">Sonraki</th><th scope="col" class="num">Çalıştırma</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
         <tbody>
           {AUTOMATIONS.map((a) => (
             <tr>

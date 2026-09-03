@@ -42,7 +42,7 @@ const heat = Array.from({ length: 42 }, (_, i) => [0, 0, 1, 0, 2, 0, 0, 1, 0, 3,
     <Panel title="Bekleyen talepler" sub="AI görüşü her satırda" flush>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Çalışan</th><th>Tür</th><th>Tarih</th><th class="num">Gün</th><th>AI görüşü</th><th>İşlem</th></tr></thead>
+          <thead><tr><th scope="col">Çalışan</th><th scope="col">Tür</th><th scope="col">Tarih</th><th scope="col" class="num">Gün</th><th scope="col">AI görüşü</th><th scope="col">İşlem</th></tr></thead>
           <tbody>
             {pending.map((r) => {
               const e = employee(r.employeeId);

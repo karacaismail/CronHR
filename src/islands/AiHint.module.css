@@ -20,6 +20,8 @@
   color: var(--ink-faint, #667085);
   border-radius: 999px;
   padding: 4px 8px;
+  min-block-size: 24px;
+  min-inline-size: 24px;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;

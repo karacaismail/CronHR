@@ -41,7 +41,7 @@ const budgetTotal = POSITIONS.reduce((s, p) => s + p.budget, 0);
     <Panel title="Pozisyonlar" sub="Pozisyon ≠ kişi: boşalan pozisyon kadroda kalır" flush>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Pozisyon</th><th>İş / aile</th><th>Kademe</th><th>Departman</th><th>Sahibi</th><th class="num">Bütçe</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <thead><tr><th scope="col">Pozisyon</th><th scope="col">İş / aile</th><th scope="col">Kademe</th><th scope="col">Departman</th><th scope="col">Sahibi</th><th scope="col" class="num">Bütçe</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
           <tbody>
             {POSITIONS.map((p) => (
               <tr>

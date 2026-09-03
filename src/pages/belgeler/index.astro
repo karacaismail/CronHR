@@ -39,7 +39,7 @@ const statusTone = { "Geçerli": "good", "Süresi doluyor": "warning", "Süresi 
     <Panel title="Belgeler" sub="AI özet ve süre takibi" flush>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Belge</th><th>Tür</th><th>İlgili</th><th>Güncelleme</th><th>Bitiş</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <thead><tr><th scope="col">Belge</th><th scope="col">Tür</th><th scope="col">İlgili</th><th scope="col">Güncelleme</th><th scope="col">Bitiş</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
           <tbody>
             {DOCS.map((d) => (
               <tr>

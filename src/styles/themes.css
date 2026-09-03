@@ -1,0 +1,306 @@
+/*
+ * CronHR temaları — light (varsayılan, WCAG 2.2 AA), dark (AA),
+ * a11y = erişilebilirlik modu (WCAG 2.2 AAA: 7:1 metin, 44px hedef,
+ * hareket yok, altı çizili bağlantılar, kalın odak halkası).
+ * Tema kökte data-theme ile seçilir; seçim localStorage'da tutulur.
+ * Kural: hiçbir temada gradient yok.
+ */
+
+/* ------------------------------------------------------------------ dark */
+
+:root[data-theme="dark"] {
+  --bg: #0e1116;
+  --bg-deep: #0b0e12;
+  --surface: #161a22;
+  --surface-muted: #1b2029;
+  --surface-sunken: #11141b;
+  --border: #2b313d;
+  --border-strong: #3d4553;
+  --ink: #eef0f4;
+  --ink-2: #d2d6de;
+  --ink-muted: #a9b0bc;
+  --ink-faint: #97a0ae;
+  --accent: #a3a5ff;
+  --accent-bg: #585bef; /* beyaz 5,0:1, yüzey 3,1:1 */
+  --on-accent: #ffffff;
+  --accent-hover: #7c7ff5;
+  --border-control: #7b8394;
+  --accent-soft: #23264d;
+  --accent-soft-2: #2f3366;
+  --accent-ink: #c9caff;
+  --accent-line: #4b4f9a;
+  --ai-a: #a3a5ff;
+  --ai-b: #b79cff;
+  --ai-c: #5fd4e8;
+  --ai-surface: #181a2c;
+  --good: #3fc561;
+  --good-soft: #10331a;
+  --good-ink: #8fe5a0;
+  --good-line: #1f5a2b;
+  --warning: #e3ad2f;
+  --warning-soft: #3a2e0a;
+  --warning-ink: #f3cf6a;
+  --serious: #f0906a;
+  --serious-soft: #3f2119;
+  --serious-ink: #f7b192;
+  --critical: #f07070;
+  --critical-soft: #431a1d;
+  --critical-ink: #ff9d9d;
+  --info: #5fa7f0;
+  --info-soft: #12294a;
+  --info-ink: #93c6f7;
+  --series-1: #5fa7f0;
+  --series-2: #f0906a;
+  --series-3: #3fc561;
+  --series-4: #b79cff;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --focus: 0 0 0 3px rgba(163, 165, 255, 0.55);
+  --focus-ring: #c9caff;
+  color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ a11y */
+
+:root[data-theme="a11y"] {
+  --bg: #ffffff;
+  --bg-deep: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #f2f2f2;
+  --surface-sunken: #e8e8e8;
+  --border: #5c5c5c;
+  --border-strong: #2e2e2e;
+  --ink: #000000;
+  --ink-2: #111111;
+  --ink-muted: #2b2b2b;
+  --ink-faint: #3d3d3d;
+  --accent: #2a23b8;
+  --accent-bg: #2a23b8;
+  --on-accent: #ffffff;
+  --accent-hover: #1e1888;
+  --accent-soft: #e6e6ff;
+  --accent-soft-2: #b9b9f5;
+  --accent-ink: #1e1888;
+  --accent-line: #2a23b8;
+  --border-control: #2e2e2e;
+  --ai-a: #2a23b8;
+  --ai-b: #2a23b8;
+  --ai-c: #2a23b8;
+  --ai-surface: #f3f3ff;
+  --good: #0b6b0b;
+  --good-soft: #dff5df;
+  --good-ink: #094d09;
+  --good-line: #0b6b0b;
+  --warning: #7a5a00;
+  --warning-soft: #fff1c2;
+  --warning-ink: #553f00;
+  --serious: #9a3a12;
+  --serious-soft: #ffe3d6;
+  --serious-ink: #6e2707;
+  --critical: #b00020;
+  --critical-soft: #ffe0e0;
+  --critical-ink: #7a0016;
+  --info: #0b4f9a;
+  --info-soft: #dcebfb;
+  --info-ink: #083a72;
+  --series-1: #0b4f9a;
+  --series-2: #9a3a12;
+  --series-3: #0b6b0b;
+  --series-4: #5b21b6;
+  --shadow-1: none;
+  --shadow-2: 0 0 0 2px #2e2e2e;
+  --focus: 0 0 0 3px #000000;
+  --focus-ring: #000000;
+  --radius: 6px;
+  --radius-sm: 4px;
+  color-scheme: light;
+}
+
+/* AAA: temel yazı 16px, satır 1.6, hedefler 44px, hareket yok, altı çizgi. */
+:root[data-theme="a11y"] body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+:root[data-theme="a11y"] .content a:not(.btn):not(.nav-item):not(.subnav-item):not(.token):not(.pipe-link):not(.list-main) {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+:root[data-theme="a11y"] .btn,
+:root[data-theme="a11y"] .icon-btn,
+:root[data-theme="a11y"] .ai-chip,
+:root[data-theme="a11y"] .nav-item,
+:root[data-theme="a11y"] .subnav-item,
+:root[data-theme="a11y"] .segment > button,
+:root[data-theme="a11y"] .anchor-tabs a,
+:root[data-theme="a11y"] .token,
+:root[data-theme="a11y"] .theme-switch button,
+:root[data-theme="a11y"] .context-switch {
+  min-block-size: 44px;
+  min-inline-size: 44px;
+}
+
+:root[data-theme="a11y"] .switch {
+  inline-size: 56px;
+  block-size: 30px;
+}
+
+:root[data-theme="a11y"] .switch::after {
+  inline-size: 24px;
+  block-size: 24px;
+  inset-block-start: 3px;
+  inset-inline-start: 3px;
+}
+
+:root[data-theme="a11y"] .switch[aria-checked="true"]::after {
+  translate: 26px 0;
+}
+
+:root[data-theme="a11y"] .input,
+:root[data-theme="a11y"] .select,
+:root[data-theme="a11y"] .textarea {
+  min-block-size: 44px;
+  border-width: 2px;
+}
+
+:root[data-theme="a11y"] .table th,
+:root[data-theme="a11y"] .table td {
+  padding-block: 12px;
+}
+
+:root[data-theme="a11y"] .badge {
+  border: 1px solid currentColor;
+}
+
+:root[data-theme="a11y"] .panel,
+:root[data-theme="a11y"] .kpi,
+:root[data-theme="a11y"] .ai-brief {
+  border-color: var(--border-strong);
+}
+
+:root[data-theme="a11y"] :focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px #ffffff;
+}
+
+:root[data-theme="a11y"] *,
+:root[data-theme="a11y"] *::before,
+:root[data-theme="a11y"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* ---------------------------------------- komuta kartı tema köprüsü */
+/* Kart kendi --ai-cc-* tokenlarını host üzerinde tanımlar; tema, host'a
+ * daha yüksek özgüllükle aynı tokenları verir. Kartın sözleşmesi değişmez. */
+
+:root[data-theme="dark"] [data-slot="ai-command-card-host"],
+:root[data-theme="a11y"] [data-slot="ai-command-card-host"] {
+  --ai-cc-surface: var(--surface);
+  --ai-cc-surface-muted: var(--surface-muted);
+  --ai-cc-border: var(--border);
+  --ai-cc-text: var(--ink);
+  --ai-cc-text-muted: var(--ink-muted);
+  --ai-cc-accent: var(--accent-bg);
+  --ai-cc-accent-soft: var(--accent-soft);
+  --ai-cc-focus-ring: var(--focus);
+  --ai-cc-input-bg: var(--surface-sunken);
+  --ai-cc-item-bg: var(--surface-muted);
+  --ai-cc-item-hover: var(--surface);
+  --ai-cc-danger: var(--critical-ink);
+  --ai-cc-danger-bg: var(--critical);
+}
+
+:root[data-theme="a11y"] [data-slot="ai-command-card-host"] {
+  --ai-command-card-expand-duration: 0.01ms;
+  --ai-command-card-collapse-duration: 0.01ms;
+  --ai-command-card-radius-morph-duration: 0.01ms;
+  --ai-command-card-reveal-delay: 0ms;
+  --ai-command-card-item-stagger: 0ms;
+}
+
+/* Kart logo etiketi: dolgu tonu değil metin tonu (dark/a11y kontrastı). */
+:root[data-theme="dark"] [data-slot="ai-command-card-logo"] *,
+:root[data-theme="a11y"] [data-slot="ai-command-card-logo"] * {
+  color: var(--accent-ink);
+}
+
+/* AAA avatarlar: beyaz baş harf ≥ 7:1. */
+:root[data-theme="a11y"] .avatar[data-hue="0"] { background: #2a23b8; }
+:root[data-theme="a11y"] .avatar[data-hue="1"] { background: #075985; }
+:root[data-theme="a11y"] .avatar[data-hue="2"] { background: #9a3412; }
+:root[data-theme="a11y"] .avatar[data-hue="3"] { background: #065f46; }
+:root[data-theme="a11y"] .avatar[data-hue="4"] { background: #4c1d95; }
+:root[data-theme="a11y"] .avatar[data-hue="5"] { background: #9d174d; }
+
+/* ---------------------------------------------------- tema değiştirici */
+
+.theme-switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+}
+
+.theme-switch button {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 30px;
+  block-size: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.theme-switch button:hover {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.theme-switch button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: var(--shadow-1);
+}
+
+/* ------------------------------------------------ erişilebilirlik ortak */
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: 12px;
+  inset-block-start: -60px;
+  z-index: 100;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--accent-bg);
+  color: var(--on-accent);
+  font-weight: 700;
+  transition: inset-block-start 120ms ease;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  inset-block-start: 12px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+html {
+  /* Yapışkan üst çubuk odaklanan öğeyi örtmesin (WCAG 2.4.11). */
+  scroll-padding-block-start: 120px;
+}

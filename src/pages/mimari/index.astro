@@ -64,7 +64,7 @@ const PRIORITY = [
   <Panel title="Menü haritası" sub="Bu paneldeki bilgi mimarisi · her grup bir domain" flush>
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>Grup</th><th>Sayfalar</th><th>Komuta kartı</th></tr></thead>
+        <thead><tr><th scope="col">Grup</th><th scope="col">Sayfalar</th><th scope="col">Komuta kartı</th></tr></thead>
         <tbody>
           {NAV_TREE.map((g) => (
             <tr><td class="strong">{g.label}<div class="small muted" style="font-weight:500">{g.description}</div></td><td>{g.children ? <span class="token-row">{g.children.map((c) => <a class="token" href={`${base}${c.href}`}>{c.label}</a>)}</span> : <a class="token" href={`${base}${g.href}`}>{g.label}</a>}</td><td>{g.inCommandCard ? <Badge tone="ai" plain>12 karttan biri</Badge> : <Badge tone="neutral" plain>Kenar çubuğu</Badge>}</td></tr>
@@ -78,7 +78,7 @@ const PRIORITY = [
     <Panel title="Geliştirme fazları" sub="Faz 0 → 11 · frontend durumu" flush>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Faz</th><th>Ad</th><th>Kapsam</th><th>Durum</th></tr></thead>
+          <thead><tr><th scope="col">Faz</th><th scope="col">Ad</th><th scope="col">Kapsam</th><th scope="col">Durum</th></tr></thead>
           <tbody>
             {PHASES.map((p) => <tr><td class="mono">{p.n}</td><td class="strong">{p.name}</td><td class="muted" style="white-space:normal">{p.scope}</td><td><Badge tone={p.state === "UI hazır" ? "good" : p.state === "Kısmen" ? "warning" : "neutral"}>{p.state}</Badge></td></tr>)}
           </tbody>

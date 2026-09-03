@@ -48,7 +48,7 @@ const toneLabel = { critical: "Kritik", serious: "Dikkat", warning: "Uyarı", in
     <Fragment slot="icon"><ShieldCheck size={15} /></Fragment>
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>Kontrol</th><th class="num">Kayıt</th><th>Detay</th><th>Etki</th></tr></thead>
+        <thead><tr><th scope="col">Kontrol</th><th scope="col" class="num">Kayıt</th><th scope="col">Detay</th><th scope="col">Etki</th></tr></thead>
         <tbody>
           {PRE_PAYROLL_CHECKS.map((c) => (
             <tr><td class="strong">{c.check}</td><td class="num">{c.count}</td><td class="muted" style="white-space:normal">{c.detail}</td><td><Badge tone={c.tone}>{c.blocking ? "Engelleyici" : "Uyarı"}</Badge></td></tr>
@@ -69,7 +69,7 @@ const toneLabel = { critical: "Kritik", serious: "Dikkat", warning: "Uyarı", in
     <Panel title="AI anomali kontrolü" sub="Onay öncesi çözülmesi gereken kalemler" flush>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Çalışan</th><th>Tür</th><th>Detay</th><th class="num">Etki</th><th>Seviye</th><th class="cell-ai">AI</th></tr></thead>
+          <thead><tr><th scope="col">Çalışan</th><th scope="col">Tür</th><th scope="col">Detay</th><th scope="col" class="num">Etki</th><th scope="col">Seviye</th><th scope="col" class="cell-ai">AI</th></tr></thead>
           <tbody>
             {PAYROLL.anomalies.map((a) => {
               const e = employee(a.employeeId);

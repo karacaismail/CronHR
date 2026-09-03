@@ -40,7 +40,7 @@ const rows = EMPLOYEES.map((e) => ({ e, d: dossier(e.id) }));
   <Panel title="Özlük dosyaları" sub="Satıra tıklayın: Employee 360" flush>
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>Çalışan</th><th>No</th><th>İşyeri</th><th>Sözleşme</th><th>Başlangıç</th><th>Tamlık</th><th>Eksikler</th><th class="cell-ai">AI</th></tr></thead>
+        <thead><tr><th scope="col">Çalışan</th><th scope="col">No</th><th scope="col">İşyeri</th><th scope="col">Sözleşme</th><th scope="col">Başlangıç</th><th scope="col">Tamlık</th><th scope="col">Eksikler</th><th scope="col" class="cell-ai">AI</th></tr></thead>
         <tbody>
           {rows.map(({ e, d }) => (
             <tr>

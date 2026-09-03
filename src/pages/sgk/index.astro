@@ -37,7 +37,7 @@ import { ShieldCheck, Sparkle } from "@phosphor-icons/react";
       <Fragment slot="icon"><ShieldCheck size={15} /></Fragment>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Anahtar</th><th>Parametre</th><th>Değer</th><th>Başlangıç</th><th>Bitiş</th><th>Yasal referans</th><th class="num">v</th></tr></thead>
+          <thead><tr><th scope="col">Anahtar</th><th scope="col">Parametre</th><th scope="col">Değer</th><th scope="col">Başlangıç</th><th scope="col">Bitiş</th><th scope="col">Yasal referans</th><th scope="col" class="num">v</th></tr></thead>
           <tbody>
             {SGK_PARAMS.map((p) => (
               <tr><td class="mono">{p.key}</td><td class="strong">{p.label}</td><td><Badge tone="info" plain>{p.value}</Badge></td><td class="muted">{p.from}</td><td class="muted">{p.to}</td><td class="muted">{p.ref}</td><td class="num">{p.version}</td></tr>

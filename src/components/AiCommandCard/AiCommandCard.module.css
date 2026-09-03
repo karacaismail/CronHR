@@ -41,6 +41,12 @@
   --ai-cc-accent: #4f46e5;
   --ai-cc-accent-soft: #eef2ff;
   --ai-cc-focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.35);
+  --ai-cc-input-bg: #f1f3f5;
+  --ai-cc-item-bg: #fcfbf7;
+  --ai-cc-item-hover: #ffffff;
+  --ai-cc-danger: #b91c1c;
+  --ai-cc-danger-bg: #dc2626;
+  --ai-cc-on-accent: #ffffff;
 
   box-sizing: border-box;
   inline-size: 100%;

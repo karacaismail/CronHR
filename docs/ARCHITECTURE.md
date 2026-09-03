@@ -236,7 +236,15 @@ Entegrasyonlar · Ayarlar
 | P1 | Onboarding/Offboarding, Recruitment, Compensation, Performance, Training, Discipline/HR Cases |
 | P2 | Benefits, Engagement, Talent, Succession, Workforce Planning, Advanced Analytics |
 
-## 12. Güvenlik çekirdeğin parçasıdır
+## 12. Erişilebilirlik ve temalar
+
+Üç görünüm modu: Açık ve Koyu (WCAG 2.2 AA), Erişilebilirlik (WCAG 2.2 AAA).
+Gradient yok. Kontrast token çiftleri üzerinden otomatik ölçülür; axe-core
+taraması üç temada da sıfır ihlal. Erişilebilirlik modu: 7:1 metin, 16px taban,
+44px hedef, hareket yok, altı çizili bağlantılar, 3px odak. Komuta kartı tema
+köprüsüyle (`--ai-cc-*` tokenları) aynı temalara uyar.
+
+## 13. Güvenlik çekirdeğin parçasıdır
 
 HRMS kimlik, ücret, banka, çalışma ve kimi durumlarda özel nitelikli kişisel
 veri taşır. Audit, erişim kontrolü, maskeleme, veri saklama/imha ve güçlü

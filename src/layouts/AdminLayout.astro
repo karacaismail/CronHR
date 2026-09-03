@@ -1,5 +1,7 @@
 ---
 import "../styles/global.css";
+import "../styles/themes.css";
+import ThemeSwitcher from "../components/ThemeSwitcher.astro";
 import Sidebar from "../components/Sidebar.astro";
 import SubNav from "../components/SubNav.astro";
 import CommandBar from "../islands/CommandBar";
@@ -31,12 +33,26 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
     <meta name="theme-color" content="#eceef3" />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
     <title>{docTitle}</title>
+    <script is:inline>
+      // Tema, boyamadan önce köke yazılır (flaş yok). Saklanan seçim yoksa
+      // sistem tercihi: prefers-contrast → a11y, prefers-color-scheme → dark.
+      (function () {
+        try {
+          var t = localStorage.getItem("cronhr-theme");
+          if (t !== "light" && t !== "dark" && t !== "a11y") {
+            t = matchMedia("(prefers-contrast: more)").matches ? "a11y" : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          document.documentElement.dataset.theme = t;
+        } catch (e) { document.documentElement.dataset.theme = "light"; }
+      })();
+    </script>
   </head>
   <body>
+    <a class="skip-link" href="#icerik">İçeriğe atla</a>
     <div class="app">
       <Sidebar currentId={pageId} />
       <div class="main">
-        <div class="topbar">
+        <header class="topbar" aria-label="Üst çubuk">
           <div class="topbar-side topbar-left">
             <button type="button" class="context-switch" title="Tenant / şirket değiştir">
               <Buildings size={15} />
@@ -47,10 +63,11 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
           <CommandBar client:load currentPageId={pageId} section={section} base={base} />
           <div class="topbar-side topbar-right">
             <button type="button" class="btn btn-primary btn-sm" title="Yeni kayıt oluştur"><Plus size={13} weight="bold" /> Oluştur</button>
-            <a class="icon-btn" href={`${base}mimari/`} title="Yardım ve mimari" aria-label="Yardım"><Question size={15} /></a>
+            <ThemeSwitcher />
+            <a class="icon-btn" href={`${base}mimari/`} title="Yardım ve mimari" aria-label="Yardım ve mimari"><Question size={15} /></a>
           </div>
-        </div>
-        <main class="content">
+        </header>
+        <main class="content" id="icerik" tabindex="-1">
           <header class="page-head">
             <div>
               <p class="page-eyebrow">{eyebrowText}</p>
@@ -67,6 +84,29 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
       </div>
     </div>
     <script>
+      // Tema değiştirici: aria-pressed senkronu + localStorage + olay.
+      const applyThemeButtons = () => {
+        const t = document.documentElement.dataset.theme ?? "light";
+        for (const b of document.querySelectorAll<HTMLButtonElement>("[data-set-theme]")) b.setAttribute("aria-pressed", String(b.dataset.setTheme === t));
+      };
+      applyThemeButtons();
+      document.addEventListener("click", (event) => {
+        const b = (event.target as HTMLElement).closest<HTMLElement>("[data-set-theme]");
+        if (!b) return;
+        const t = b.dataset.setTheme ?? "light";
+        document.documentElement.dataset.theme = t;
+        try { localStorage.setItem("cronhr-theme", t); } catch {}
+        applyThemeButtons();
+        window.dispatchEvent(new CustomEvent("cronhr:theme", { detail: { theme: t } }));
+      });
+      // Kaydırılabilir tablolar odaklanabilir olsun (WCAG 2.1.1 / axe scrollable-region-focusable).
+      for (const el of document.querySelectorAll<HTMLElement>(".table-wrap, .kanban, .shift-grid")) {
+        if (el.scrollWidth > el.clientWidth && !el.querySelector("a[href], button, input, select, textarea, [tabindex]")) {
+          el.tabIndex = 0;
+          el.setAttribute("role", "region");
+          el.setAttribute("aria-label", "Yatay kaydırılabilir tablo");
+        }
+      }
       // Sayfa içi "AI'ya sor" düğmeleri: komuta kartını açar.
       document.addEventListener("click", (event) => {
         const target = (event.target as HTMLElement).closest<HTMLElement>("[data-ask-ai]");

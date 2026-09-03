@@ -8,5 +8,5 @@
 }
 
 .statusError {
-  color: #b91c1c;
+  color: var(--ai-cc-danger);
 }

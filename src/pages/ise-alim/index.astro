@@ -67,7 +67,7 @@ const scoreTone = (s: number): "good" | "warning" | "critical" => (s >= 80 ? "go
   <Panel title="Açık ilanlar" sub="AI hedef tarih tahmini ile" flush>
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>Pozisyon</th><th>Departman</th><th class="num">Başvuru</th><th class="num">Aktif</th><th class="num">Açık gün</th><th>Hedef</th><th class="cell-ai">AI</th></tr></thead>
+        <thead><tr><th scope="col">Pozisyon</th><th scope="col">Departman</th><th scope="col" class="num">Başvuru</th><th scope="col" class="num">Aktif</th><th scope="col" class="num">Açık gün</th><th scope="col">Hedef</th><th scope="col" class="cell-ai">AI</th></tr></thead>
         <tbody>
           {OPEN_ROLES.map((r) => (
             <tr>

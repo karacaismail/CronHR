@@ -37,7 +37,7 @@ const tone = { "Hazırlanıyor": "info", Bekliyor: "warning", "Gönderildi": "go
   <Panel title="Beyannameler ve bildirgeler" sub="Tür, son tarih, kapsam, durum" flush>
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>Beyanname</th><th>Tür</th><th>Son tarih</th><th class="num">Kişi</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+        <thead><tr><th scope="col">Beyanname</th><th scope="col">Tür</th><th scope="col">Son tarih</th><th scope="col" class="num">Kişi</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
         <tbody>
           {DECLARATIONS.map((d) => (
             <tr><td class="strong">{d.name}</td><td class="muted">{d.kind}</td><td>{d.due}</td><td class="num">{d.employees}</td><td><Badge tone={tone[d.state]}>{d.state}</Badge></td><td class="cell-ai"><AiHint client:visible title={`${d.name} · doğrulama`} answer={d.aiNote + "."} actions={d.state === "Hazırlanıyor" ? ["Doğrula", "XML üret"] : d.state === "Bekliyor" ? ["Zamanla"] : ["Tahakkuku aç"]} mode="popover" /></td></tr>

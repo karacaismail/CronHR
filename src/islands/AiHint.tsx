@@ -33,6 +33,7 @@ export function AiHint({ label, title, answer, actions = [], mode = "inline", va
   const [pos, setPos] = useState<{ top: number; left: number; alignRight: boolean } | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const wasOpenRef = useRef(false);
   const id = useId();
 
   useEffect(() => {
@@ -40,8 +41,12 @@ export function AiHint({ label, title, answer, actions = [], mode = "inline", va
       setPhase("idle");
       setVisible(0);
       setApplied(null);
+      // Kapanınca odak tetikleyiciye döner (WCAG 2.4.3).
+      if (wasOpenRef.current) buttonRef.current?.focus();
+      wasOpenRef.current = false;
       return;
     }
+    wasOpenRef.current = true;
     setPhase("thinking");
     const think = setTimeout(() => setPhase("streaming"), 600);
     return () => clearTimeout(think);
@@ -68,6 +73,16 @@ export function AiHint({ label, title, answer, actions = [], mode = "inline", va
     }, TICK_MS);
     return () => clearInterval(timer);
   }, [phase, answer]);
+
+  // Inline modda da Escape kapatır (WCAG 2.1.2 / klavye tutarlılığı).
+  useEffect(() => {
+    if (!open || mode !== "inline") return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, mode]);
 
   useEffect(() => {
     if (!open || mode !== "popover") return;
@@ -106,6 +121,7 @@ export function AiHint({ label, title, answer, actions = [], mode = "inline", va
       id={id}
       role="region"
       aria-label={title}
+      aria-live="polite"
       className={styles.panel}
       data-mode={mode}
       data-phase={phase}
@@ -161,6 +177,7 @@ export function AiHint({ label, title, answer, actions = [], mode = "inline", va
         aria-controls={id}
         onClick={() => setOpen((v) => !v)}
         title={title}
+        aria-label={label ? undefined : title}
       >
         <Sparkle size={13} weight={open ? "fill" : "regular"} />
         {label ? <span>{label}</span> : null}

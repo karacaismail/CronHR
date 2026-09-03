@@ -47,7 +47,7 @@ const totals = TIMESHEET.reduce((a, r) => ({ normal: a.normal + r.normalHours, o
     <Fragment slot="tools"><span class="segment"><button type="button" aria-pressed="true">Özet</button><button type="button">Günlük</button></span></Fragment>
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>Çalışan</th><th class="num">Plan</th><th class="num">Çalışılan</th><th class="num">Saat</th><th class="num">Ücretli izin</th><th class="num">Ücretsiz</th><th class="num">Devamsız</th><th class="num">Normal</th><th class="num">F. mesai</th><th class="num">Gece</th><th class="num">Tatil</th><th class="num">Geç</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+        <thead><tr><th scope="col">Çalışan</th><th scope="col" class="num">Plan</th><th scope="col" class="num">Çalışılan</th><th scope="col" class="num">Saat</th><th scope="col" class="num">Ücretli izin</th><th scope="col" class="num">Ücretsiz</th><th scope="col" class="num">Devamsız</th><th scope="col" class="num">Normal</th><th scope="col" class="num">F. mesai</th><th scope="col" class="num">Gece</th><th scope="col" class="num">Tatil</th><th scope="col" class="num">Geç</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
         <tbody>
           {TIMESHEET.map((r) => {
             const e = employee(r.employeeId);

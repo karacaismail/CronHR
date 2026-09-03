@@ -46,7 +46,7 @@ const stateTone = { Normal: "neutral", "İstisna": "warning", "İnceleme": "info
     <Panel title="İstisna yönetimi" sub="Normal → İstisna → İnceleme → Onaylandı / Reddedildi" flush>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Çalışan</th><th>Tarih</th><th>Tür</th><th>Detay</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <thead><tr><th scope="col">Çalışan</th><th scope="col">Tarih</th><th scope="col">Tür</th><th scope="col">Detay</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
           <tbody>
             {EXCEPTIONS.map((x) => {
               const e = employee(x.employeeId);
@@ -100,7 +100,7 @@ const stateTone = { Normal: "neutral", "İstisna": "warning", "İnceleme": "info
     <Panel title="Ham hareketler (immutable)" sub="employee · device · timestamp · type · source · received_at" flush>
       <div class="table-wrap">
         <table class="table">
-          <thead><tr><th>Çalışan</th><th>Zaman</th><th>Olay</th><th>Cihaz</th><th>Kaynak</th><th>Alındı</th></tr></thead>
+          <thead><tr><th scope="col">Çalışan</th><th scope="col">Zaman</th><th scope="col">Olay</th><th scope="col">Cihaz</th><th scope="col">Kaynak</th><th scope="col">Alındı</th></tr></thead>
           <tbody>
             {RAW_EVENTS.map((ev) => (
               <tr><td>{employee(ev.employeeId).name}</td><td class="mono">{ev.timestamp}</td><td><Badge tone={ev.type === "IN" ? "good" : ev.type === "OUT" ? "info" : "neutral"} plain>{ev.type}</Badge></td><td class="muted">{DEVICES.find((d) => d.id === ev.device)?.name}</td><td>{ev.source}</td><td class="mono faint">{ev.receivedAt}</td></tr>

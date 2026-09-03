@@ -10,7 +10,7 @@
   padding: 6px 8px 6px 16px;
   /* Cool grey input zemini — endüstri normu (Google #f1f3f4, Tailwind
    * gray-100 #f3f4f6, Facebook #f0f2f5 ortası): soğuk beyazdan bir tık gri. */
-  background: #f1f3f5;
+  background: var(--ai-cc-input-bg);
   transition: border-color var(--ai-command-card-hover-duration) ease,
     background-color var(--ai-command-card-hover-duration) ease,
     box-shadow var(--ai-command-card-hover-duration) ease;

@@ -1,0 +1,53 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import AiHint from "../../islands/AiHint";
+import { employee } from "../../data/hr";
+import { PROMOTIONS } from "../../data/hr2";
+import { ArrowRight, Sparkle } from "@phosphor-icons/react";
+
+const tone = { "Öneri": "ai", "Tamamlandı": "good", "Planlandı": "info" } as const;
+---
+
+<AdminLayout pageId="terfiler" description="Ünvan ve kademe değişimleri. AI, performans ve ayrılma riskini birlikte okuyarak terfi adayı önerir; karar ve bütçe onayı insanlarda kalır.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Terfi adaylarını öner"><Sparkle size={14} weight="fill" /> Aday öner</button>
+    <button type="button" class="btn btn-primary">Terfi başlat</button>
+  </Fragment>
+
+  <AiBrief
+    lead="1 AI önerisi, 1 planlı, 1 tamamlanmış terfi. <strong>Ahmet Yıldız</strong> için G7 önerisi: performans %62 ilerleme + 3 kritik olay liderliği + ayrılma riski 78. Bütçe etkisi yıllık 204.000 ₺, yeniden işe alım tahmini 320.000 ₺."
+    points={[
+      { tone: "info", text: "Terfi ile birlikte ücret geçmişine yeni tarihli kayıt, pozisyon kaydına yeni kademe ve SGK meslek kodu kontrolü otomatik açılır." },
+      { tone: "good", text: "<strong>Zeynep Arslan</strong> yedekleme planında 'hazır'; Ocak bütçesine alındı." },
+    ]}
+    chips={["Kademe bazında ücret bandını göster", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Bu yıl terfi" value="9" delta="%7,5 kadro" dir="up" />
+    <Kpi label="AI önerisi" value="1" delta="yüksek etki" dir="flat" />
+    <Kpi label="Planlı" value="1" delta="Oca 2027" dir="flat" />
+    <Kpi label="Terfi sonrası ayrılma" value="%0" delta="12 ay" dir="up" />
+  </div>
+
+  <Panel title="Terfiler" sub="Mevcut → hedef ünvan ve kademe · ücret etkisi" flush>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Çalışan</th><th>Mevcut</th><th></th><th>Hedef</th><th>Ücret</th><th>Geçerlilik</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+        <tbody>
+          {PROMOTIONS.map((p) => {
+            const e = employee(p.employeeId);
+            return (
+              <tr><td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td><td class="muted">{p.from}</td><td><ArrowRight size={14} color="var(--ink-faint)" /></td><td class="strong">{p.to}</td><td>{p.salary}</td><td>{p.effective}</td><td><Badge tone={tone[p.state]}>{p.state}</Badge></td><td class="cell-ai"><AiHint client:visible title="Terfi gerekçesi" answer={p.aiNote + "."} actions={p.state === "Öneri" ? ["Onaya gönder", "Değerlendirme taslağı"] : []} mode="popover" /></td></tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </Panel>
+</AdminLayout>

@@ -1,0 +1,78 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import Pipeline from "../../components/Pipeline.astro";
+import AiHint from "../../islands/AiHint";
+import { employee } from "../../data/hr";
+import { TIMESHEET } from "../../data/hr2";
+import { Calculator, LockKey, Sparkle } from "@phosphor-icons/react";
+
+const stateTone = { "Hesaplandı": "neutral", "Onay bekliyor": "warning", "Onaylandı": "good", Kilitli: "info" } as const;
+const totals = TIMESHEET.reduce((a, r) => ({ normal: a.normal + r.normalHours, ot: a.ot + r.overtime, night: a.night + r.night }), { normal: 0, ot: 0, night: 0 });
+---
+
+<AdminLayout pageId="puantaj" description="Time Calculation Engine: vardiya (plan) + PDKS (gerçek) + izin (haklı yokluk) + fazla mesai/düzeltme → hesaplanmış çalışma ve payroll units. Bordro ham hareketi değil, bunu okur.">
+  <Fragment slot="actions">
+    <button type="button" class="btn"><Calculator size={14} /> Yeniden hesapla</button>
+    <button type="button" class="btn btn-ai" data-ask-ai="Bu ayın puantajını bordroya hazırla"><Sparkle size={14} weight="fill" /> Bordroya hazırla</button>
+    <button type="button" class="btn btn-primary"><LockKey size={14} /> Onayla ve kilitle</button>
+  </Fragment>
+
+  <AiBrief
+    lead="Eylül puantajı <strong>120 çalışan</strong> için hesaplandı: 3 kilitli, 4 onaylı, 4 onay bekliyor, 1 açık istisna. Bordro 25 Eylül'de Draft'tan çıkamaz; önce bekleyen onaylar tamamlanmalı."
+    points={[
+      { tone: "critical", text: "<strong>Emre Doğan</strong> 62 saat fazla mesai; politika sınırı 72. Pazar nöbeti devredilirse 54'e iner." },
+      { tone: "warning", text: "<strong>Mert Kaya</strong>'nın 3 mazeret günü ücretsiz işlenmiş; politika ücretli diyor. Düzeltme bordroya +2.150 ₺ ekler." },
+      { tone: "info", text: "<strong>Ayşe Aydın</strong>'ın eksik IN düzeltme talebi onaylanınca devamsızlık 1 → 0 olur ve satır otomatik yeniden hesaplanır." },
+    ]}
+    chips={["Fazla mesai sınırına yaklaşanları göster", "Onay bekleyen puantajları listele", "Bu sayfayı açıkla"]}
+  />
+
+  <Panel title="İşgücü zinciri" sub="Puantaj hesaplar; bordro yalnızca bu çıktıyı paraya çevirir">
+    <Pipeline active="puantaj" compact />
+  </Panel>
+
+  <div class="grid grid-4">
+    <Kpi label="Normal saat" value={String(totals.normal)} delta="8 çalışan (örnek)" dir="flat" />
+    <Kpi label="Fazla mesai" value={`${totals.ot} sa`} delta="1 sınıra yakın" dir="down" ai="%86'sı Emre Doğan" />
+    <Kpi label="Gece saati" value={`${totals.night} sa`} delta="gece primi" dir="flat" />
+    <Kpi label="Onay durumu" value="4 / 8" delta="onaylı + kilitli" dir="up" />
+  </div>
+
+  <Panel title="Eylül 2026 puantajı" sub="Payroll units: gün, saat, izin, mesai, gece, tatil" flush>
+    <Fragment slot="tools"><span class="segment"><button type="button" aria-pressed="true">Özet</button><button type="button">Günlük</button></span></Fragment>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Çalışan</th><th class="num">Plan</th><th class="num">Çalışılan</th><th class="num">Saat</th><th class="num">Ücretli izin</th><th class="num">Ücretsiz</th><th class="num">Devamsız</th><th class="num">Normal</th><th class="num">F. mesai</th><th class="num">Gece</th><th class="num">Tatil</th><th class="num">Geç</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+        <tbody>
+          {TIMESHEET.map((r) => {
+            const e = employee(r.employeeId);
+            return (
+              <tr>
+                <td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td>
+                <td class="num">{r.plannedDays}</td>
+                <td class="num">{r.workedDays}</td>
+                <td class="num">{r.workedHours}</td>
+                <td class="num">{r.paidLeave}</td>
+                <td class="num" style={r.unpaidLeave ? "color:var(--critical);font-weight:700" : ""}>{r.unpaidLeave}</td>
+                <td class="num" style={r.absent ? "color:var(--critical);font-weight:700" : ""}>{r.absent}</td>
+                <td class="num strong">{r.normalHours}</td>
+                <td class="num" style={r.overtime > 40 ? "color:var(--critical);font-weight:700" : r.overtime ? "font-weight:700" : ""}>{r.overtime}</td>
+                <td class="num">{r.night}</td>
+                <td class="num">{r.holiday}</td>
+                <td class="num">{r.late}</td>
+                <td><Badge tone={stateTone[r.state]}>{r.state}</Badge></td>
+                <td class="cell-ai"><AiHint client:visible title={`${e.name} · puantaj kontrolü`} answer={r.issues.length ? `${r.issues.join(". ")}. ${r.state === "Onay bekliyor" ? "Onaylamadan önce düzeltme önerilir." : ""}` : "Plan, PDKS ve izin kayıtları tutarlı; sapma yok."} actions={r.issues.length ? ["Düzelt", "Yine de onayla"] : r.state === "Onaylandı" ? ["Kilitle"] : ["Onayla"]} mode="popover" /></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <Fragment slot="foot"><span class="state-flow"><span data-state="done">Hesaplandı</span><i></i><span data-state="current">Onay</span><i></i><span>Kilit</span><i></i><span>Bordroya aktarım</span></span></Fragment>
+  </Panel>
+</AdminLayout>

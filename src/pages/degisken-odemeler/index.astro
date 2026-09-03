@@ -1,0 +1,55 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import AiHint from "../../islands/AiHint";
+import { employee, tl } from "../../data/hr";
+import { VARIABLE_PAYMENTS } from "../../data/hr2";
+import { Plus, Sparkle, UploadSimple } from "@phosphor-icons/react";
+
+const tone = { "Onay bekliyor": "warning", "Onaylandı": "good", "Hesaplandı": "info", Beklemede: "neutral" } as const;
+---
+
+<AdminLayout pageId="degisken-odemeler" description="Prim, bonus, komisyon, nöbet primi: bordronun değişken girdileri. Kaynağı CRM, performans veya puantaj olabilir; dönem kapanmadan onaylanmalı.">
+  <Fragment slot="actions">
+    <button type="button" class="btn"><UploadSimple size={14} /> Excel içe aktar</button>
+    <button type="button" class="btn btn-ai" data-ask-ai="Bu dönemin değişken ödemelerini politikaya göre kontrol et"><Sparkle size={14} weight="fill" /> Politika kontrolü</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Ödeme ekle</button>
+  </Fragment>
+
+  <AiBrief
+    lead="Eylül dönemi için <strong>31.600 ₺</strong> değişken ödeme: 1 onaylı, 1 onay bekliyor, 1 puantaja bağlı, 1 hedef eşiği altında beklemede. Kaynak sistemlerle otomatik eşleşti; manuel giriş yok."
+    points={[
+      { tone: "warning", text: "<strong>Elif Demir</strong> hedef primi: OKR %54, eşik %70. Deney sonucu 12 Eylül'de; karar dönem kapanışından önce verilmeli." },
+      { tone: "info", text: "<strong>Emre Doğan</strong> nöbet primi puantaj kilitlenince kesinleşir (14 gece × 300 ₺)." },
+    ]}
+    chips={["Prim politikası kademelerini açıkla", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Dönem toplamı" value="31.600 ₺" delta="4 kalem" dir="flat" />
+    <Kpi label="Onay bekleyen" value="6.400 ₺" delta="1 kalem" dir="flat" />
+    <Kpi label="Kaynak eşleşmesi" value="%100" delta="CRM · OKR · Puantaj" dir="up" />
+    <Kpi label="Geçen dönem" value="27.900 ₺" delta="+%13" dir="up" />
+  </div>
+
+  <Panel title="Değişken ödemeler · Eylül 2026" sub="Kaynak sistem, tutar, durum" flush>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Çalışan</th><th>Tür</th><th class="num">Tutar</th><th>Kaynak</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+        <tbody>
+          {VARIABLE_PAYMENTS.map((v) => {
+            const e = employee(v.employeeId);
+            return (
+              <tr><td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td><td class="strong">{v.kind}</td><td class="num strong">{tl(v.amount)}</td><td class="muted">{v.source}</td><td><Badge tone={tone[v.state]}>{v.state}</Badge></td><td class="cell-ai"><AiHint client:visible title={`${v.kind} · AI notu`} answer={v.aiNote + "."} actions={v.state === "Onay bekliyor" ? ["Onayla", "Reddet"] : v.state === "Beklemede" ? ["12 Eylül'e ertele"] : []} mode="popover" /></td></tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+    <Fragment slot="foot">Onaylanan kalemler bordro çalıştırmasında "Değişken girdi" olarak görünür; retro düzeltmeler ayrı işaretlenir</Fragment>
+  </Panel>
+</AdminLayout>

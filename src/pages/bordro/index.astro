@@ -9,14 +9,16 @@ import AreaChart from "../../components/AreaChart.astro";
 import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
 import { MONTHS, PAYROLL, employee, tl } from "../../data/hr";
-import { LockKey, Sparkle } from "@phosphor-icons/react";
+import { LockKey, Sparkle, ShieldCheck } from "@phosphor-icons/react";
+import Pipeline from "../../components/Pipeline.astro";
+import { PRE_PAYROLL_CHECKS } from "../../data/hr2";
 
 const diff = PAYROLL.gross - PAYROLL.prevGross;
 const mtl = (v: number) => `${(v / 1_000_000).toFixed(2).replace(".", ",")} M ₺`;
 const toneLabel = { critical: "Kritik", serious: "Dikkat", warning: "Uyarı", info: "Bilgi", good: "İyi", neutral: "Nötr" } as const;
 ---
 
-<AdminLayout pageId="bordro" description={`${PAYROLL.period} dönemi taslak. AI, her kalemi geçen dönem ve politikayla karşılaştırır; onay sizde.`}>
+<AdminLayout pageId="bordrolar" description={`${PAYROLL.period} dönemi taslak. AI, her kalemi geçen dönem ve politikayla karşılaştırır; onay sizde.`}>
   <Fragment slot="actions">
     <button type="button" class="btn btn-ai" data-ask-ai="Bu dönemin bordro anomalilerini göster"><Sparkle size={14} weight="fill" /> Anomalileri açıkla</button>
     <button type="button" class="btn btn-primary"><LockKey size={14} /> Onaya gönder</button>
@@ -31,6 +33,30 @@ const toneLabel = { critical: "Kritik", serious: "Dikkat", warning: "Uyarı", in
     ]}
     chips={["Geçen döneme göre farkları açıkla", "Fazla mesai maliyetini departmana göre kır", "Bordroyu onaya hazırla"]}
   />
+
+  <Panel title="İşgücü zinciri" sub="Bordro yalnızca puantaj çıktısını paraya çevirir; ham PDKS hareketini okumaz">
+    <Pipeline active="bordrolar" compact />
+  </Panel>
+
+  <Panel title="Bordro çalıştırması · Eylül 2026" sub="Draft → Calculate → Validate → Review → Approve → Finalize → Pay → Close">
+    <Fragment slot="tools"><Badge tone="warning">3 engelleyici</Badge></Fragment>
+    <div class="state-flow"><span data-state="done">Draft</span><i></i><span data-state="done">Calculate</span><i></i><span data-state="current">Validate</span><i></i><span>Review</span><i></i><span>Approve</span><i></i><span>Finalize</span><i></i><span>Pay</span><i></i><span>Close</span></div>
+    <div class="row" style="gap:8px;flex-wrap:wrap;margin-block-start:4px"><Badge tone="neutral" plain>Retro: Ağustos yol ücreti düzeltmesi +1.240 ₺</Badge><Badge tone="neutral" plain>Off-cycle: Deniz Koç ayrılış hesabı 26 Eyl</Badge><Badge tone="neutral" plain>Bordro grubu: Aylık · 120 kişi</Badge></div>
+  </Panel>
+
+  <Panel title="Bordro öncesi doğrulama" sub="Engelleyici kalemler çözülmeden hesaplama Validate adımından ileri gidemez" flush>
+    <Fragment slot="icon"><ShieldCheck size={15} /></Fragment>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Kontrol</th><th class="num">Kayıt</th><th>Detay</th><th>Etki</th></tr></thead>
+        <tbody>
+          {PRE_PAYROLL_CHECKS.map((c) => (
+            <tr><td class="strong">{c.check}</td><td class="num">{c.count}</td><td class="muted" style="white-space:normal">{c.detail}</td><td><Badge tone={c.tone}>{c.blocking ? "Engelleyici" : "Uyarı"}</Badge></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </Panel>
 
   <div class="grid grid-4">
     <Kpi label="Brüt toplam" value={mtl(PAYROLL.gross)} delta={`+${tl(diff)}`} dir="down" spark={PAYROLL.costTrend} />

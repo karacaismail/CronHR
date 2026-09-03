@@ -1,0 +1,50 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import AiHint from "../../islands/AiHint";
+import { DECLARATIONS } from "../../data/hr2";
+import { FileArrowUp, Sparkle } from "@phosphor-icons/react";
+
+const tone = { "Hazırlanıyor": "info", Bekliyor: "warning", "Gönderildi": "good" } as const;
+---
+
+<AdminLayout pageId="beyannameler" description="MUHSGK (GİB), E-Bildirge V2 (SGK), işe giriş ve ayrılış bildirgeleri. Şema ve kılavuzlar sürümlü adaptörlerle takip edilir; gönderim öncesi AI doğrulaması yapılır.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="MUHSGK gönderimi öncesi doğrulamayı çalıştır"><Sparkle size={14} weight="fill" /> Gönderim öncesi doğrula</button>
+    <button type="button" class="btn btn-primary"><FileArrowUp size={14} /> XML üret</button>
+  </Fragment>
+
+  <AiBrief
+    lead="Ağustos MUHSGK ve E-Bildirge V2 <strong>26 Eylül</strong>'e kadar; doğrulama %97. 4 meslek kodu düzeltilince %100. 2 bildirge (işe giriş, ayrılış) tarihli olarak planlandı."
+    points={[
+      { tone: "warning", text: "<strong>4 meslek kodu</strong> güncel değil; SGK bildiriminde meslek adı/kodu zorunlu alan." },
+      { tone: "info", text: "E-Bildirge V2 adaptörü v2026-04 şemasıyla üretir; şema değişince adaptör sürümü güncellenir, bordro motoru değişmez." },
+      { tone: "good", text: "Temmuz MUHSGK tahakkuku alındı; arşivde." },
+    ]}
+    chips={["Meslek kodu eksik olanları listele", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Bu ay son tarih" value="26 Eyl" delta="2 beyanname" dir="flat" />
+    <Kpi label="Doğrulama" value="%97" delta="4 uyarı" dir="up" />
+    <Kpi label="Planlı bildirge" value="2" delta="giriş + ayrılış" dir="flat" />
+    <Kpi label="Adaptör sürümü" value="v2026-04" delta="güncel" dir="up" />
+  </div>
+
+  <Panel title="Beyannameler ve bildirgeler" sub="Tür, son tarih, kapsam, durum" flush>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Beyanname</th><th>Tür</th><th>Son tarih</th><th class="num">Kişi</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+        <tbody>
+          {DECLARATIONS.map((d) => (
+            <tr><td class="strong">{d.name}</td><td class="muted">{d.kind}</td><td>{d.due}</td><td class="num">{d.employees}</td><td><Badge tone={tone[d.state]}>{d.state}</Badge></td><td class="cell-ai"><AiHint client:visible title={`${d.name} · doğrulama`} answer={d.aiNote + "."} actions={d.state === "Hazırlanıyor" ? ["Doğrula", "XML üret"] : d.state === "Bekliyor" ? ["Zamanla"] : ["Tahakkuku aç"]} mode="popover" /></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <Fragment slot="foot"><span class="state-flow"><span data-state="done">Bordro kesinleşti</span><i></i><span data-state="current">Doğrulama</span><i></i><span>XML</span><i></i><span>Gönderim</span><i></i><span>Tahakkuk</span></span></Fragment>
+  </Panel>
+</AdminLayout>

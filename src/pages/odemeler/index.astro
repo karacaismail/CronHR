@@ -1,0 +1,60 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Pipeline from "../../components/Pipeline.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { tl } from "../../data/hr";
+import { PAYMENTS } from "../../data/hr2";
+import { Bank, Sparkle } from "@phosphor-icons/react";
+
+const tone = { Bekliyor: "warning", "Aktarıldı": "good", "Hesaplandı": "info" } as const;
+---
+
+<AdminLayout pageId="odemeler" description="Bordro çıktıları: banka ödeme dosyaları, muhasebe fişi, masraf merkezi dağılımı ve off-cycle ödemeler. Zincirin son halkası: para ve kayıt dış sistemlere gider.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Muhasebe aktarımının durumunu göster"><Sparkle size={14} weight="fill" /> Aktarımı açıkla</button>
+    <button type="button" class="btn btn-primary"><Bank size={14} /> Banka dosyası üret</button>
+  </Fragment>
+
+  <AiBrief
+    lead="Eylül ödemeleri bordro kesinleşince üretilecek: 2 banka dosyası (120 kişi, 3,51 M ₺ net), 1 muhasebe fişi, 1 off-cycle ayrılış ödemesi. <strong>3 çalışanda IBAN eksik</strong>; dosya üretimi bunları engeller."
+    points={[
+      { tone: "critical", text: "<strong>IBAN eksik</strong>: Selin Çelik (değişiklik bekliyor), Umut Taş ve Barış Uçar (yeni). Çalışan portalından doğrulamalı giriş istendi." },
+      { tone: "info", text: "Muhasebe fişi 7 masraf merkezine dağıtılır; Logo entegrasyonu Ağustos'ta 1 dakikada tamamlandı." },
+    ]}
+    chips={["IBAN eksik çalışanları listele", "Bu sayfayı açıkla"]}
+  />
+
+  <Panel title="İşgücü zinciri" sub="Bordro kesinleşir → banka, muhasebe, SGK ve GİB'e çıktı üretilir">
+    <Pipeline active="odemeler" compact />
+  </Panel>
+
+  <div class="grid grid-4">
+    <Kpi label="Net ödeme (Eylül)" value="3,51 M ₺" delta="120 kişi" dir="flat" />
+    <Kpi label="Banka dosyası" value="2" delta="Ziraat + Garanti" dir="flat" />
+    <Kpi label="IBAN eksik" value="3" delta="engelleyici" dir="down" />
+    <Kpi label="Off-cycle" value="1" delta="ayrılış" dir="flat" />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Ödeme ve aktarımlar" sub="Banka dosyaları, muhasebe fişi, off-cycle" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Ödeme</th><th>Kanal</th><th class="num">Tutar</th><th class="num">Kayıt</th><th>Tarih</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {PAYMENTS.map((p) => (
+              <tr><td class="strong">{p.name}</td><td class="muted">{p.kind}</td><td class="num strong">{tl(p.amount)}</td><td class="num">{p.count}</td><td>{p.date}</td><td><Badge tone={tone[p.state]}>{p.state}</Badge></td><td class="cell-ai"><AiHint client:visible title={`${p.name}`} answer={p.aiNote + "."} actions={p.state === "Bekliyor" ? ["Eksikleri göster"] : p.state === "Hesaplandı" ? ["Onayla"] : ["Fişi aç"]} mode="popover" /></td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+    <Panel title="Masraf merkezi dağılımı" sub="Ağustos fişi · bin ₺">
+      <Bars items={[{ label: "CC-100 Müh.", value: 2_040 }, { label: "CC-200 Satış", value: 1_020 }, { label: "CC-300 Destek", value: 580 }, { label: "CC-400 Ürün", value: 490 }, { label: "CC-500 Paz.", value: 340 }, { label: "CC-600 Finans", value: 240 }, { label: "CC-700 İK", value: 150 }]} unit=" b₺" />
+    </Panel>
+  </div>
+</AdminLayout>

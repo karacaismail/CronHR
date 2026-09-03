@@ -15,7 +15,7 @@ const done = LEAVE_REQUESTS.filter((r) => r.status !== "Bekliyor");
 const heat = Array.from({ length: 42 }, (_, i) => [0, 0, 1, 0, 2, 0, 0, 1, 0, 3, 0, 0, 1, 0, 0, 0, 2, 1, 0, 0, 0, 4, 0, 1, 0, 0, 2, 0, 0, 0, 1, 0, 3, 0, 0, 1, 0, 0, 2, 0, 0, 1][i]);
 ---
 
-<AdminLayout pageId="izin-devam" description="5 talep bekliyor. AI her talebi politika, ekip takvimi ve iş yüküyle karşılaştırıp görüş bildirir.">
+<AdminLayout pageId="izinler" description="5 talep bekliyor. AI her talebi politika, ekip takvimi ve iş yüküyle karşılaştırıp görüş bildirir.">
   <Fragment slot="actions">
     <button type="button" class="btn btn-ai" data-ask-ai="Bekleyen izin taleplerini özetle"><Sparkle size={14} weight="fill" /> Talepleri özetle</button>
     <button type="button" class="btn btn-primary"><Check size={14} weight="bold" /> Hazır 3'ünü onayla</button>

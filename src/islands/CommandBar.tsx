@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Timer } from "@phosphor-icons/react";
 import { AiCommandCard, type AiCommandMenuItem } from "../components/AiCommandCard";
-import { NAV_PAGES, findPage } from "../data/nav";
+import { COMMAND_CARD_ITEMS, resolvePage } from "../data/nav";
 import { simulateHrQuery } from "./hrReports";
 
 interface CommandBarProps {
-  /** Aktif sayfa kimliği (nav.tsx). */
+  /** Aktif sayfa kimliği (nav.tsx: grup ya da yaprak). */
   currentPageId: string;
   /** Sayfa içi alt başlık; breadcrumb'a son kırıntı olarak eklenir. */
   section?: string;
@@ -15,11 +15,11 @@ interface CommandBarProps {
 
 /**
  * AiCommandCard'ın CronHR bağlayıcısı. Kart tek kalıcı yüzeydir; burada
- * yalnızca menü, breadcrumb, öneriler ve navigasyon bağlanır.
+ * yalnızca menü (12 üst grup), breadcrumb, öneriler ve navigasyon bağlanır.
  * Sayfa içindeki "AI'ya sor" düğmeleri `cronhr:ask` olayıyla kartı açar.
  */
 export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
-  const page = findPage(currentPageId);
+  const page = resolvePage(currentPageId);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
 
   const menuItems = useMemo<AiCommandMenuItem[]>(
     () =>
-      NAV_PAGES.map((item) => {
+      COMMAND_CARD_ITEMS.map((item) => {
         const Icon = item.icon;
         return {
           id: item.id,
@@ -45,15 +45,15 @@ export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
 
   const breadcrumbs = useMemo(() => {
     const crumbs = [{ id: "home", label: "CronHR" }];
-    if (page.id !== "panel") crumbs.push({ id: page.id, label: page.label });
-    else crumbs.push({ id: "panel", label: "Panel" });
+    crumbs.push({ id: page.group.id, label: page.group.label });
+    if (page.leaf) crumbs.push({ id: page.leaf.id, label: page.leaf.label });
     if (section) crumbs.push({ id: "section", label: section });
     return crumbs;
   }, [page, section]);
 
   const suggestions = useMemo(
-    () => page.suggestions.map((label, index) => ({ id: `${page.id}-s${index}`, label })),
-    [page],
+    () => page.suggestions.map((label, index) => ({ id: `${currentPageId}-s${index}`, label })),
+    [page, currentPageId],
   );
 
   const go = useCallback(
@@ -75,12 +75,12 @@ export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
       querySuggestions={suggestions}
       notificationCount={4}
       profile={{ name: "İsmail Karaca", initials: "İK" }}
-      searchPlaceholder={`${page.label} için AI'ya sor`}
+      searchPlaceholder={`${section ?? page.label} için AI'ya sor`}
       submitLabel="Sor"
       onAiQuerySubmit={simulateHrQuery}
-      onMenuItemSelect={(item) => go(findPage(item.id).href)}
+      onMenuItemSelect={(item) => go(resolvePage(item.id).href)}
       onNotificationActivate={() => go("/bildirimler/")}
-      onProfileActivate={() => go("/ayarlar/")}
+      onProfileActivate={() => go("/calisan-portali/")}
       onLogoActivate={() => go("/")}
     />
   );

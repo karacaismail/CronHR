@@ -1,0 +1,59 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { employee, tl } from "../../data/hr";
+import { DEDUCTIONS } from "../../data/hr2";
+import { Plus, Sparkle } from "@phosphor-icons/react";
+
+const tone = { Aktif: "info", "Kapandı": "good", "İtiraz": "warning" } as const;
+---
+
+<AdminLayout pageId="kesintiler" description="Yasal kesintiler bordro motorunda otomatik; bu sayfa avans, icra, borç ve diğer bireysel kesintileri yönetir. Yasal oranlar koda gömülü değil, sürümlü parametre.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Bu dönemin kesintilerini özetle"><Sparkle size={14} weight="fill" /> Kesintileri özetle</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Kesinti tanımla</button>
+  </Fragment>
+
+  <AiBrief
+    lead="4 bireysel kesinti: 2 aktif, 1 kapandı, 1 itirazda. İcra kesintisi yasal 1/4 oranıyla otomatik; <strong>Mert Kaya</strong>'nın ücretsiz izin kesintisi puantaj düzeltmesiyle kalkacak."
+    points={[
+      { tone: "warning", text: "<strong>Selin Çelik</strong> 6 ayda 2. avans; ücret bandı altı ile birlikte ayrılma sinyali. Ücret revizyonu değerlendirmesi önerilir." },
+      { tone: "info", text: "Yasal kesintiler (gelir vergisi dilimleri, SGK, işsizlik, damga) bordro motorunda sürümlü parametrelerle hesaplanır." },
+    ]}
+    chips={["SGK parametrelerinin sürüm geçmişini göster", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Aktif bireysel kesinti" value="2" delta="36.500 ₺ kalan" dir="flat" />
+    <Kpi label="Bu dönem kesilecek" value="13.250 ₺" delta="avans + icra" dir="flat" />
+    <Kpi label="İtiraz" value="1" delta="puantaj kaynaklı" dir="down" />
+    <Kpi label="Yasal kesinti (dönem)" value="1,35 M ₺" delta="otomatik" dir="flat" />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Bireysel kesintiler" sub="Avans, icra, zimmet, ücretsiz izin" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Çalışan</th><th>Tür</th><th class="num">Toplam</th><th class="num">Kalan</th><th>Plan</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {DEDUCTIONS.map((d) => {
+              const e = employee(d.employeeId);
+              return (
+                <tr><td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td><td class="strong">{d.kind}</td><td class="num">{tl(d.amount)}</td><td class="num strong">{tl(d.remaining)}</td><td class="muted">{d.schedule}</td><td><Badge tone={tone[d.state]}>{d.state}</Badge></td><td class="cell-ai"><AiHint client:visible title={`${d.kind} · AI notu`} answer={d.aiNote + "."} actions={d.state === "İtiraz" ? ["Puantajı düzelt"] : d.state === "Aktif" ? ["Planı düzenle"] : []} mode="popover" /></td></tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+    <Panel title="Yasal kesinti dağılımı" sub="Bu dönem · bin ₺">
+      <Bars items={[{ label: "Gelir vergisi", value: 612 }, { label: "SGK işçi", value: 681 }, { label: "İşsizlik işçi", value: 49 }, { label: "Damga vergisi", value: 37 }]} unit=" b₺" />
+    </Panel>
+  </div>
+</AdminLayout>

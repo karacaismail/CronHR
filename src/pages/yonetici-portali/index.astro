@@ -1,0 +1,55 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import AiHint from "../../islands/AiHint";
+import { EMPLOYEES, riskLabel, riskTone } from "../../data/hr";
+import { Check, Sparkle, X } from "@phosphor-icons/react";
+
+const team = EMPLOYEES.filter((e) => e.department === "Mühendislik");
+---
+
+<AdminLayout pageId="yonetici-portali" description="MSS: ekibim, onaylarım, ekip takvimi ve AI ekip özeti. Yönetici yalnızca kendi raporlama hattını görür; onaylar tek tıkla, gerekçesi AI'dan." eyebrow="Yönetici portalı · önizleme">
+  <Fragment slot="actions">
+    <span class="segment"><button type="button" aria-pressed="true">Ekibim</button><button type="button">Onaylarım</button><button type="button">Takvim</button></span>
+  </Fragment>
+
+  <AiBrief
+    title="Ekip özeti · Mühendislik"
+    lead="Ekibinde <strong>3 onay</strong> bekliyor. Ahmet Yıldız'ın ayrılma riski yükseldi; bu hafta birebir öneriliyor. Emre Doğan fazla mesai sınırına yaklaştı; pazar nöbetini Burak'a devretmek 2 tık."
+    points={[
+      { tone: "critical", text: "<strong>Ahmet Yıldız</strong> risk 78: 18 aydır ünvan değişimi yok. Terfi önerisi Yaşam Döngüsü'nde hazır." },
+      { tone: "warning", text: "<strong>14–19 Eylül</strong> Ahmet ve Burak aynı hafta izinli; ödeme servisinde tek yedek." },
+      { tone: "good", text: "Ekip hedefleri ortalama %69; tasarım sistemi v2 erken bitti." },
+    ]}
+    chips={["Ekibimde bugün kim izinli?", "Onay bekleyen taleplerimi listele", "Ekibim için 1:1 gündemi hazırla"]}
+    askQuery="Ekibimde bugün kim izinli?"
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Ekibim" value={String(team.length)} delta="1 uzaktan" dir="flat" />
+    <Kpi label="Bekleyen onay" value="3" delta="2 hazır" dir="flat" />
+    <Kpi label="Bugün izinli" value="0" delta="14 Eyl: 2" dir="flat" />
+    <Kpi label="Ekip katılımı" value="70" delta="-4" dir="down" ai="Ahmet ve Selin düşürüyor" />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Ekibim" sub="Risk, katılım ve hızlı aksiyon" flush>
+      <ul>
+        {team.map((e) => (
+          <li class="list-item"><Avatar name={e.name} sub={e.title} hue={e.hue} /><span style="margin-inline-start:auto" class="row"><Badge tone={riskTone(e.attritionRisk)}>{riskLabel(e.attritionRisk)}</Badge><Badge tone="neutral" plain>Katılım {e.engagement}</Badge></span><AiHint client:visible title={`${e.name} · 1:1 gündemi`} answer={e.attritionRisk >= 55 ? `${e.riskReason}. Önerilen 1:1 gündemi: kariyer beklentisi, iş yükü ve nöbet dengesi, ücret bandı algısı. Görüşme notu AI ile özetlenir.` : `Stabil. Önerilen gündem: hedef ilerlemesi ve gelişim planı.`} actions={["1:1 planla"]} mode="popover" /></li>
+        ))}
+      </ul>
+    </Panel>
+    <Panel title="Onaylarım" sub="AI görüşüyle" flush>
+      <ul>
+        <li class="list-item"><span class="list-main"><div class="list-title">İzin · Burak Şahin · 14–18 Eyl</div><div class="list-sub">AI: onaya hazır, çakışma yok</div></span><span class="row" style="gap:4px"><button type="button" class="icon-btn" aria-label="Onayla" style="color:var(--good);inline-size:28px;block-size:28px"><Check size={13} weight="bold" /></button><button type="button" class="icon-btn" aria-label="Reddet" style="inline-size:28px;block-size:28px"><X size={13} weight="bold" /></button></span></li>
+        <li class="list-item"><span class="list-main"><div class="list-title">İzin · Ahmet Yıldız · 15–19 Eyl</div><div class="list-sub">AI: dikkat, Burak'la çakışıyor</div></span><span class="row" style="gap:4px"><button type="button" class="icon-btn" aria-label="Onayla" style="color:var(--good);inline-size:28px;block-size:28px"><Check size={13} weight="bold" /></button><button type="button" class="icon-btn" aria-label="Reddet" style="inline-size:28px;block-size:28px"><X size={13} weight="bold" /></button></span></li>
+        <li class="list-item"><span class="list-main"><div class="list-title">Fazla mesai · Emre Doğan · 8 sa</div><div class="list-sub">AI: sınıra 2 saat kalır, devret</div></span><span class="row" style="gap:4px"><button type="button" class="icon-btn" aria-label="Onayla" style="color:var(--good);inline-size:28px;block-size:28px"><Check size={13} weight="bold" /></button><button type="button" class="icon-btn" aria-label="Reddet" style="inline-size:28px;block-size:28px"><X size={13} weight="bold" /></button></span></li>
+      </ul>
+    </Panel>
+  </div>
+</AdminLayout>

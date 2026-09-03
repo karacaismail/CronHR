@@ -1,0 +1,53 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import AiHint from "../../islands/AiHint";
+import { employee } from "../../data/hr";
+import { TRANSFERS } from "../../data/hr2";
+import { ArrowRight, Sparkle } from "@phosphor-icons/react";
+
+const tone = { "Onay bekliyor": "warning", Taslak: "neutral", "Tamamlandı": "good" } as const;
+---
+
+<AdminLayout pageId="transferler" description="Departman, ekip, konum ve yönetici değişimleri. Her transfer tarihli bir organizasyon kaydı açar; SGK işyeri değişimi bildirge otomasyonunu tetikler.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Bekleyen transfer taleplerini listele"><Sparkle size={14} weight="fill" /> Talepleri özetle</button>
+    <button type="button" class="btn btn-primary">Transfer başlat</button>
+  </Fragment>
+
+  <AiBrief
+    lead="3 transfer: 1 onay bekliyor, 1 taslak, 1 tamamlandı. <strong>Selin Çelik</strong>'in Ürün'e geçişi ayrılma riskini düşürebilir; ücret bandı Ürün'de %8 daha yüksek."
+    points={[
+      { tone: "info", text: "<strong>Can Öztürk</strong> İzmir → İstanbul: SGK işyeri değişir; ayrılış/giriş bildirgeleri ve yol yardımı otomatik güncellenir." },
+      { tone: "good", text: "Transfer geçmişi Employee 360'ta 'Organization History' olarak tarihli tutulur." },
+    ]}
+    chips={["Yönetici başına kişi sayısını karşılaştır", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Bu çeyrek transfer" value="3" delta="1 bekliyor" dir="flat" />
+    <Kpi label="İç hareketlilik" value="%4,2" delta="hedef %5" dir="up" />
+    <Kpi label="SGK işyeri değişimi" value="1" delta="bildirge tetikler" dir="flat" />
+    <Kpi label="Ortalama onay süresi" value="2,1 gün" delta="-0,6" dir="up" />
+  </div>
+
+  <Panel title="Transferler" sub="Kaynak → hedef · geçerlilik tarihi" flush>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Çalışan</th><th>Nereden</th><th></th><th>Nereye</th><th>Geçerlilik</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+        <tbody>
+          {TRANSFERS.map((t) => {
+            const e = employee(t.employeeId);
+            return (
+              <tr><td><Avatar name={e.name} sub={e.title} hue={e.hue} size={26} /></td><td class="muted">{t.from}</td><td><ArrowRight size={14} color="var(--ink-faint)" /></td><td class="strong">{t.to}</td><td>{t.effective}</td><td><Badge tone={tone[t.state]}>{t.state}</Badge></td><td class="cell-ai"><AiHint client:visible title="Transfer etkisi" answer={t.aiNote + "."} actions={t.state === "Onay bekliyor" ? ["Onayla", "Yöneticiye sor"] : t.state === "Taslak" ? ["Onaya gönder"] : []} mode="popover" /></td></tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </Panel>
+</AdminLayout>

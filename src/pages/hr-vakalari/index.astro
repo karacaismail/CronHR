@@ -1,0 +1,62 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { employee } from "../../data/hr";
+import { HR_CASES } from "../../data/hr2";
+import { Plus, Sparkle } from "@phosphor-icons/react";
+
+const stateTone = { "Açık": "warning", "İnceleme": "info", "Çözüldü": "good", "Kapandı": "neutral" } as const;
+const kindTone = { "Şikayet": "warning", Disiplin: "critical", Talep: "info", "Yardım masası": "neutral", Olay: "serious" } as const;
+const prTone = { "Yüksek": "critical", Orta: "warning", "Düşük": "neutral" } as const;
+---
+
+<AdminLayout pageId="vakalar" description="Disiplin, uyarı, olay, şikayet, çalışan talebi ve HR yardım masası tek vaka yönetiminde. SLA takibi, gizlilik ve denetim izi; AI kanıt toplar ve taslak yazar, karar vermez.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Açık vakaları önceliğe göre sırala"><Sparkle size={14} weight="fill" /> Vakaları önceliklendir</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Vaka aç</button>
+  </Fragment>
+
+  <AiBrief
+    lead="5 vaka: 2 açık, 1 inceleme, 2 kapalı. <strong>Nöbet dağılımı şikayeti</strong> puantaj verisiyle doğrulanıyor (14 gece / ekip ort. 5); rotasyon kuralı önerisi hazır. Disiplin vakasında henüz yazılı uyarı önerilmiyor."
+    points={[
+      { tone: "critical", text: "<strong>#hc1</strong> SLA 5 iş günü; 3 gün geçti. Vardiya kuralı değişikliği ile birlikte kapatılabilir." },
+      { tone: "warning", text: "<strong>#hc2</strong> deneme süresinde 3. mazeret; sözlü uyarı taslağı hazır, yönetici görüşmesi önce yapılmalı." },
+      { tone: "info", text: "Vaka içerikleri yalnızca İK ve ilgili yöneticiye açık; AI özetleri de aynı yetkiyle sınırlı." },
+    ]}
+    chips={["Uyarı yazısı taslağı hazırla", "SLA'sı dolmak üzere olan talepleri göster", "Vaka türlerine göre dağılımı çiz"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Açık vaka" value="3" delta="1 SLA riski" dir="down" />
+    <Kpi label="Ortalama çözüm" value="4,8 gün" delta="hedef 5" dir="up" />
+    <Kpi label="Bu ay açılan" value="4" delta="+1" dir="flat" />
+    <Kpi label="Tekrarlayan konu" value="Nöbet yükü" delta="2 vaka" dir="down" ai="Kök neden: rotasyon kuralı" />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Vakalar" sub="Tür, SLA, öncelik, durum" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>#</th><th>Çalışan</th><th>Tür</th><th>Konu</th><th>Açılış</th><th>SLA</th><th>Öncelik</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {HR_CASES.map((c) => {
+              const e = employee(c.employeeId);
+              return (
+                <tr><td class="mono faint">{c.id}</td><td><Avatar name={e.name} hue={e.hue} size={26} /></td><td><Badge tone={kindTone[c.kind]} plain>{c.kind}</Badge></td><td class="strong">{c.title}</td><td class="muted">{c.opened}</td><td class="muted">{c.sla}</td><td><Badge tone={prTone[c.priority]}>{c.priority}</Badge></td><td><Badge tone={stateTone[c.state]}>{c.state}</Badge></td><td class="cell-ai"><AiHint client:visible title={`${c.id} · AI özeti`} answer={c.aiNote + "."} actions={c.state === "Açık" || c.state === "İnceleme" ? ["Taslağı aç", "Görüşme planla"] : []} mode="popover" /></td></tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+    <Panel title="Vaka türleri" sub="Son 6 ay">
+      <Bars items={[{ label: "Yardım masası", value: 38 }, { label: "Talep", value: 21, tone: "info" }, { label: "Şikayet", value: 6, tone: "warning" }, { label: "Disiplin", value: 4, tone: "critical" }, { label: "Olay", value: 2, tone: "critical" }]} unit="" />
+    </Panel>
+  </div>
+</AdminLayout>

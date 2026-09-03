@@ -1,4 +1,4 @@
-# CronHR — AI-first İK yönetim paneli
+# CronHR — AI-first işgücü işletim sistemi (İK paneli)
 
 Her şeyin içinde AI olan bir insan kaynakları admin paneli. Yalnızca frontend
 (Astro + React island'ları); veriler sahte fixture'lardan gelir, AI yanıtları
@@ -26,9 +26,14 @@ npm run preview # dist/ önizleme
 | `src/islands/AiHint.tsx` | Satır/alan/kart düzeyinde AI yardımcısı (inline + popover) |
 | `src/islands/hrReports.tsx` | Kartın zengin AI yanıtları (grafik/tablo) ve sahte sorgu motoru |
 | `src/components/*.astro` | Sidebar, AiBrief, Kpi, Panel, grafikler, rozet, avatar |
-| `src/data/nav.tsx` | 12 modül + sayfa bazlı AI önerileri |
+| `src/data/nav.tsx` | Gruplu menü ağacı (14 grup, ~35 sayfa); 12 üst grup komuta kartında |
+| `src/data/hr2.ts` | Organizasyon, özlük 360, PDKS, puantaj, bordro alt alanları, yaşam döngüsü, vakalar |
+| `docs/ARCHITECTURE.md` | Ürün ve mimari referansı: çekirdekler, domain sınırları, fazlar, öncelik |
 | `src/data/hr.ts` | Sahte İK verisi |
-| `src/pages/**` | 12 modül sayfası + bildirimler |
+| `src/pages/**` | Dashboard, Görevlerim, İnsanlar, Zaman, Bordro, Yaşam Döngüsü, İşe Alım, Performans, Eğitim, HR Vakaları, Raporlar, Portallar, Entegrasyonlar, Ayarlar, Mimari |
+
+Mimari omurga: **Vardiya planlar → PDKS ölçer → İzin açıklar → Puantaj hesaplar → Bordro paraya çevirir.**
+Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 Kurallar: emoji yok (Phosphor), radius en fazla 8px (kapsül/daire istisnası),
 AI önerisi asla onaysız uygulanmaz.

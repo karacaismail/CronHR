@@ -28,7 +28,7 @@ import { CaretLeft, CaretRight, Sparkle } from "@phosphor-icons/react";
   />
 
   <div class="grid grid-4">
-    <Kpi label="Planlanan saat" value="1.284" delta="hedef 1.320" dir="flat" />
+    <Kpi label="Kapsama" value="17 / 20" delta="Per 10 · 08–16" dir="down" ai="Gerekli 20, atanmış 17, eksik 3" />
     <Kpi label="Boş vardiya" value="2" delta="AI önerdi" dir="up" />
     <Kpi label="Çakışma" value="1" delta="fazla mesai" dir="down" ai="Emre Doğan · Paz 13 gece" />
     <Kpi label="Gece yükü dengesi" value="%71" delta="+9 puan" dir="up" ai="En yüksek yük Emre'de (6/7 gece)." />
@@ -66,6 +66,7 @@ import { CaretLeft, CaretRight, Sparkle } from "@phosphor-icons/react";
       </div>
     </div>
     <Fragment slot="foot">
+      <span class="state-flow" style="margin-inline-end:12px"><span data-state="current">Draft</span><i></i><span>Published</span><i></i><span>Locked</span></span>
       <span class="shift" data-kind="morning" style="inline-size:auto">Sabah</span>
       <span class="shift" data-kind="day" style="inline-size:auto">Gündüz</span>
       <span class="shift" data-kind="night" style="inline-size:auto">Gece</span>

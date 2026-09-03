@@ -11,6 +11,7 @@ import { DEPARTMENTS, EMPLOYEES, formatDate, riskLabel, riskTone } from "../../d
 import { Export, Funnel, MagnifyingGlass, Plus, Sparkle } from "@phosphor-icons/react";
 
 const statusTone = { Aktif: "good", Deneme: "info", "İzinli": "neutral", "Ayrılıyor": "critical" } as const;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
 ---
 
@@ -52,7 +53,7 @@ const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
           <tbody>
             {EMPLOYEES.map((e) => (
               <tr>
-                <td><Avatar name={e.name} sub={e.title} hue={e.hue} /></td>
+                <td><a href={`${base}/calisanlar/${e.id}/`}><Avatar name={e.name} sub={e.title} hue={e.hue} /></a></td>
                 <td>{e.department}</td>
                 <td>{e.location}</td>
                 <td class="muted">{formatDate(e.startDate)}</td>
@@ -72,7 +73,7 @@ const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
           </tbody>
         </table>
       </div>
-      <Fragment slot="foot">10 / 120 gösteriliyor · AI skorları her gece yeniden hesaplanır</Fragment>
+      <Fragment slot="foot">10 / 120 gösteriliyor · Satıra tıklayın: Employee 360 · AI skorları her gece yeniden hesaplanır</Fragment>
     </Panel>
 
     <div class="stack" style="gap:16px">

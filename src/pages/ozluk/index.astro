@@ -1,0 +1,62 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import AiHint from "../../islands/AiHint";
+import { EMPLOYEES, formatDate } from "../../data/hr";
+import { dossier } from "../../data/hr2";
+import { Export, Sparkle } from "@phosphor-icons/react";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const rows = EMPLOYEES.map((e) => ({ e, d: dossier(e.id) }));
+---
+
+<AdminLayout pageId="ozluk" description="Employee 360 dosyaları: kimlik, iletişim, iş, sözleşme, SGK, ücret, eğitim, belge, zimmet, yaşam döngüsü ve geçmiş. AI eksikleri tarar.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Eksik özlük belgesi olanları bul"><Sparkle size={14} weight="fill" /> Eksikleri tara</button>
+    <button type="button" class="btn"><Export size={14} /> Dışa aktar</button>
+  </Fragment>
+
+  <AiBrief
+    lead="120 dosyanın <strong>%89'u tam</strong>. 5 çalışanda zorunlu belge eksik, 3 dosyada SGK meslek kodu güncel değil. Deneme süresi biten <strong>Mert Kaya</strong>'nın kalıcı sözleşme taslağı hazır."
+    points={[
+      { tone: "warning", text: "<strong>Mert Kaya</strong>: diploma, sağlık raporu ve ilk değerlendirme formu eksik; 16 Eylül'e kadar tamamlanmalı." },
+      { tone: "info", text: "Kimlik alanları maskeli gösterilir; tam görünüm yalnızca 'Özlük · tam erişim' izniyle ve denetim kaydıyla açılır." },
+      { tone: "good", text: "Ücret geçmişi bütün dosyalarda tarihli (effective-dated); geçmiş kayıtlar değiştirilmez." },
+    ]}
+    chips={["Deneme süresi bu ay biten kişiler kim?", "SGK meslek kodu eksik olanları listele", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Dosya tamlığı" value="%89" delta="+3 puan" dir="up" />
+    <Kpi label="Eksik zorunlu belge" value="5 kişi" delta="AI taraması" dir="down" />
+    <Kpi label="Süresi dolan sertifika" value="2" delta="30 gün" dir="down" />
+    <Kpi label="Sözleşme yenileme" value="1" delta="16 Eyl" dir="flat" ai="Kalıcı sözleşme taslağı hazır" />
+  </div>
+
+  <Panel title="Özlük dosyaları" sub="Satıra tıklayın: Employee 360" flush>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Çalışan</th><th>No</th><th>İşyeri</th><th>Sözleşme</th><th>Başlangıç</th><th>Tamlık</th><th>Eksikler</th><th class="cell-ai">AI</th></tr></thead>
+        <tbody>
+          {rows.map(({ e, d }) => (
+            <tr>
+              <td><a href={`${base}/calisanlar/${e.id}/`}><Avatar name={e.name} sub={e.title} hue={e.hue} /></a></td>
+              <td class="mono">{d.employeeNo === "KT-0042" && e.id !== "e1" ? `KT-0${100 + Number(e.id.slice(1))}` : d.employeeNo}</td>
+              <td>{d.employment.workplace}</td>
+              <td>{d.employment.contractType}</td>
+              <td class="muted">{formatDate(e.startDate)}</td>
+              <td><span class="row" style="gap:8px;min-inline-size:120px"><span class="meter" data-tone={d.completeness < 80 ? "warning" : "good"} style="inline-size:70px"><span style={`inline-size:${d.completeness}%`}></span></span><span class="small strong">%{d.completeness}</span></span></td>
+              <td>{d.missing.length ? <Badge tone={d.missing.length > 2 ? "warning" : "neutral"}>{d.missing.length} eksik</Badge> : <Badge tone="good">Tam</Badge>}</td>
+              <td class="cell-ai"><AiHint client:visible title={`${e.name} · dosya kontrolü`} answer={d.missing.length ? `Eksik: ${d.missing.join(", ")}. ${e.id === "e3" ? "Deneme süresi 16 Eylül'de bitiyor; kalıcı sözleşme öncesi belgeler tamamlanmalı." : "Çalışan portalından yükleme isteği gönderilebilir."}` : "Dosya tam. Son denetim: bugün 06:00."} actions={d.missing.length ? ["Belge iste", "Dosyayı aç"] : ["Dosyayı aç"]} mode="popover" /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <Fragment slot="foot">10 / 120 gösteriliyor · Kimlik alanları maskeli</Fragment>
+  </Panel>
+</AdminLayout>

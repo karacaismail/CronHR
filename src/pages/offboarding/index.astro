@@ -1,0 +1,55 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { OFFBOARDING } from "../../data/hr2";
+import { Check, Sparkle } from "@phosphor-icons/react";
+---
+
+<AdminLayout pageId="offboarding" description="Ayrılış süreci: form, çıkış mülakatı, kıdem/ihbar hesabı, zimmet iadesi, erişim iptali (SCIM), SGK ayrılış bildirgesi. Çıkış mülakatı soruları AI tarafından kişiye göre hazırlanır.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Ayrılış sürecindeki eksik adımları göster"><Sparkle size={14} weight="fill" /> Eksikleri göster</button>
+    <button type="button" class="btn btn-primary">Offboarding başlat</button>
+  </Fragment>
+
+  <AiBrief
+    lead="1 aktif ayrılış: <strong>Deniz Koç</strong>, son gün 26 Eylül, %60 tamam. Kıdem ve izin ücreti hesaplandı (84.500 ₺); erişim iptali 26 Eylül 18:00'e SCIM ile planlı. Çıkış mülakatı 22 Eylül."
+    points={[
+      { tone: "warning", text: "Finans departmanı vekilsiz kalıyor; Organizasyon sayfasında vekil ataması bekliyor." },
+      { tone: "info", text: "Çıkış mülakatı için AI 8 soru hazırladı: dış teklif, ücret bandı, kariyer patikası, yönetici ilişkisi." },
+      { tone: "good", text: "SGK ayrılış bildirgesi yasal 10 günlük süre içinde (6 Ekim) otomasyonla planlandı." },
+    ]}
+    chips={["Ayrılma nedenlerini son 12 ay için özetle", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Aktif ayrılış" value="1" delta="26 Eyl" dir="flat" />
+    <Kpi label="Bu yıl gönüllü ayrılma" value="%9,6" delta="sektör %13" dir="up" />
+    <Kpi label="Ortalama süreç" value="8 gün" delta="hedef 10" dir="up" />
+    <Kpi label="Erişim iptali" value="SCIM" delta="otomatik" dir="up" ai="Entra ID · son gün 18:00" />
+  </div>
+
+  <div class="grid grid-main">
+    {OFFBOARDING.map((o) => (
+      <Panel title={o.name} sub={`${o.role} · son gün ${o.lastDay} · ${o.reason}`}>
+        <Fragment slot="icon"><Avatar name={o.name} hue={o.hue} size={24} /></Fragment>
+        <Fragment slot="tools"><Badge tone="info">%{o.progress}</Badge></Fragment>
+        <span class="meter"><span style={`inline-size:${o.progress}%`}></span></span>
+        <ul>
+          {o.tasks.map((t) => (
+            <li class="check"><span class="check-box" data-done={(["Tamam", "Hesaplandı"] as string[]).includes(t.state)}>{(["Tamam", "Hesaplandı"] as string[]).includes(t.state) ? <Check size={11} weight="bold" /> : null}</span><span>{t.task}</span><span class="check-owner">{t.owner} · {t.state}</span></li>
+          ))}
+        </ul>
+        <AiHint client:visible label="Çıkış mülakatı soruları" variant="chip" title="AI · çıkış mülakatı" answer="1) Ayrılış kararında en belirleyici etken neydi? 2) Ücret bandı ve piyasa algınız? 3) Kariyer patikası sizin için ne kadar netti? 4) Yöneticinizle geri bildirim sıklığı? 5) Finans ekibinin iş yükü dağılımı? 6) Geri dönmeyi düşünür müsünüz (rehire)? 7) Bilgi devri için önerileriniz? 8) Bizim için tek bir tavsiye?" actions={["Mülakata ekle", "Düzenle"]} />
+      </Panel>
+    ))}
+    <Panel title="Ayrılma nedenleri" sub="Son 12 ay · çıkış mülakatlarından">
+      <Bars items={[{ label: "Kariyer durağanlığı", value: 5, tone: "critical" }, { label: "Ücret", value: 3, tone: "warning" }, { label: "Dış teklif", value: 3 }, { label: "Yönetici ilişkisi", value: 1 }, { label: "Taşınma / kişisel", value: 2, tone: "info" }]} unit=" kişi" />
+    </Panel>
+  </div>
+</AdminLayout>

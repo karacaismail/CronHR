@@ -1,0 +1,84 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Pipeline from "../../components/Pipeline.astro";
+import AiHint from "../../islands/AiHint";
+import { LEGAL_ENTITIES, ORG_TREE, WORKPLACES, type OrgNode } from "../../data/hr2";
+import { Buildings, Plus, Sparkle, TreeStructure } from "@phosphor-icons/react";
+
+function flatten(node: OrgNode, depth = 0): { node: OrgNode; depth: number }[] {
+  return [{ node, depth }, ...(node.children ?? []).flatMap((c) => flatten(c, depth + 1))];
+}
+---
+
+<AdminLayout pageId="organizasyon" description="Tüzel kişilik, işyeri, departman, ekip ve masraf merkezi. Tüm süreçlerin System of Record'u; değişiklikler tarihli (effective-dated) tutulur.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Departman bazında kadro dağılımını göster"><Sparkle size={14} weight="fill" /> Yapıyı analiz et</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Birim ekle</button>
+  </Fragment>
+
+  <AiBrief
+    lead="2 tüzel kişilik, 4 SGK işyeri, 7 departman, 6 ekip. Yönetici zinciri tutarlı; <strong>Finans</strong> departmanının başı 26 Eylül'de ayrılıyor ve yedek tanımlı değil."
+    points={[
+      { tone: "warning", text: "<strong>Finans</strong>: Deniz Koç'un ayrılışı sonrası raporlama hattı boşa düşer; vekil ataması önerilir." },
+      { tone: "info", text: "<strong>Mühendislik</strong> 42 kişi ile tek yöneticiye bağlı; 4 ekip liderine yetki devri organizasyon sağlığını artırır." },
+      { tone: "good", text: "Masraf merkezleri bütün birimlerde tanımlı; bordro dağıtımı hazır." },
+    ]}
+    chips={["Boş pozisyonları listele", "Yönetici başına kişi sayısını karşılaştır", "Bu sayfayı açıkla"]}
+  />
+
+  <Panel title="İşgücü zinciri" sub="Organizasyon ve özlük, zincirin ilk halkasıdır">
+    <Pipeline active="organizasyon" compact />
+  </Panel>
+
+  <div class="grid grid-4">
+    <Kpi label="Tüzel kişilik" value="2" delta="4 SGK işyeri" dir="flat" />
+    <Kpi label="Departman / ekip" value="7 / 6" delta="1 vekil eksik" dir="down" />
+    <Kpi label="Yönetici başına kişi" value="8,6" delta="hedef ≤ 10" dir="up" ai="Mühendislik'te 42 → yetki devri" />
+    <Kpi label="Masraf merkezi" value="13" delta="%100 tanımlı" dir="up" />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Organizasyon ağacı" sub="Şirket → departman → ekip · başkan, kadro, açık pozisyon">
+      <Fragment slot="icon"><TreeStructure size={15} /></Fragment>
+      <div class="org">
+        {flatten(ORG_TREE).map(({ node, depth }) => (
+          <div class="org-node" data-kind={node.kind} style={`margin-inline-start:${depth * 22}px`}>
+            <span class="org-name">{node.name}</span>
+            <Badge tone={node.kind === "Şirket" ? "ai" : node.kind === "Departman" ? "info" : "neutral"} plain>{node.kind}</Badge>
+            <span class="org-meta"><span>{node.head}</span><span>{node.headcount} kişi</span>{node.open ? <span style="color:var(--accent)">{node.open} açık</span> : null}{node.costCenter ? <span class="mono">{node.costCenter}</span> : null}</span>
+            <AiHint client:visible title={`${node.name} · AI notu`} answer={node.id === "o6" ? "Departman başı 26 Eylül'de ayrılıyor; vekil yok. Zeynep Arslan geçici raporlama hattı olarak önerilir, Finans Uzmanı pozisyonu yeniden açılmalı." : node.id === "o1" ? "42 kişi tek yöneticide. 4 ekip liderine izin/mesai onayı devredilirse onay süresi ortalama 1,4 günden 0,5 güne iner." : `${node.name}: ${node.headcount} kişi, ${node.open} açık pozisyon. Yönetici zinciri ve masraf merkezi tutarlı.`} actions={node.id === "o6" ? ["Vekil ata"] : node.id === "o1" ? ["Yetki devri öner"] : ["Detay"]} mode="popover" />
+          </div>
+        ))}
+      </div>
+    </Panel>
+
+    <div class="stack" style="gap:16px">
+      <Panel title="Tüzel kişilikler" sub="Legal entity · vergi no · SGK işyeri" flush>
+        <ul>
+          {LEGAL_ENTITIES.map((le) => (
+            <li class="list-item">
+              <span class="list-icon" data-tone="ai"><Buildings size={16} /></span>
+              <span class="list-main"><div class="list-title">{le.name}</div><div class="list-sub">VKN {le.taxNo} · {le.sgkWorkplaces} SGK işyeri · {le.employees} çalışan</div></span>
+            </li>
+          ))}
+        </ul>
+      </Panel>
+      <Panel title="İşyerleri" sub="SGK işyeri sicil numarası ile" flush>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>İşyeri</th><th>Tür</th><th class="num">Kişi</th><th>SGK sicil</th></tr></thead>
+            <tbody>
+              {WORKPLACES.map((w) => (
+                <tr><td class="strong">{w.name}</td><td>{w.type}</td><td class="num">{w.employees}</td><td class="mono faint">{w.sgkNo}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+    </div>
+  </div>
+</AdminLayout>

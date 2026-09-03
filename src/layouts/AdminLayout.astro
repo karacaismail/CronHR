@@ -1,8 +1,10 @@
 ---
 import "../styles/global.css";
 import Sidebar from "../components/Sidebar.astro";
+import SubNav from "../components/SubNav.astro";
 import CommandBar from "../islands/CommandBar";
-import { findPage } from "../data/nav";
+import { resolvePage } from "../data/nav";
+import { Buildings, CaretUpDown, Plus, Question } from "@phosphor-icons/react";
 
 interface Props {
   pageId: string;
@@ -10,12 +12,15 @@ interface Props {
   description?: string;
   eyebrow?: string;
   section?: string;
+  /** Grup sekmelerini gizle (ör. detay sayfaları). */
+  hideSubNav?: boolean;
 }
 
-const { pageId, title, description, eyebrow, section } = Astro.props;
-const page = findPage(pageId);
+const { pageId, title, description, eyebrow, section, hideSubNav = false } = Astro.props;
+const page = resolvePage(pageId);
 const base = import.meta.env.BASE_URL;
 const docTitle = `${title ?? page.label} · CronHR`;
+const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label);
 ---
 
 <html lang="tr">
@@ -32,12 +37,23 @@ const docTitle = `${title ?? page.label} · CronHR`;
       <Sidebar currentId={pageId} />
       <div class="main">
         <div class="topbar">
+          <div class="topbar-side topbar-left">
+            <button type="button" class="context-switch" title="Tenant / şirket değiştir">
+              <Buildings size={15} />
+              <span class="context-text"><span class="context-tenant">Karaca Holding</span><span class="context-company">Karaca Teknoloji A.Ş.</span></span>
+              <CaretUpDown size={13} color="var(--ink-faint)" />
+            </button>
+          </div>
           <CommandBar client:load currentPageId={pageId} section={section} base={base} />
+          <div class="topbar-side topbar-right">
+            <button type="button" class="btn btn-primary btn-sm" title="Yeni kayıt oluştur"><Plus size={13} weight="bold" /> Oluştur</button>
+            <a class="icon-btn" href={`${base}mimari/`} title="Yardım ve mimari" aria-label="Yardım"><Question size={15} /></a>
+          </div>
         </div>
         <main class="content">
           <header class="page-head">
             <div>
-              <p class="page-eyebrow">{eyebrow ?? page.group.toUpperCase()}</p>
+              <p class="page-eyebrow">{eyebrowText}</p>
               <h1 class="page-title">{title ?? page.label}</h1>
               {(description ?? page.description) ? <p class="page-desc">{description ?? page.description}</p> : null}
             </div>
@@ -45,6 +61,7 @@ const docTitle = `${title ?? page.label} · CronHR`;
               <slot name="actions" />
             </div>
           </header>
+          {!hideSubNav && page.group.children ? <SubNav group={page.group} currentLeafId={page.leaf?.id} /> : null}
           <slot />
         </main>
       </div>

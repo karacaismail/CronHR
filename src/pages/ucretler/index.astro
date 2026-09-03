@@ -1,0 +1,70 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { SALARY_STRUCTURES } from "../../data/hr2";
+import { LockKey, Sparkle } from "@phosphor-icons/react";
+
+const BANDS = [
+  { grade: "G3", min: 32_000, mid: 38_000, max: 44_000, count: 18, outliers: 0 },
+  { grade: "G4", min: 42_000, mid: 50_000, max: 58_000, count: 34, outliers: 1 },
+  { grade: "G5", min: 56_000, mid: 66_000, max: 76_000, count: 37, outliers: 2 },
+  { grade: "G6", min: 74_000, mid: 88_000, max: 102_000, count: 22, outliers: 1 },
+  { grade: "G7", min: 100_000, mid: 118_000, max: 136_000, count: 7, outliers: 0 },
+];
+const fmt = (v: number) => new Intl.NumberFormat("tr-TR").format(v);
+---
+
+<AdminLayout pageId="ucretler" description="Ücret yapıları, kademe bantları ve tarihli ücret geçmişi. Kısıtlı yetki: bu sayfa yalnızca Bordro ve Yönetici rolüne açıktır; her görüntüleme denetlenir.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Ücret bandı dışındaki çalışanları listele"><Sparkle size={14} weight="fill" /> Bant analizi</button>
+    <button type="button" class="btn btn-primary"><LockKey size={14} /> Revizyon dönemi aç</button>
+  </Fragment>
+
+  <AiBrief
+    lead="3 ücret yapısı, 5 kademe bandı. <strong>4 çalışan</strong> bandının dışında: 3'ü altında (ayrılma riskiyle ilişkili), 1'i üstünde. Yıllık revizyon dönemi Haziran; ara revizyon önerisi 2 kişi için hazır."
+    points={[
+      { tone: "warning", text: "<strong>Selin Çelik</strong> G5 bandının %14 altında; revizyon 74.400 ₺/yıl, yeniden işe alım tahmini 210.000 ₺." },
+      { tone: "info", text: "<strong>Ahmet Yıldız</strong> G6 üst çeyrekte; terfi ile G7 orta noktaya taşınması bant tutarlılığını korur." },
+      { tone: "good", text: "Ücret geçmişi effective-dated: her değişiklik tarihli, geçmiş kayıt değiştirilmez." },
+    ]}
+    chips={["Kademe bazında ücret bandını göster", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Ortalama brüt" value="64.300 ₺" delta="+%9 yıllık" dir="up" />
+    <Kpi label="Bant dışı" value="4" delta="3 altında" dir="down" ai="Ayrılma riskiyle ilişkili" />
+    <Kpi label="Compa-ratio" value="0,97" delta="hedef 0,95–1,05" dir="flat" />
+    <Kpi label="Revizyon dönemi" value="Haz 2027" delta="ara revizyon 2" dir="flat" />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Kademe bantları" sub="Aylık brüt · min / orta / maks · kişi · bant dışı" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Kademe</th><th class="num">Min</th><th class="num">Orta</th><th class="num">Maks</th><th class="num">Kişi</th><th>Bant dışı</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {BANDS.map((b) => (
+              <tr><td class="strong">{b.grade}</td><td class="num">{fmt(b.min)} ₺</td><td class="num strong">{fmt(b.mid)} ₺</td><td class="num">{fmt(b.max)} ₺</td><td class="num">{b.count}</td><td>{b.outliers ? <Badge tone="warning">{b.outliers} kişi</Badge> : <Badge tone="good">Tutarlı</Badge>}</td><td class="cell-ai"><AiHint client:visible title={`${b.grade} bandı`} answer={b.outliers ? `${b.outliers} çalışan bant dışında. Piyasa verisi (İstanbul, 2026 Q3) orta noktayı %4 yukarı işaret ediyor; revizyon döneminde bant güncellemesi önerilir.` : "Bant içi dağılım dengeli; piyasa ile uyumlu."} actions={b.outliers ? ["Bant dışını listele"] : []} mode="popover" /></td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+    <Panel title="Ücret yapıları" sub="Kazanç ve kesinti kalemleri" flush>
+      <ul>
+        {SALARY_STRUCTURES.map((s) => (
+          <li class="list-item" style="align-items:flex-start"><span class="list-main"><div class="list-title">{s.name} <span class="faint small">· {s.employees} kişi</span></div><div class="list-sub">{s.base}</div><div class="token-row" style="margin-block-start:6px">{s.earnings.map((x) => <span class="token">{x}</span>)}</div></span></li>
+        ))}
+      </ul>
+    </Panel>
+  </div>
+
+  <Panel title="Departman ortalaması" sub="Aylık brüt">
+    <Bars items={[{ label: "Mühendislik", value: 78_400 }, { label: "Ürün", value: 82_100 }, { label: "Satış", value: 51_200 }, { label: "Pazarlama", value: 49_800 }, { label: "Finans", value: 58_600 }, { label: "Destek", value: 38_900 }, { label: "İK", value: 55_400 }]} unit=" ₺" />
+  </Panel>
+</AdminLayout>

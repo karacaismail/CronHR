@@ -1,0 +1,51 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import AiHint from "../../islands/AiHint";
+import { ONBOARDING } from "../../data/hr2";
+import { Check, Sparkle } from "@phosphor-icons/react";
+---
+
+<AdminLayout pageId="onboarding" description="İşe giriş kontrol listeleri: belge, SGK bildirgesi, hesaplar, ekipman, oryantasyon, buddy. Her adımın sahibi var; otomasyon ve AI taslak adımları kendini tamamlar.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Bu hafta başlayanların oryantasyonunu özetle"><Sparkle size={14} weight="fill" /> Haftayı özetle</button>
+    <button type="button" class="btn btn-primary">Onboarding başlat</button>
+  </Fragment>
+
+  <AiBrief
+    lead="2 aktif onboarding. <strong>Barış Uçar</strong> 15 Eylül'de başlıyor, %45 tamam; gizlilik sözleşmesi imzası ve SGK işe giriş bildirgesi kritik yolda. Nazlı Erdem teklif kabulünü bekliyor."
+    points={[
+      { tone: "warning", text: "Gizlilik sözleşmesi e-imza linki 3 gündür açılmadı; hatırlatma önerilir." },
+      { tone: "info", text: "SGK işe giriş bildirgesi başlangıçtan 1 gün önce (14 Eylül) otomasyonla gönderilecek." },
+      { tone: "good", text: "İlk hafta planı AI tarafından yöneticinin takvimine göre taslaklandı." },
+    ]}
+    chips={["Deneme süresi biten kişiler için kontrol listesi oluştur", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Aktif onboarding" value="2" delta="1 bu hafta" dir="flat" />
+    <Kpi label="Ortalama tamamlama" value="3,2 gün" delta="hedef 5 gün" dir="up" />
+    <Kpi label="Kritik yolda" value="2 adım" delta="imza + SGK" dir="down" />
+    <Kpi label="Deneme süresi biten" value="1" delta="16 Eyl" dir="flat" ai="Mert Kaya · değerlendirme formu boş" />
+  </div>
+
+  <div class="grid grid-2">
+    {ONBOARDING.map((o) => (
+      <Panel title={o.name} sub={`${o.role} · başlangıç ${o.start}`}>
+        <Fragment slot="icon"><Avatar name={o.name} hue={o.hue} size={24} /></Fragment>
+        <Fragment slot="tools"><Badge tone={o.progress >= 80 ? "good" : o.progress >= 40 ? "info" : "warning"}>%{o.progress}</Badge></Fragment>
+        <span class="meter"><span style={`inline-size:${o.progress}%`}></span></span>
+        <ul>
+          {o.tasks.map((t) => (
+            <li class="check"><span class="check-box" data-done={(["Tamam", "Hazır"] as string[]).includes(t.state)}>{(["Tamam", "Hazır"] as string[]).includes(t.state) ? <Check size={11} weight="bold" /> : null}</span><span>{t.task}</span><span class="check-owner">{t.owner} · {t.state}</span></li>
+          ))}
+        </ul>
+        <AiHint client:visible label="Sonraki adım" variant="chip" title={`${o.name} · AI önerisi`} answer={o.employeeId === "c8" ? "Kritik yol: gizlilik sözleşmesi imzası → SGK bildirgesi (14 Eyl) → başlangıç. İmza için kişiye kısa bir WhatsApp/e-posta hatırlatması yeterli; ekipman ve hesaplar hazır." : "Teklif kabulü gelmeden diğer adımlar bloke. 2 gün içinde yanıt yoksa kısa bir arama önerilir; sözleşme taslağı hazır."} actions={["Hatırlatma gönder", "Planı aç"]} />
+      </Panel>
+    ))}
+  </div>
+</AdminLayout>

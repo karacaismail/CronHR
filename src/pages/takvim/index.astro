@@ -1,0 +1,55 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import AiHint from "../../islands/AiHint";
+import { HOLIDAYS_2026, WORKING_CALENDARS } from "../../data/hr2";
+import { CalendarBlank, Plus, Sparkle } from "@phosphor-icons/react";
+---
+
+<AdminLayout pageId="takvim" description="Çalışma takvimleri ve tatil takvimleri. Vardiya planı, puantaj ve bordro gün hesabı buradan beslenir; yarım günler ve dini bayramlar tarihli tutulur.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Ekim ayındaki resmi tatilleri ve yarım günleri göster"><Sparkle size={14} weight="fill" /> Dönemi açıkla</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Takvim ekle</button>
+  </Fragment>
+
+  <AiBrief
+    lead="4 çalışma takvimi, 1 tatil takvimi (Türkiye 2026). Ekim'de <strong>28 Ekim yarım gün + 29 Ekim tam gün</strong> tatil; Destek ve Depo rotasyonları için tatil çalışması primi otomatik hesaplanır."
+    points={[
+      { tone: "info", text: "Depo · 12/36 takviminde 29 Ekim'e denk gelen 6 vardiya var; tatil çalışması %100 zamlı." },
+      { tone: "good", text: "Takvim değişiklikleri tarihli; geçmiş puantajlar etkilenmez." },
+    ]}
+    chips={["Çakışan vardiyaları bul", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Çalışma takvimi" value="4" delta="120 çalışan" dir="flat" />
+    <Kpi label="Kalan resmi tatil (2026)" value="2" delta="1,5 gün" dir="flat" />
+    <Kpi label="Haftalık standart" value="45 sa" delta="4857 sayılı Kanun" dir="flat" />
+    <Kpi label="Yıllık iş günü" value="251" delta="2026" dir="flat" />
+  </div>
+
+  <div class="grid grid-2">
+    <Panel title="Çalışma takvimleri" sub="Gün, saat, haftalık toplam, bağlı tatil takvimi" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Takvim</th><th>Günler</th><th>Saat</th><th class="num">Haftalık</th><th class="num">Kişi</th><th>Tatil takvimi</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {WORKING_CALENDARS.map((c) => (
+              <tr><td class="strong">{c.name}</td><td>{c.days}</td><td>{c.hours}</td><td class="num">{c.weekly}</td><td class="num">{c.employees}</td><td class="muted">{c.holidayCal}</td><td class="cell-ai"><AiHint client:visible title={`${c.name} · AI notu`} answer={c.id === "wc3" ? "12/36 rotasyonu haftalık ortalama 42 saatle sınır içinde; 29 Ekim'e 6 vardiya düşüyor, tatil primi bütçesi 18.400 ₺." : c.id === "wc2" ? "6 gün rotasyon; ardışık gece kuralı uygulanıyor. Can Öztürk dönünce dağılım normale döner." : "Standart takvim; yarım gün tatiller otomatik uygulanır."} mode="popover" /></td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+    <Panel title="Tatil takvimi · Türkiye 2026" sub="Resmi ve dini tatiller · yarım günler" flush>
+      <ul>
+        {HOLIDAYS_2026.map((h) => (
+          <li class="list-item"><span class="list-icon" data-tone={h.kind === "Dini" ? "ai" : "info"}><CalendarBlank size={16} /></span><span class="list-main"><div class="list-title">{h.name}</div><div class="list-sub">{h.date}</div></span><Badge tone={h.kind === "Dini" ? "ai" : "info"} plain>{h.kind}</Badge></li>
+        ))}
+      </ul>
+    </Panel>
+  </div>
+</AdminLayout>

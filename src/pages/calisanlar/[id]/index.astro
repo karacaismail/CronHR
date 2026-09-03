@@ -1,0 +1,173 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import AiBrief from "../../../components/AiBrief.astro";
+import Panel from "../../../components/Panel.astro";
+import Badge from "../../../components/Badge.astro";
+import Avatar from "../../../components/Avatar.astro";
+import AiHint from "../../../islands/AiHint";
+import { EMPLOYEES, employee, formatDate, riskLabel, riskTone, tl } from "../../../data/hr";
+import { dossier } from "../../../data/hr2";
+import { FileText, LockKey, Package, Sparkle } from "@phosphor-icons/react";
+
+export function getStaticPaths() {
+  return EMPLOYEES.map((e) => ({ params: { id: e.id } }));
+}
+
+const { id } = Astro.params;
+const e = employee(id!);
+const d = dossier(e.id);
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const SECTIONS = ["Genel", "Kimlik", "İletişim", "İş", "Sözleşmeler", "SGK", "Ücret", "Eğitim", "Belgeler", "Zimmet", "Yaşam döngüsü", "Geçmiş"];
+const statusTone = { Aktif: "good", Deneme: "info", "İzinli": "neutral", "Ayrılıyor": "critical" } as const;
+---
+
+<AdminLayout pageId="calisanlar" title={e.name} description={`${e.title} · ${e.department} · ${e.location}`} eyebrow="Employee 360" section={e.name} hideSubNav>
+  <Fragment slot="actions">
+    <a class="btn" href={`${base}/ozluk/`}>Özlük listesi</a>
+    <button type="button" class="btn btn-ai" data-ask-ai={`${e.name} için değerlendirme taslağı yaz`}><Sparkle size={14} weight="fill" /> AI özeti</button>
+    <button type="button" class="btn btn-primary">İşlem başlat</button>
+  </Fragment>
+
+  <div class="panel" style="padding:16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center">
+    <Avatar name={e.name} hue={e.hue} size={56} />
+    <div>
+      <div class="row" style="gap:8px;flex-wrap:wrap"><span class="strong" style="font-size:15px">{e.name}</span><Badge tone={statusTone[e.status]}>{e.status}</Badge><Badge tone={riskTone(e.attritionRisk)}>Risk {e.attritionRisk} · {riskLabel(e.attritionRisk)}</Badge></div>
+      <div class="muted small" style="margin-block-start:4px">{d.employeeNo} · {d.employment.entity} · {d.employment.workplace} · Yönetici: {d.employment.manager} · Başlangıç {formatDate(e.startDate)}</div>
+      <div class="anchor-tabs" style="margin-block-start:10px">{SECTIONS.map((s) => <a href={`#${s.toLowerCase().replace(/[^a-z0-9ğüşöçı]/g, "-")}`}>{s}</a>)}</div>
+    </div>
+    <div class="stat-strip" style="min-inline-size:220px">
+      <div class="stat"><b>%{d.completeness}</b><span>dosya tamlığı</span></div>
+      <div class="stat"><b>{e.engagement}</b><span>katılım</span></div>
+    </div>
+  </div>
+
+  <AiBrief
+    title="AI dosya özeti"
+    lead={`${e.riskReason}. ${d.missing.length ? `Eksik: <strong>${d.missing.join(", ")}</strong>.` : "Dosya tam."} ${d.employment.probationEnd ? `Deneme süresi <strong>${d.employment.probationEnd}</strong> tarihinde bitiyor.` : ""}`}
+    chips={[`${e.name} için değerlendirme taslağı yaz`, "Bu sayfayı açıkla"]}
+    askQuery={`${e.name} hakkında ne bilmeliyim?`}
+  />
+
+  <div class="grid grid-2">
+    <Panel title="Genel" sub="Kimlik dışı temel bilgiler"><Fragment slot="icon"><span id="genel"></span></Fragment>
+      <dl class="dossier-grid">
+        <div class="dl"><dt>Çalışan no</dt><dd>{d.employeeNo}</dd></div>
+        <div class="dl"><dt>Durum</dt><dd>{e.status}</dd></div>
+        <div class="dl"><dt>Şirket</dt><dd>{d.employment.entity}</dd></div>
+        <div class="dl"><dt>İşyeri</dt><dd>{d.employment.workplace}</dd></div>
+        <div class="dl"><dt>Departman</dt><dd>{e.department}</dd></div>
+        <div class="dl"><dt>Pozisyon</dt><dd>{e.title}</dd></div>
+        <div class="dl"><dt>Yönetici</dt><dd>{d.employment.manager}</dd></div>
+        <div class="dl"><dt>Masraf merkezi</dt><dd class="mono">{d.employment.costCenter}</dd></div>
+      </dl>
+    </Panel>
+    <Panel title="Kimlik" sub="Yalnızca gerekli veri · maskeli · erişim denetlenir"><Fragment slot="icon"><span id="kimlik"></span><LockKey size={14} /></Fragment>
+      <dl class="dossier-grid">
+        <div class="dl"><dt>TCKN</dt><dd class="mono">{d.identity.nationalId}</dd></div>
+        <div class="dl"><dt>Doğum tarihi</dt><dd>{d.identity.birthDate}</dd></div>
+        <div class="dl"><dt>Doğum yeri</dt><dd>{d.identity.birthPlace}</dd></div>
+        <div class="dl"><dt>Uyruk</dt><dd>{d.identity.nationality}</dd></div>
+        <div class="dl"><dt>Medeni durum</dt><dd>{d.identity.maritalStatus}</dd></div>
+      </dl>
+      <p class="small muted">Tam görünüm 'Özlük · tam erişim' izni ister ve denetim günlüğüne yazılır.</p>
+    </Panel>
+    <Panel title="İletişim" sub="Çalışan portalından güncellenebilir"><Fragment slot="icon"><span id="i̇letişim"></span></Fragment>
+      <dl class="dossier-grid">
+        <div class="dl"><dt>Telefon</dt><dd>{d.contact.phone}</dd></div>
+        <div class="dl"><dt>E-posta</dt><dd>{d.contact.email}</dd></div>
+        <div class="dl"><dt>Adres</dt><dd>{d.contact.address}</dd></div>
+        <div class="dl"><dt>Acil durum</dt><dd>{d.contact.emergency}</dd></div>
+      </dl>
+    </Panel>
+    <Panel title="İş bilgileri" sub="Employment · tarihli"><Fragment slot="icon"><span id="i̇ş"></span></Fragment>
+      <dl class="dossier-grid">
+        <div class="dl"><dt>İşe giriş</dt><dd>{formatDate(e.startDate)}</dd></div>
+        <div class="dl"><dt>İstihdam türü</dt><dd>{d.employment.employmentType}</dd></div>
+        <div class="dl"><dt>Sözleşme türü</dt><dd>{d.employment.contractType}</dd></div>
+        <div class="dl"><dt>Kademe</dt><dd>{d.employment.grade}</dd></div>
+        <div class="dl"><dt>Konum</dt><dd>{e.location}</dd></div>
+        {d.employment.probationEnd ? <div class="dl"><dt>Deneme bitişi</dt><dd>{d.employment.probationEnd}</dd></div> : null}
+      </dl>
+    </Panel>
+  </div>
+
+  <div class="grid grid-2">
+    <Panel title="Sözleşmeler" sub="Versiyon geçmişi korunur" flush><Fragment slot="icon"><span id="sözleşmeler"></span></Fragment>
+      <ul>
+        {d.contracts.map((c) => (
+          <li class="list-item"><span class="list-icon"><FileText size={16} /></span><span class="list-main"><div class="list-title">{c.title}</div><div class="list-sub">{c.from}{c.to ? ` – ${c.to}` : ""} · v{c.version}</div></span><Badge tone={c.status === "Yürürlükte" ? "good" : c.status === "Taslak" ? "info" : "neutral"}>{c.status}</Badge></li>
+        ))}
+      </ul>
+    </Panel>
+    <Panel title="SGK / yasal" sub="Türkiye localization katmanı"><Fragment slot="icon"><span id="sgk"></span></Fragment>
+      <dl class="dossier-grid">
+        <div class="dl"><dt>SGK işyeri</dt><dd>{d.sgk.workplace}</dd></div>
+        <div class="dl"><dt>Meslek kodu</dt><dd>{d.sgk.professionCode}</dd></div>
+        <div class="dl"><dt>Sigortalılık</dt><dd>{d.sgk.insuranceType}</dd></div>
+        <div class="dl"><dt>Prim türü</dt><dd>{d.sgk.premiumType}</dd></div>
+        <div class="dl"><dt>Teşvik</dt><dd>{d.sgk.incentive ?? "—"}</dd></div>
+      </dl>
+    </Panel>
+  </div>
+
+  <Panel title="Ücret" sub="Kısıtlı yetki · effective-dated geçmiş, eski kayıt değiştirilmez" flush><Fragment slot="icon"><span id="ücret"></span><LockKey size={14} /></Fragment>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Geçerlilik</th><th class="num">Aylık brüt</th><th>Neden</th><th>Banka</th><th>Bordro grubu</th><th class="cell-ai">AI</th></tr></thead>
+        <tbody>
+          {d.salaryHistory.map((s, i) => (
+            <tr style={i > 0 ? "opacity:.7" : ""}>
+              <td class="strong">{s.from}{s.to ? ` – ${s.to}` : " → devam"}</td>
+              <td class="num strong">{tl(s.value)}</td>
+              <td class="muted">{s.reason}</td>
+              <td>{i === 0 ? `${d.bank.name} · ${d.bank.iban}` : ""}</td>
+              <td>{i === 0 ? d.bank.payrollGroup : ""}</td>
+              <td class="cell-ai">{i === 0 ? <AiHint client:visible title="Ücret bandı" answer={e.id === "e6" ? "Piyasa medyanının %14 altında; ayrılma riskiyle ilişkili. Revizyon yıllık 74.400 ₺, yeniden işe alım tahmini 210.000 ₺." : e.id === "e1" ? "G6 bandının üst çeyreğinde. G7 terfi ile 112.000 ₺ önerilir; bant içi ve bütçe uyumlu."  : "Kademe bandı içinde; sonraki revizyon dönemi Haziran 2027."} actions={["Revizyon taslağı"]} mode="popover" /> : null}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </Panel>
+
+  <div class="grid grid-3">
+    <Panel title="Eğitim / yetkinlik" sub="Diploma, sertifika, dil"><Fragment slot="icon"><span id="eğitim"></span></Fragment>
+      <ul class="stack" style="gap:6px">
+        {d.education.map((ed) => <li><div class="strong">{ed.degree}</div><div class="small muted">{ed.school} · {ed.year}</div></li>)}
+        {d.certificates.map((c) => <li class="row-between"><span>{c.name}</span><Badge tone={c.expires ? "info" : "neutral"} plain>{c.expires ? `bitiş ${c.expires}` : "süresiz"}</Badge></li>)}
+        {d.education.length + d.certificates.length === 0 ? <li class="muted small">Kayıt yok · çalışan portalından eklenebilir</li> : null}
+      </ul>
+    </Panel>
+    <Panel title="Belgeler" sub="Tür, versiyon, bitiş, görünürlük"><Fragment slot="icon"><span id="belgeler"></span></Fragment>
+      <ul class="stack" style="gap:6px">
+        <li class="row-between"><span>İş sözleşmesi v{d.contracts[0].version}</span><Badge tone="good">İmzalı</Badge></li>
+        <li class="row-between"><span>KVKK aydınlatma metni v3</span><Badge tone="good">Onaylı</Badge></li>
+        <li class="row-between"><span>İşe giriş evrakları</span><Badge tone={d.missing.length > 1 ? "warning" : "good"}>{d.missing.length > 1 ? "Eksik" : "Tam"}</Badge></li>
+        {d.missing.map((m) => <li class="row-between"><span class="muted">{m}</span><Badge tone="warning">Eksik</Badge></li>)}
+      </ul>
+    </Panel>
+    <Panel title="Zimmetler" sub="Ekipman, araç, kart"><Fragment slot="icon"><span id="zimmet"></span><Package size={14} /></Fragment>
+      <ul class="stack" style="gap:6px">
+        {d.assets.map((a) => <li class="row-between"><span>{a.name}<div class="small faint">{a.tag} · {a.since}</div></span><Badge tone="neutral" plain>Zimmetli</Badge></li>)}
+      </ul>
+    </Panel>
+  </div>
+
+  <div class="grid grid-2">
+    <Panel title="Yaşam döngüsü" sub="Hire, probation, transfer, promotion, salary change …"><Fragment slot="icon"><span id="yaşam-döngüsü"></span></Fragment>
+      <div class="timeline">
+        {d.lifecycle.map((l, i) => (
+          <div class="tl-item"><div class="tl-rail"><span class="tl-dot" data-tone={i === 0 ? "ai" : undefined}></span><span class="tl-line"></span></div><div><div class="strong">{l.event}</div><div class="small muted">{l.detail}</div><div class="tl-time">{l.date}</div></div></div>
+        ))}
+      </div>
+    </Panel>
+    <Panel title="Geçmiş ve denetim" sub="Kim, neyi, ne zaman değiştirdi"><Fragment slot="icon"><span id="geçmiş"></span></Fragment>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-rail"><span class="tl-dot" data-tone="ai"></span><span class="tl-line"></span></div><div><div class="strong">AI risk skoru güncellendi</div><div class="small muted">61 → {e.attritionRisk} · sistem</div><div class="tl-time">Bugün 06:00</div></div></div>
+        <div class="tl-item"><div class="tl-rail"><span class="tl-dot"></span><span class="tl-line"></span></div><div><div class="strong">İletişim adresi görüntülendi</div><div class="small muted">Zeynep Arslan · Özlük · okuma</div><div class="tl-time">Dün 15:20</div></div></div>
+        <div class="tl-item"><div class="tl-rail"><span class="tl-dot" data-tone="good"></span><span class="tl-line"></span></div><div><div class="strong">Belge yüklendi</div><div class="small muted">KVKK aydınlatma metni v3 · çalışan</div><div class="tl-time">12 Ağu 2026</div></div></div>
+        <div class="tl-item"><div class="tl-rail"><span class="tl-dot"></span><span class="tl-line"></span></div><div><div class="strong">Ücret alanı düzenlendi</div><div class="small muted">İsmail Karaca · Bordro · yazma · onay: Zeynep Arslan</div><div class="tl-time">1 Haz 2026</div></div></div>
+      </div>
+    </Panel>
+  </div>
+</AdminLayout>

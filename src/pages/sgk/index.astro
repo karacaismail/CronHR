@@ -1,0 +1,58 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import AiHint from "../../islands/AiHint";
+import { SGK_PARAMS, WORKPLACES } from "../../data/hr2";
+import { ShieldCheck, Sparkle } from "@phosphor-icons/react";
+---
+
+<AdminLayout pageId="sgk" description="Türkiye localization paketi: SGK işyerleri, meslek kodları, sigortalılık ve prim türleri, teşvikler. Oranlar sürümlü parametredir (effective_from/to, legal_reference, version).">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="SGK parametrelerinin sürüm geçmişini göster"><Sparkle size={14} weight="fill" /> Parametreleri açıkla</button>
+    <button type="button" class="btn btn-primary">Parametre sürümü ekle</button>
+  </Fragment>
+
+  <AiBrief
+    lead="4 SGK işyeri, 120 sigortalı. <strong>5 puan indirimi</strong> 3 işyerinde uygulanıyor; Gebze Depo için teşvik şartı (borçsuzluk) doğrulanmalı. 4 çalışanda meslek kodu güncel değil."
+    points={[
+      { tone: "warning", text: "<strong>Meslek kodu</strong>: 4 çalışan ünvan değişikliği sonrası eski kodla görünüyor; MUHSGK öncesi düzeltilmeli." },
+      { tone: "info", text: "Parametre v2026-2 1 Temmuz'dan geçerli; bordro motoru dönem tarihine göre doğru sürümü seçer, kod değişmez." },
+      { tone: "good", text: "Yürürlükteki oranlar yasal referanslarıyla kayıtlı; geçmiş dönemler eski sürümle yeniden hesaplanabilir (retro)." },
+    ]}
+    chips={["Teşvikten yararlanamayan işyerlerini göster", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="SGK işyeri" value="4" delta="2 tüzel kişilik" dir="flat" />
+    <Kpi label="Sigortalı" value="120" delta="4/a" dir="flat" />
+    <Kpi label="Teşvik tasarrufu" value="186.400 ₺" delta="bu yıl" dir="up" ai="5 puan indirimi · 3 işyeri" />
+    <Kpi label="Meslek kodu eksik" value="4" delta="MUHSGK öncesi" dir="down" />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Yasal parametreler (sürümlü)" sub="Koda gömülmez: key · değer · geçerlilik · yasal referans · sürüm" flush>
+      <Fragment slot="icon"><ShieldCheck size={15} /></Fragment>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Anahtar</th><th>Parametre</th><th>Değer</th><th>Başlangıç</th><th>Bitiş</th><th>Yasal referans</th><th class="num">v</th></tr></thead>
+          <tbody>
+            {SGK_PARAMS.map((p) => (
+              <tr><td class="mono">{p.key}</td><td class="strong">{p.label}</td><td><Badge tone="info" plain>{p.value}</Badge></td><td class="muted">{p.from}</td><td class="muted">{p.to}</td><td class="muted">{p.ref}</td><td class="num">{p.version}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Fragment slot="foot">Tutar parametreleri (asgari ücret, tavan) sürüm etiketiyle tutulur; değer güncellemesi yeni sürüm açar, eskisini kapatır</Fragment>
+    </Panel>
+    <Panel title="İşyerleri ve teşvik" sub="Sicil, sigortalı, teşvik durumu" flush>
+      <ul>
+        {WORKPLACES.map((w, i) => (
+          <li class="list-item"><span class="list-main"><div class="list-title">{w.name}</div><div class="list-sub mono">{w.sgkNo}</div></span><span class="row" style="gap:6px"><Badge tone={i === 3 ? "warning" : "good"}>{i === 3 ? "Teşvik doğrulanmalı" : "5 puan"}</Badge><AiHint client:visible title={`${w.name} · teşvik`} answer={i === 3 ? "Borçsuzluk şartı için SGK sorgusu 30 gündür yenilenmedi; doğrulanmadan teşvik uygulanırsa geri alım riski var." : "Teşvik şartları doğrulandı; aylık tasarruf hesaplandı."} actions={i === 3 ? ["SGK sorgusu yap"] : []} mode="popover" /></span></li>
+        ))}
+      </ul>
+    </Panel>
+  </div>
+</AdminLayout>

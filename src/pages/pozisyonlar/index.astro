@@ -1,0 +1,73 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { POSITIONS } from "../../data/hr2";
+import { employee, tl } from "../../data/hr";
+import { Plus, Sparkle } from "@phosphor-icons/react";
+
+const tone = { Dolu: "good", Boş: "warning", Bütçelenmiş: "info", Dondurulmuş: "neutral" } as const;
+const budgetTotal = POSITIONS.reduce((s, p) => s + p.budget, 0);
+---
+
+<AdminLayout pageId="pozisyonlar" description="Pozisyon, iş (job), iş ailesi, kademe ve bütçe. Çalışan pozisyona atanır; pozisyon bütçeye bağlıdır. İşe alım talepleri buradan açılır.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Boş pozisyonları listele"><Sparkle size={14} weight="fill" /> Boşlukları analiz et</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Pozisyon aç</button>
+  </Fragment>
+
+  <AiBrief
+    lead="8 pozisyonun <strong>3'ü boş</strong>, 1'i bütçelenmiş, 1'i dondurulmuş. Boş pozisyonların bütçe maliyeti aylık 188.000 ₺; Satış Uzmanı 34 gündür açık."
+    points={[
+      { tone: "warning", text: "<strong>Finans Uzmanı</strong> 26 Eylül'de boşalıyor; yeniden açılış onayı verilmezse departman tek kişiye düşer." },
+      { tone: "info", text: "<strong>Kıdemli Backend</strong> için G7 kademe değerlendirmesi; ayrılma riski ve performans birlikte işaret ediyor." },
+      { tone: "good", text: "Ürün Tasarımcısı 15 Eylül'de dolacak; pozisyon o gün otomatik 'Dolu' olur." },
+    ]}
+    chips={["Kademe bazında ücret bandını göster", "Bütçesi aşılan pozisyonları bul", "Bu sayfayı açıkla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Toplam pozisyon" value="128" delta="120 dolu" dir="flat" />
+    <Kpi label="Boş" value="3" delta="+1 bu ay" dir="down" />
+    <Kpi label="Bütçelenmiş" value="1" delta="Ekim" dir="flat" />
+    <Kpi label="Pozisyon bütçesi (örnek)" value={tl(budgetTotal)} delta="aylık brüt" dir="flat" />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Pozisyonlar" sub="Pozisyon ≠ kişi: boşalan pozisyon kadroda kalır" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Pozisyon</th><th>İş / aile</th><th>Kademe</th><th>Departman</th><th>Sahibi</th><th class="num">Bütçe</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {POSITIONS.map((p) => (
+              <tr>
+                <td class="strong">{p.title}</td>
+                <td class="muted">{p.job}<div class="small faint">{p.family}</div></td>
+                <td><Badge tone="neutral" plain>{p.grade}</Badge></td>
+                <td>{p.department}</td>
+                <td>{p.holder ? employee(p.holder).name : <span class="faint">—</span>}</td>
+                <td class="num">{tl(p.budget)}</td>
+                <td><Badge tone={tone[p.status]}>{p.status}</Badge></td>
+                <td class="cell-ai"><AiHint client:visible title={`${p.title} · AI notu`} answer={p.aiNote + "."} actions={p.status === "Boş" ? ["İlana çıkar", "Dondur"] : p.status === "Bütçelenmiş" ? ["Onaya gönder"] : ["Detay"]} mode="popover" /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Fragment slot="foot">8 / 128 gösteriliyor · Pozisyon durumu değişince işe alım ve bordro bütçesi otomatik güncellenir</Fragment>
+    </Panel>
+
+    <div class="stack" style="gap:16px">
+      <Panel title="Kademe dağılımı" sub="Çalışan sayısı">
+        <Bars items={[{ label: "G3", value: 18 }, { label: "G4", value: 34 }, { label: "G5", value: 37 }, { label: "G6", value: 22 }, { label: "G7", value: 7 }, { label: "G8+", value: 2 }]} unit=" kişi" />
+      </Panel>
+      <Panel title="İş aileleri" sub="Pozisyon sayısı">
+        <Bars items={[{ label: "Mühendislik", value: 44 }, { label: "Satış", value: 28 }, { label: "Destek", value: 20 }, { label: "Ürün", value: 12, tone: "info" }, { label: "Destek Fonk.", value: 24, tone: "info" }]} unit="" />
+      </Panel>
+    </div>
+  </div>
+</AdminLayout>

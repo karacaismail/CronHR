@@ -8,6 +8,7 @@ import Avatar from "../components/Avatar.astro";
 import AreaChart from "../components/AreaChart.astro";
 import Bars from "../components/Bars.astro";
 import AiHint from "../islands/AiHint";
+import Pipeline from "../components/Pipeline.astro";
 import {
   ABSENCE_TREND,
   AUTOMATIONS,
@@ -46,6 +47,11 @@ const today = AUTOMATIONS.filter((a) => a.nextRun.startsWith("4 Eyl") || a.nextR
     chips={["Ayrılma riski yüksek çalışanları listele", "Bekleyen onayları özetle", "İşe alım hattının durumunu göster"]}
     askQuery="Bugün dikkat etmem gereken 3 şey ne?"
   />
+
+  <Panel title="İşgücü zinciri · bugün" sub="Vardiya planlar → PDKS ölçer → İzin açıklar → Puantaj hesaplar → Bordro paraya çevirir">
+    <Fragment slot="tools"><a class="btn btn-ghost btn-sm" href={`${base}/gorevler/`}>Görevlerim · 11</a></Fragment>
+    <Pipeline compact />
+  </Panel>
 
   <div class="grid grid-4">
     <Kpi label="Toplam çalışan" value="120" delta="+2 bu ay" dir="up" spark={HEADCOUNT_TREND} sparkTone="good" ai="Büyüme planla uyumlu; Ekim hedefi 124.">

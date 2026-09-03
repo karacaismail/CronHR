@@ -1,0 +1,120 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import Pipeline from "../../components/Pipeline.astro";
+import AiHint from "../../islands/AiHint";
+import { employee } from "../../data/hr";
+import { ATTENDANCE_RULES, CORRECTIONS, DEVICES, EXCEPTIONS, RAW_EVENTS } from "../../data/hr2";
+import { ArrowsClockwise, Check, DeviceMobile, ShieldCheck, Sparkle, X } from "@phosphor-icons/react";
+
+const devTone = { "Çevrimiçi": "good", "Senkron gecikmesi": "warning", "Çevrimdışı": "critical" } as const;
+const stateTone = { Normal: "neutral", "İstisna": "warning", "İnceleme": "info", "Onaylandı": "good", Reddedildi: "critical" } as const;
+---
+
+<AdminLayout pageId="pdks" description="PDKS ham zaman olaylarını toplar; puantaj değildir. Ham kayıt değişmez, düzeltmeler ayrı tutulur. Kart, PIN, RFID/NFC ve mobil; biyometri varsayılan değildir.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Eksik giriş/çıkış hareketlerini listele"><Sparkle size={14} weight="fill" /> İstisnaları özetle</button>
+    <button type="button" class="btn"><ArrowsClockwise size={14} /> Cihazları senkronla</button>
+  </Fragment>
+
+  <AiBrief
+    lead="Son 24 saatte <strong>1.011 ham hareket</strong>, 6 cihaz. Attendance engine 4 istisna üretti; 3'ü için AI düzeltme önerisi hazır. <strong>Gebze Depo kapısı</strong> dün akşamdan beri çevrimdışı."
+    points={[
+      { tone: "critical", text: "<strong>Gebze Depo Kapı</strong> çevrimdışı: 12 çalışanın bugünkü hareketi yok; cihaz günlüğü alınınca otomatik tamamlanır." },
+      { tone: "warning", text: "<strong>Ahmet Yıldız</strong> bu hafta 3. geç kalma (41 dk); tolerans 15 dk. Yöneticiye bilgi önerilir." },
+      { tone: "info", text: "KVKK 2026/921: biyometrik mesai takibi ölçülülük dışı. Tüm cihazlar kart/PIN/RFID/mobil; parmak izi ve yüz tanıma kapalı." },
+    ]}
+    chips={["Çakışan vardiyaları bul", "Bugün gelmeyenleri listele", "Bu sayfayı açıkla"]}
+  />
+
+  <Panel title="İşgücü zinciri" sub="PDKS ölçer; yorumlamak attendance engine'in, hesaplamak puantajın işidir">
+    <Pipeline active="pdks" compact />
+  </Panel>
+
+  <div class="grid grid-4">
+    <Kpi label="Bugün içeride" value="94" delta="%78 kadro" dir="flat" />
+    <Kpi label="Ham hareket (24 sa)" value="1.011" delta="6 cihaz" dir="flat" />
+    <Kpi label="Açık istisna" value="4" delta="3 AI önerili" dir="down" ai="HR tek tek incelemez; yalnızca istisnalar" />
+    <Kpi label="Düzeltme talebi" value="2" delta="onay bekliyor" dir="flat" />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="İstisna yönetimi" sub="Normal → İstisna → İnceleme → Onaylandı / Reddedildi" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Çalışan</th><th>Tarih</th><th>Tür</th><th>Detay</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {EXCEPTIONS.map((x) => {
+              const e = employee(x.employeeId);
+              return (
+                <tr>
+                  <td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td>
+                  <td class="muted">{x.date}</td>
+                  <td class="strong">{x.kind}</td>
+                  <td class="muted" style="white-space:normal;min-inline-size:220px">{x.detail}</td>
+                  <td><Badge tone={stateTone[x.state]}>{x.state}</Badge></td>
+                  <td class="cell-ai"><AiHint client:visible title={`${x.kind} · AI önerisi`} answer={x.aiSuggestion + "."} actions={x.state === "İstisna" || x.state === "İnceleme" ? ["Öneriyi uygula", "Yöneticiye sor", "Reddet"] : []} mode="popover" /></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <Fragment slot="foot">Ham hareketler değiştirilmez; her düzeltme ayrı kayıt ve denetim izi taşır</Fragment>
+    </Panel>
+
+    <div class="stack" style="gap:16px">
+      <Panel title="Cihazlar" sub="Durum ve son senkron" flush>
+        <ul>
+          {DEVICES.map((dv) => (
+            <li class="list-item">
+              <span class="list-icon" data-tone={dv.status === "Çevrimiçi" ? "good" : dv.status === "Çevrimdışı" ? "critical" : "warning"}><DeviceMobile size={16} /></span>
+              <span class="list-main"><div class="list-title">{dv.name}</div><div class="list-sub">{dv.location} · {dv.kind} · son senkron {dv.lastSync} · {dv.events24h} hareket</div></span>
+              <Badge tone={devTone[dv.status]}>{dv.status}</Badge>
+            </li>
+          ))}
+        </ul>
+      </Panel>
+      <Panel title="Düzeltme talepleri" sub="Çalışan açar, yönetici onaylar" flush>
+        <ul>
+          {CORRECTIONS.map((c) => {
+            const e = employee(c.employeeId);
+            return (
+              <li class="list-item" style="align-items:flex-start">
+                <Avatar name={e.name} hue={e.hue} size={26} />
+                <span class="list-main"><div class="list-title" style="font-weight:500">"{c.request}"</div><div class="list-sub">{c.date} · AI: {c.aiNote}</div></span>
+                {c.state === "Bekliyor" ? <span class="row" style="gap:4px"><button type="button" class="icon-btn" aria-label="Onayla" style="color:var(--good);inline-size:28px;block-size:28px"><Check size={13} weight="bold" /></button><button type="button" class="icon-btn" aria-label="Reddet" style="inline-size:28px;block-size:28px"><X size={13} weight="bold" /></button></span> : <Badge tone="good">{c.state}</Badge>}
+              </li>
+            );
+          })}
+        </ul>
+      </Panel>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <Panel title="Ham hareketler (immutable)" sub="employee · device · timestamp · type · source · received_at" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Çalışan</th><th>Zaman</th><th>Olay</th><th>Cihaz</th><th>Kaynak</th><th>Alındı</th></tr></thead>
+          <tbody>
+            {RAW_EVENTS.map((ev) => (
+              <tr><td>{employee(ev.employeeId).name}</td><td class="mono">{ev.timestamp}</td><td><Badge tone={ev.type === "IN" ? "good" : ev.type === "OUT" ? "info" : "neutral"} plain>{ev.type}</Badge></td><td class="muted">{DEVICES.find((d) => d.id === ev.device)?.name}</td><td>{ev.source}</td><td class="mono faint">{ev.receivedAt}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+    <Panel title="Attendance kuralları" sub="Tolerans, yuvarlama, mola, eksik hareket">
+      <Fragment slot="icon"><ShieldCheck size={15} /></Fragment>
+      <ul class="stack" style="gap:8px">
+        {ATTENDANCE_RULES.map((r) => <li class="row-between"><span><div class="strong">{r.name}</div><div class="small muted">{r.note}</div></span><Badge tone="neutral" plain>{r.value}</Badge></li>)}
+      </ul>
+      <div class="row-between" style="border-top:1px dashed var(--border);padding-block-start:10px"><span><div class="strong">Biyometrik doğrulama</div><div class="small muted">KVKK 2026/921 gereği mesai takibinde kapalı</div></span><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Biyometri" disabled></button></div>
+    </Panel>
+  </div>
+</AdminLayout>

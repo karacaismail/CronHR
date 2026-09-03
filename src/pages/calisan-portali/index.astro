@@ -1,0 +1,74 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import AiHint from "../../islands/AiHint";
+import { CalendarCheck, Clock, FileText, Money, Sparkle, UserCircle } from "@phosphor-icons/react";
+---
+
+<AdminLayout pageId="calisan-portali" description="ESS: çalışanın kendi bilgileri, izin ve mesai talepleri, bordro fişleri, belgeler ve vardiyası. AI her çalışana kendi verisiyle sınırlı yanıt verir." eyebrow="Çalışan portalı · önizleme">
+  <Fragment slot="actions">
+    <span class="segment"><button type="button" aria-pressed="true">Çalışan görünümü</button><button type="button">Mobil</button></span>
+  </Fragment>
+
+  <AiBrief
+    title="Merhaba Burak"
+    lead="Bugün 10–18 vardiyasındasın, sprint kapanışı 11 Eylül. <strong>14–18 Eylül izin talebin</strong> yönetici onayında; AI görüşü 'onaya hazır'. Eylül bordro fişin 30 Eylül'de hazır olacak."
+    points={[
+      { tone: "info", text: "İzin bakiyen 12 gün; yıl sonuna kadar en az 5 gün kullanman öneriliyor." },
+      { tone: "good", text: "KVKK eğitimini tamamladın; 2026 zorunlu eğitimlerin %100." },
+    ]}
+    chips={["İzin bakiyemi göster", "Bu ayki bordromu açıkla", "Vardiya değişimi talep et"]}
+    askQuery="İzin bakiyemi göster"
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="İzin bakiyem" value="12 gün" delta="5 gün bekliyor" dir="flat"><CalendarCheck size={14} slot="icon" /></Kpi>
+    <Kpi label="Bu ay çalışılan" value="178 sa" delta="+2 fazla mesai" dir="flat"><Clock size={14} slot="icon" /></Kpi>
+    <Kpi label="Son bordro (Ağu)" value="Hazır" delta="net · maskeli" dir="flat"><Money size={14} slot="icon" /></Kpi>
+    <Kpi label="Eksik belgem" value="0" delta="dosya tam" dir="up"><FileText size={14} slot="icon" /></Kpi>
+  </div>
+
+  <div class="grid grid-3">
+    <Panel title="Hızlı talep" sub="Onay zincirine otomatik gider">
+      <div class="stack" style="gap:8px">
+        <button type="button" class="btn" style="justify-content:flex-start"><CalendarCheck size={14} /> İzin talebi</button>
+        <button type="button" class="btn" style="justify-content:flex-start"><Clock size={14} /> Fazla mesai talebi</button>
+        <button type="button" class="btn" style="justify-content:flex-start"><Clock size={14} /> PDKS düzeltme talebi</button>
+        <button type="button" class="btn" style="justify-content:flex-start"><FileText size={14} /> Çalışma belgesi iste</button>
+        <button type="button" class="btn" style="justify-content:flex-start"><UserCircle size={14} /> Bilgilerimi güncelle</button>
+      </div>
+      <AiHint client:visible label="Talebi AI ile yaz" variant="chip" title="Doğal dille talep" answer="Örnek: '14–18 Eylül arası yıllık izin istiyorum' yazdığınızda talep türü, tarih aralığı ve gün sayısı otomatik doldurulur; çakışma kontrolü anında yapılır ve yöneticinize AI görüşüyle gider." />
+    </Panel>
+    <Panel title="Taleplerim" sub="Son 30 gün" flush>
+      <ul>
+        <li class="list-item"><span class="list-main"><div class="list-title">Yıllık izin · 14–18 Eyl</div><div class="list-sub">5 gün · yönetici onayında</div></span><Badge tone="warning">Bekliyor</Badge></li>
+        <li class="list-item"><span class="list-main"><div class="list-title">Fazla mesai · 29 Ağu</div><div class="list-sub">2 saat · sürüm kapanışı</div></span><Badge tone="good">Onaylandı</Badge></li>
+        <li class="list-item"><span class="list-main"><div class="list-title">Uzaktan çalışma · 22 Ağu</div><div class="list-sub">1 gün</div></span><Badge tone="good">Onaylandı</Badge></li>
+      </ul>
+    </Panel>
+    <Panel title="Vardiyam · bu hafta" sub="7–13 Eylül · yayınlandı">
+      <div class="stack" style="gap:6px">
+        {["Pzt 7", "Sal 8", "Çar 9", "Per 10", "Cum 11"].map((d) => <div class="row-between"><span class="small strong">{d}</span><span class="shift" data-kind="day" style="inline-size:auto">10–18</span></div>)}
+        <div class="row-between"><span class="small strong">Cmt 12</span><span class="shift" data-kind="off" style="inline-size:auto">İzin günü</span></div>
+        <div class="row-between"><span class="small strong">Paz 13</span><span class="shift" data-kind="off" style="inline-size:auto">İzin günü</span></div>
+      </div>
+      <button type="button" class="btn btn-sm">Vardiya değişimi iste</button>
+    </Panel>
+  </div>
+
+  <Panel title="Bordro fişlerim" sub="Net tutarlar yalnızca size görünür" flush>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Dönem</th><th>Durum</th><th class="num">Net</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="strong">Eylül 2026</td><td><Badge tone="info">Hazırlanıyor</Badge></td><td class="num faint">—</td><td></td></tr>
+          <tr><td class="strong">Ağustos 2026</td><td><Badge tone="good">Ödendi</Badge></td><td class="num">•••••• ₺</td><td><AiHint client:visible label="Açıkla" title="Ağustos bordrom" answer="Brüt maaş, 2 saat fazla mesai (%50 zamlı) ve yemek yardımı kazançlarınız; gelir vergisi 2. dilim, SGK ve işsizlik kesintileriniz. Net tutar geçen aya göre +%1,2 (fazla mesai etkisi)." mode="popover" /></td></tr>
+          <tr><td class="strong">Temmuz 2026</td><td><Badge tone="good">Ödendi</Badge></td><td class="num">•••••• ₺</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </Panel>
+</AdminLayout>

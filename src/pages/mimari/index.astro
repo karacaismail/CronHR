@@ -1,0 +1,96 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Pipeline from "../../components/Pipeline.astro";
+import { NAV_TREE } from "../../data/nav";
+import { BookOpen, Sparkle } from "@phosphor-icons/react";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const KERNEL = ["Tenant", "Company", "Identity & MFA", "RBAC / field-level", "SSO (SAML/OIDC)", "SCIM", "Subscription", "Billing", "Workflow", "Rules", "Notification", "Scheduler", "Job/Queue", "Audit", "Activity", "Documents", "Search", "Reporting", "Import/Export", "API", "Webhooks", "Integration", "Localization", "Configuration", "Feature Flags", "Custom Fields", "Custom Forms", "Data Retention", "Privacy (KVKK/GDPR)", "Observability", "Backup/Recovery"];
+const PHASES = [
+  { n: 0, name: "Platform Kernel", scope: "Tenant, Auth, RBAC, Company, Workflow, Rules, Audit, Documents, Notifications, API, Integration, Import/Export, Localization", state: "UI hazır" },
+  { n: 1, name: "Core HR", scope: "Özlük, Organization, Employee Lifecycle, Documents, ESS, MSS", state: "UI hazır" },
+  { n: 2, name: "Workforce Management", scope: "Holiday Calendar, İzin & Yokluk, Vardiya, PDKS, Puantaj, Overtime", state: "UI hazır" },
+  { n: 3, name: "Payroll", scope: "Compensation, Payroll, TR Localization, SGK, GİB/MUHSGK, Bank, Accounting", state: "UI hazır" },
+  { n: 4, name: "Employee Lifecycle", scope: "Onboarding, Probation, Transfer, Promotion, Offboarding, Exit Interview", state: "UI hazır" },
+  { n: 5, name: "Recruitment / ATS", scope: "Requisition, Vacancy, Career Page, Candidate, Pipeline, Interview, Offer, Hire", state: "UI hazır" },
+  { n: 6, name: "Performance", scope: "Goals, OKR, KPI, Competency, Review, 360, 1:1, PIP", state: "UI hazır" },
+  { n: 7, name: "Learning", scope: "Training, Course, LMS, Certification, Skills, Training Matrix, Expiration Alerts", state: "UI hazır" },
+  { n: 8, name: "Compensation & Benefits", scope: "Salary Bands, Grades, Planning, Review, Bonus, Benefits", state: "Kısmen" },
+  { n: 9, name: "Employee Relations", scope: "Disciplinary, Warning, Incident, Grievance, HR Case, Helpdesk", state: "UI hazır" },
+  { n: 10, name: "Talent Management", scope: "Talent Pool, Career Path, Succession, 9 Box, HiPo, Skills Gap", state: "Planlı" },
+  { n: 11, name: "Workforce Planning", scope: "Headcount, Position Budget, Hiring Plan, Turnover / Labor Cost Forecast", state: "Planlı" },
+];
+const PRIORITY = [
+  { level: "P0", items: "SaaS Kernel, Organization, Özlük, Lifecycle temel, Document, İzin, Vardiya, PDKS, Puantaj, Bordro, ESS, MSS, Workflow, Reporting, Audit, Integration/API", tone: "critical" },
+  { level: "P1", items: "Onboarding/Offboarding, Recruitment, Compensation, Performance, Training, Discipline/HR Cases", tone: "warning" },
+  { level: "P2", items: "Benefits, Engagement, Talent, Succession, Workforce Planning, Advanced Analytics", tone: "info" },
+] as const;
+---
+
+<AdminLayout pageId="ayarlar" title="Mimari ve ürün haritası" description="CronHR bir işgücü işletim sistemidir. Bu sayfa domain sınırlarını, çekirdekleri, fazları ve öncelik kesimini gösterir; tam metin docs/ARCHITECTURE.md içindedir." eyebrow="Yardım" section="Mimari" hideSubNav>
+  <Fragment slot="actions">
+    <a class="btn" href="https://github.com/karacaismail/CronHR/blob/main/docs/ARCHITECTURE.md" target="_blank" rel="noreferrer"><BookOpen size={14} /> ARCHITECTURE.md</a>
+    <button type="button" class="btn btn-ai" data-ask-ai="Bu sayfayı açıkla"><Sparkle size={14} weight="fill" /> AI'ya sor</button>
+  </Fragment>
+
+  <AiBrief
+    title="En kritik mimari karar"
+    lead="<strong>Vardiya planlar → PDKS ölçer → İzin açıklar → Puantaj hesaplar → Bordro paraya çevirir.</strong> Bu beş domain birbirine gömülmez. Bordro PDKS'nin ham hareketini okumaz; '176 saat normal + 12 saat fazla mesai' bilgisini Puantaj'dan alır."
+    points={[
+      { tone: "info", text: "Person ≠ Employee ≠ Employment. Aynı kişi 2023'te A, 2025'te B, 2026'da tekrar A şirketinde çalışabilir." },
+      { tone: "info", text: "Effective dating: ücret, pozisyon, organizasyon değişiklikleri tarihli kayıt açar; eski kayıt değiştirilmez." },
+      { tone: "warning", text: "KVKK 2026/921: biyometrik mesai takibi ölçülülük dışı. PDKS çekirdeği kart/PIN/RFID/NFC/mobil." },
+    ]}
+    chips={["Bu sayfayı açıkla"]}
+  />
+
+  <Panel title="İşgücü zinciri" sub="Her halka ayrı domain; ok yönünde veri akar, geri yönde yalnızca düzeltme talebi">
+    <Pipeline />
+  </Panel>
+
+  <div class="grid grid-2">
+    <Panel title="SaaS Platform Core" sub="HRMS'ye özgü değil; bütün modüller kullanır">
+      <div class="token-row">{KERNEL.map((k) => <span class="token">{k}</span>)}</div>
+      <p class="small muted">Tenant izolasyonu database, cache, dosya, queue ve log katmanlarına kadar; tenant context her request ve asenkron işte korunur (OWASP). Kurumsal müşteri için SSO + SCIM baştan.</p>
+    </Panel>
+    <Panel title="HR Domain Core" sub="System of Record">
+      <div class="token-row">{["Person", "Employee", "Employment", "Contract", "Organization", "Legal Entity", "Company", "Workplace", "Branch", "Location", "Department", "Team", "Position", "Job", "Job Family", "Grade", "Cost Center", "Manager Relationship", "Reporting Line", "Calendar", "Holiday Calendar", "Working Calendar", "Employment Status", "Employment Type", "Compensation Profile", "Document", "Policy", "Effective-Dated History"].map((k) => <span class="token">{k}</span>)}</div>
+    </Panel>
+  </div>
+
+  <Panel title="Menü haritası" sub="Bu paneldeki bilgi mimarisi · her grup bir domain" flush>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Grup</th><th>Sayfalar</th><th>Komuta kartı</th></tr></thead>
+        <tbody>
+          {NAV_TREE.map((g) => (
+            <tr><td class="strong">{g.label}<div class="small muted" style="font-weight:500">{g.description}</div></td><td>{g.children ? <span class="token-row">{g.children.map((c) => <a class="token" href={`${base}${c.href}`}>{c.label}</a>)}</span> : <a class="token" href={`${base}${g.href}`}>{g.label}</a>}</td><td>{g.inCommandCard ? <Badge tone="ai" plain>12 karttan biri</Badge> : <Badge tone="neutral" plain>Kenar çubuğu</Badge>}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </Panel>
+
+  <div class="grid grid-main">
+    <Panel title="Geliştirme fazları" sub="Faz 0 → 11 · frontend durumu" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Faz</th><th>Ad</th><th>Kapsam</th><th>Durum</th></tr></thead>
+          <tbody>
+            {PHASES.map((p) => <tr><td class="mono">{p.n}</td><td class="strong">{p.name}</td><td class="muted" style="white-space:normal">{p.scope}</td><td><Badge tone={p.state === "UI hazır" ? "good" : p.state === "Kısmen" ? "warning" : "neutral"}>{p.state}</Badge></td></tr>)}
+          </tbody>
+        </table>
+      </div>
+      <Fragment slot="foot">"UI hazır" = frontend ekranı ve sahte veri var; backend, kural motoru ve entegrasyonlar sonraki fazlarda</Fragment>
+    </Panel>
+    <Panel title="Öncelik kesimi" sub="100+ çalışan için">
+      <ul class="stack" style="gap:10px">
+        {PRIORITY.map((p) => <li><Badge tone={p.tone}>{p.level}</Badge><p class="small muted" style="margin-block-start:4px">{p.items}</p></li>)}
+      </ul>
+      <p class="small muted" style="border-top:1px dashed var(--border);padding-block-start:8px">Güvenlik çekirdeğin parçasıdır: audit, erişim kontrolü, maskeleme, saklama/imha, güçlü kimlik doğrulama (KVKK teknik/idari tedbir rehberi).</p>
+    </Panel>
+  </div>
+</AdminLayout>

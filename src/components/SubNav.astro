@@ -1,0 +1,20 @@
+---
+import type { NavGroup } from "../data/nav";
+
+interface Props {
+  group: NavGroup;
+  currentLeafId?: string;
+}
+
+const { group, currentLeafId } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<nav class="subnav" aria-label={`${group.label} bölümleri`}>
+  {group.children?.map((leaf) => (
+    <a class="subnav-item" href={`${base}${leaf.href}`} aria-current={leaf.id === currentLeafId ? "page" : undefined}>
+      {leaf.label}
+      {leaf.badge ? <span class="nav-badge" data-tone={leaf.badgeTone}>{leaf.badge}</span> : null}
+    </a>
+  ))}
+</nav>

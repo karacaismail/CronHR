@@ -1,0 +1,71 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { DOCS, employee } from "../../data/hr";
+import { FileText, Sparkle, UploadSimple } from "@phosphor-icons/react";
+
+const statusTone = { "Geçerli": "good", "Süresi doluyor": "warning", "Süresi doldu": "critical", "İmza bekliyor": "info" } as const;
+---
+
+<AdminLayout pageId="belgeler" description="Sözleşme, politika, sertifika ve formlar. AI süreleri izler, içeriği özetler ve eksikleri bulur.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Gizlilik sözleşmesi taslağı hazırla"><Sparkle size={14} weight="fill" /> AI ile taslak</button>
+    <button type="button" class="btn btn-primary"><UploadSimple size={14} weight="bold" /> Belge yükle</button>
+  </Fragment>
+
+  <AiBrief
+    lead="<strong>3 belge</strong> müdahale istiyor: bir sertifika süresi doldu (İSG zorunluluğu), bir deneme sözleşmesi 12 gün içinde bitiyor, bir gizlilik sözleşmesi başlangıçtan önce imzalanmalı."
+    points={[
+      { tone: "critical", text: "<strong>İlk Yardım Sertifikası</strong> (Zeynep Arslan) 20 Ağustos'ta doldu; binada sertifikalı kişi kalmadı. Yenileme kursu en erken 9 Eylül." },
+      { tone: "warning", text: "<strong>Mert Kaya</strong> deneme sözleşmesi 16 Eylül'de bitiyor; kalıcı sözleşme taslağı AI tarafından hazırlandı." },
+      { tone: "info", text: "Uzaktan Çalışma Politikası v3'ü 14 çalışan henüz onaylamadı; hatırlatma otomasyonu önerilir." },
+    ]}
+    chips={["Süresi dolmak üzere olan belgeleri listele", "Eksik belgesi olan çalışanları bul", "Belge türlerine göre dağılımı göster"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Toplam belge" value="1.284" delta="+31 bu ay" dir="up" />
+    <Kpi label="Süresi dolan / dolacak" value="3" delta="30 gün içinde" dir="down" />
+    <Kpi label="İmza bekleyen" value="2" delta="e-imza" dir="flat" ai="Biri başlangıç öncesi kritik." />
+    <Kpi label="Eksik zorunlu belge" value="5 kişi" delta="AI taraması" dir="down" ai="Çoğu ikametgah ve sağlık raporu." />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Belgeler" sub="AI özet ve süre takibi" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Belge</th><th>Tür</th><th>İlgili</th><th>Güncelleme</th><th>Bitiş</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {DOCS.map((d) => (
+              <tr>
+                <td class="strong"><span class="row" style="gap:8px"><FileText size={16} color="var(--ink-faint)" />{d.title}</span></td>
+                <td>{d.kind}</td>
+                <td class="muted">{d.owner ? employee(d.owner).name : "Şirket geneli"}</td>
+                <td class="muted">{d.updated}</td>
+                <td class="muted">{d.expires ?? "—"}</td>
+                <td><Badge tone={statusTone[d.status]}>{d.status}</Badge></td>
+                <td class="cell-ai"><AiHint client:visible title={`${d.title} · AI özeti`} answer={d.aiNote + "."} actions={d.status === "Süresi doluyor" ? ["Yenileme başlat", "Taslağı aç"] : d.status === "Süresi doldu" ? ["Kurs planla"] : d.status === "İmza bekliyor" ? ["Hatırlat"] : ["Özeti gör"]} mode="popover" /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+
+    <div class="stack" style="gap:16px">
+      <Panel title="Türlere göre dağılım" sub="Tüm arşiv">
+        <Bars items={[{ label: "Sözleşme", value: 412 }, { label: "Bordro", value: 396 }, { label: "Form", value: 251 }, { label: "Sertifika", value: 143, tone: "info" }, { label: "Politika", value: 82, tone: "info" }]} unit="" />
+      </Panel>
+      <Panel title="AI ile belge oluştur" sub="Şablon + çalışan verisi">
+        <div class="field"><label class="field-label" for="doc-type">Belge türü</label><select id="doc-type" class="select"><option>Kalıcı iş sözleşmesi</option><option>Gizlilik sözleşmesi</option><option>Çalışma belgesi</option><option>Referans mektubu</option></select></div>
+        <div class="field"><label class="field-label" for="doc-person">Çalışan</label><select id="doc-person" class="select"><option>Mert Kaya</option><option>Barış Uçar</option><option>Deniz Koç</option></select></div>
+        <AiHint client:visible label="Taslağı hazırla" variant="chip" title="Kalıcı iş sözleşmesi · Mert Kaya" answer="Taslak hazır: mevcut deneme sözleşmesindeki ünvan, ücret ve çalışma yeri alındı; deneme maddesi kaldırıldı; ihbar süresi 4 hafta olarak politikaya göre eklendi; KVKK aydınlatma metni v3 bağlandı. Değişen 3 madde işaretlendi, hukuk kontrolüne gönderilmeden imzaya çıkamaz." actions={["Önizle", "Hukuka gönder"]} />
+      </Panel>
+    </div>
+  </div>
+</AdminLayout>

@@ -1,0 +1,198 @@
+/* Rich AI report blocks rendered inside the response area (demo layer). */
+
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.reportTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ai-cc-text);
+}
+
+.reportLead {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ai-cc-text);
+}
+
+.reportFootnote {
+  margin: 0;
+  font-size: 11px;
+  color: var(--ai-cc-text-muted);
+}
+
+.bulletList {
+  margin: 0;
+  padding-inline-start: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ai-cc-text);
+}
+
+/* ------------------------------------------------------------- KPI tiles */
+
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.kpiTile {
+  border: 1px solid var(--ai-cc-border);
+  border-radius: 8px;
+  background: var(--ai-cc-surface);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.kpiLabel {
+  font-size: 11px;
+  color: var(--ai-cc-text-muted);
+}
+
+.kpiValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ai-cc-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.kpiDelta {
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.kpiDeltaUp { color: #0ca30c; }
+.kpiDeltaDown { color: #d03b3b; }
+
+/* ---------------------------------------------------------------- charts */
+
+.chartCard {
+  border: 1px solid var(--ai-cc-border);
+  border-radius: 8px;
+  background: var(--ai-cc-surface);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.chartHeading {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ai-cc-text);
+}
+
+.chartSvg {
+  inline-size: 100%;
+  block-size: auto;
+  display: block;
+}
+
+.legendRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--ai-cc-text-muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legendSwatch {
+  inline-size: 10px;
+  block-size: 10px;
+  border-radius: 3px;
+}
+
+/* ---------------------------------------------------------------- tables */
+
+.tableWrap {
+  border: 1px solid var(--ai-cc-border);
+  border-radius: 8px;
+  background: var(--ai-cc-surface);
+  overflow-x: auto;
+}
+
+.reportTable {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.reportTable th {
+  text-align: start;
+  font-weight: 600;
+  color: var(--ai-cc-text-muted);
+  padding: 8px 12px;
+  border-block-end: 1px solid var(--ai-cc-border);
+  white-space: nowrap;
+}
+
+.reportTable td {
+  padding: 8px 12px;
+  border-block-end: 1px solid var(--ai-cc-surface-muted);
+  color: var(--ai-cc-text);
+  vertical-align: middle;
+}
+
+.reportTable tr:last-child td {
+  border-block-end: none;
+}
+
+.numericCell {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statusDot {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 100%;
+  flex: 0 0 auto;
+}
+
+.inlineBarTrack {
+  inline-size: 100%;
+  min-inline-size: 72px;
+  block-size: 8px;
+  border-radius: 999px;
+  background: var(--ai-cc-surface-muted);
+  overflow: hidden;
+}
+
+.inlineBarFill {
+  block-size: 100%;
+  border-radius: 999px;
+}

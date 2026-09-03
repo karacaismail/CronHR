@@ -1,0 +1,26 @@
+---
+import { Sparkle } from "@phosphor-icons/react";
+import Sparkline from "./Sparkline.astro";
+
+interface Props {
+  label: string;
+  value: string;
+  delta?: string;
+  dir?: "up" | "down" | "flat";
+  ai?: string;
+  spark?: number[];
+  sparkTone?: "good" | "bad" | "accent";
+}
+
+const { label, value, delta, dir = "flat", ai, spark, sparkTone = "accent" } = Astro.props;
+---
+
+<div class="kpi">
+  <div class="kpi-label"><slot name="icon" />{label}</div>
+  <div class="kpi-row">
+    <span class="kpi-value">{value}</span>
+    {delta ? <span class="kpi-delta" data-dir={dir}>{delta}</span> : null}
+    {spark ? <span class={`kpi-spark spark-${sparkTone}`}><Sparkline values={spark} width={56} height={22} /></span> : null}
+  </div>
+  {ai ? <p class="kpi-ai"><Sparkle size={12} weight="fill" /><span>{ai}</span></p> : null}
+</div>

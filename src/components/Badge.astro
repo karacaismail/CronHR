@@ -1,0 +1,10 @@
+---
+interface Props {
+  tone?: "good" | "warning" | "serious" | "critical" | "info" | "neutral" | "ai";
+  plain?: boolean;
+}
+
+const { tone = "neutral", plain = false } = Astro.props;
+---
+
+<span class:list={["badge", { "badge-plain": plain }]} data-tone={tone}><slot /></span>

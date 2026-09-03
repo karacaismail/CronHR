@@ -1,0 +1,141 @@
+---
+import AdminLayout from "../layouts/AdminLayout.astro";
+import AiBrief from "../components/AiBrief.astro";
+import Kpi from "../components/Kpi.astro";
+import Panel from "../components/Panel.astro";
+import Badge from "../components/Badge.astro";
+import Avatar from "../components/Avatar.astro";
+import AreaChart from "../components/AreaChart.astro";
+import Bars from "../components/Bars.astro";
+import AiHint from "../islands/AiHint";
+import {
+  ABSENCE_TREND,
+  AUTOMATIONS,
+  DEPARTMENTS,
+  EMPLOYEES,
+  HEADCOUNT_TREND,
+  LEAVE_REQUESTS,
+  MONTHS,
+  NOTIFICATIONS,
+  employee,
+  riskLabel,
+  riskTone,
+} from "../data/hr";
+import { Briefcase, CalendarCheck, Lightning, Sparkle, Timer, TrendDown, Users, WarningCircle } from "@phosphor-icons/react";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const pending = LEAVE_REQUESTS.filter((r) => r.status === "Bekliyor");
+const risky = [...EMPLOYEES].filter((e) => e.status !== "Ayrılıyor").sort((a, b) => b.attritionRisk - a.attritionRisk).slice(0, 4);
+const today = AUTOMATIONS.filter((a) => a.nextRun.startsWith("4 Eyl") || a.nextRun.startsWith("5 Eyl") || a.status === "Hatalı");
+---
+
+<AdminLayout pageId="panel" title="Günaydın İsmail" description="4 Eylül 2026, Cuma. AI bu sabah 120 çalışan kaydını, 5 izin talebini ve bordro taslağını taradı." eyebrow="Panel">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Bugün dikkat etmem gereken 3 şey ne?"><Sparkle size={14} weight="fill" /> Günün brifingi</button>
+    <a class="btn btn-primary" href={`${base}/calisanlar/`}><Users size={14} /> Yeni çalışan</a>
+  </Fragment>
+
+  <AiBrief
+    time="08:12'de üretildi"
+    lead="Bugün <strong>3 konu</strong> dikkat istiyor. Kadro sağlıklı büyüyor (120, +2), devamsızlık yılın ortalamasının altında; ancak bir ayrılma riski yükseldi ve bir entegrasyon 2 gündür hatalı."
+    points={[
+      { tone: "critical", text: "<strong>Ahmet Yıldız</strong> ayrılma riski 61 → 78. 18 aydır ünvan değişimi yok, fazla mesai %40 arttı. Bu hafta birebir görüşme önerilir." },
+      { tone: "warning", text: "<strong>Slack izin senkronu</strong> yetki hatası veriyor; 3 talep manuel girilmiş olabilir. Yeniden bağlantı 1 dakika sürer." },
+      { tone: "info", text: "<strong>Bordro taslağı</strong> hazır: 4 anomali, toplam etki 99.050 ₺. Finansla paylaşım 25 Eylül'de otomatik." },
+    ]}
+    chips={["Ayrılma riski yüksek çalışanları listele", "Bekleyen onayları özetle", "İşe alım hattının durumunu göster"]}
+    askQuery="Bugün dikkat etmem gereken 3 şey ne?"
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Toplam çalışan" value="120" delta="+2 bu ay" dir="up" spark={HEADCOUNT_TREND} sparkTone="good" ai="Büyüme planla uyumlu; Ekim hedefi 124.">
+      <Users size={14} slot="icon" />
+    </Kpi>
+    <Kpi label="Devamsızlık oranı" value="%3,2" delta="-0,5 puan" dir="up" spark={ABSENCE_TREND} sparkTone="accent" ai="Destek ekibi hariç tüm ekiplerde düşüş.">
+      <CalendarCheck size={14} slot="icon" />
+    </Kpi>
+    <Kpi label="Açık pozisyon" value="7" delta="136 başvuru" dir="flat" ai="Teklif aşaması ortalama 9 gün; darboğaz orada.">
+      <Briefcase size={14} slot="icon" />
+    </Kpi>
+    <Kpi label="Ayrılma riski yüksek" value="4" delta="+1 bu hafta" dir="down" ai="Ortak sinyal: ünvan durağanlığı + mesai artışı.">
+      <TrendDown size={14} slot="icon" />
+    </Kpi>
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Kadro ve devamsızlık" sub="Son 12 ay · AI yorumu grafiğin altında">
+      <Fragment slot="tools">
+        <AiHint client:visible label="Yorumla" title="Trend yorumu" answer="Kadro 12 ayda %22 büyüdü ve büyüme yavaşlayarak plana oturdu. Devamsızlıkta Ocak ve Temmuz zirveleri mevsimsel; Eylül'deki düşüş Destek ekibinin yeni vardiya düzeniyle açıklanıyor. Önümüzdeki 60 gün için beklenen aralık %2,8–3,4." actions={["Rapora ekle", "Yönetime gönder"]} mode="popover" />
+      </Fragment>
+      <AreaChart labels={MONTHS} series={[{ name: "Kadro", values: HEADCOUNT_TREND, color: "var(--series-3)" }]} height={170} />
+      <AreaChart labels={MONTHS} series={[{ name: "Devamsızlık %", values: ABSENCE_TREND }]} unit="%" height={150} />
+    </Panel>
+
+    <Panel title="AI önceliklendirilmiş bildirimler" sub="Önem sırasına göre" flush>
+      <Fragment slot="tools"><a class="btn btn-ghost btn-sm" href={`${base}/bildirimler/`}>Tümü</a></Fragment>
+      <ul>
+        {NOTIFICATIONS.slice(0, 5).map((n) => (
+          <li class="list-item">
+            <span class="list-icon" data-tone={n.tone === "serious" ? "warning" : n.tone === "neutral" ? undefined : n.tone}>
+              {n.tone === "ai" ? <Sparkle size={16} weight="fill" /> : n.tone === "critical" || n.tone === "warning" || n.tone === "serious" ? <WarningCircle size={16} /> : <Lightning size={16} />}
+            </span>
+            <a class="list-main" href={`${base}/${n.page === "panel" ? "" : n.page + "/"}`}>
+              <div class="list-title">{n.title}</div>
+              <div class="list-sub">{n.body}</div>
+            </a>
+            <span class="small faint" style="white-space:nowrap">{n.time}</span>
+          </li>
+        ))}
+      </ul>
+    </Panel>
+  </div>
+
+  <div class="grid grid-3">
+    <Panel title="Bekleyen onaylar" sub={`${pending.length} izin talebi`} flush>
+      <ul>
+        {pending.slice(0, 4).map((r) => (
+          <li class="list-item">
+            <Avatar name={employee(r.employeeId).name} sub={`${r.type} · ${r.days} gün`} hue={employee(r.employeeId).hue} />
+            <span style="margin-inline-start:auto"><Badge tone={r.aiVerdict === "Onayla" ? "good" : "warning"}>{r.aiVerdict}</Badge></span>
+            <AiHint client:visible title="AI görüşü" answer={r.aiReason} actions={r.aiVerdict === "Onayla" ? ["Onayla"] : ["Yöneticiye sor", "Tarihi öner"]} mode="popover" />
+          </li>
+        ))}
+      </ul>
+      <Fragment slot="foot"><a href={`${base}/izin-devam/`}>İzin ve Devam sayfasına git</a></Fragment>
+    </Panel>
+
+    <Panel title="Ayrılma riski" sub="AI risk skoru, en yüksekten" flush>
+      <ul>
+        {risky.map((e) => (
+          <li class="list-item">
+            <Avatar name={e.name} sub={e.title} hue={e.hue} />
+            <span style="margin-inline-start:auto"><Badge tone={riskTone(e.attritionRisk)}>{e.attritionRisk} · {riskLabel(e.attritionRisk)}</Badge></span>
+            <AiHint client:visible title="Neden riskli?" answer={e.riskReason + ". Önerilen ilk adım: yöneticisiyle kariyer görüşmesi planlayın ve ücret bandını gözden geçirin."} actions={["Görüşme planla", "Ücret analizi"]} mode="popover" />
+          </li>
+        ))}
+      </ul>
+      <Fragment slot="foot"><a href={`${base}/calisanlar/`}>Tüm çalışanları gör</a></Fragment>
+    </Panel>
+
+    <Panel title="Bugün çalışacak otomasyonlar" sub="Zamanlanmış ve olay tabanlı" flush>
+      <ul>
+        {today.slice(0, 4).map((a) => (
+          <li class="list-item">
+            <span class="list-icon" data-tone={a.status === "Hatalı" ? "critical" : "ai"}><Timer size={16} /></span>
+            <span class="list-main">
+              <div class="list-title">{a.name}</div>
+              <div class="list-sub">{a.schedule} · sonraki {a.nextRun}</div>
+            </span>
+            <Badge tone={a.status === "Aktif" ? "good" : a.status === "Hatalı" ? "critical" : "neutral"}>{a.status}</Badge>
+          </li>
+        ))}
+      </ul>
+      <Fragment slot="foot"><a href={`${base}/otomasyonlar/`}>Otomasyonları yönet</a></Fragment>
+    </Panel>
+  </div>
+
+  <Panel title="Departman doluluğu" sub="Kadro bütçesi kullanımı · AI, %80 üstünü işaretler">
+    <Fragment slot="tools"><button type="button" class="btn btn-ghost btn-sm" data-ask-ai="Ekip başına doluluk oranını karşılaştır"><Sparkle size={12} weight="fill" /> Karşılaştır</button></Fragment>
+    <Bars items={DEPARTMENTS.map((d) => ({ label: d.name, value: Math.round(d.budgetUse * 100), tone: d.budgetUse >= 0.8 ? "warning" : "accent", hint: `${d.headcount} kişi, ${d.open} açık` }))} unit="%" max={100} />
+  </Panel>
+</AdminLayout>

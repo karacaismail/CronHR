@@ -1,0 +1,48 @@
+---
+import { Timer } from "@phosphor-icons/react";
+import { NAV_GROUPS, NAV_PAGES } from "../data/nav";
+
+interface Props {
+  currentId: string;
+}
+
+const { currentId } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<aside class="sidebar" aria-label="Ana menü">
+  <a class="brand" href={`${base}/`}>
+    <span class="brand-mark"><Timer size={19} weight="fill" /></span>
+    <span>
+      <span class="brand-name">CronHR</span>
+      <span class="brand-tag">AI-first İK paneli</span>
+    </span>
+  </a>
+
+  <nav class="nav">
+    {NAV_GROUPS.map((group) => (
+      <>
+        <div class="nav-group-label">{group.label}</div>
+        {NAV_PAGES.filter((p) => p.group === group.id).map((page) => {
+          const Icon = page.icon;
+          return (
+            <a
+              class="nav-item"
+              href={`${base}${page.href}`}
+              aria-current={page.id === currentId ? "page" : undefined}
+            >
+              <Icon size={17} />
+              <span>{page.label}</span>
+              {page.badge ? <span class="nav-badge" data-tone={page.badgeTone}>{page.badge}</span> : null}
+            </a>
+          );
+        })}
+      </>
+    ))}
+  </nav>
+
+  <div class="sidebar-foot">
+    <div class="ai-status"><span class="ai-dot" aria-hidden="true"></span> AI asistan çevrimiçi</div>
+    <p class="ai-status-meta">Bağlam: 120 çalışan · 7 ilan · 4 otomasyon bugün. Öneriler onaysız uygulanmaz.</p>
+  </div>
+</aside>

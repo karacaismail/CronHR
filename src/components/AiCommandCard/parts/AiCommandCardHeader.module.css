@@ -1,0 +1,56 @@
+/* AiCommandCardHeader — iki durumun paylaştığı tek başlık satırı. */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-block-size: calc(var(--ai-command-card-collapsed-height) - 2px);
+  padding-inline: 10px;
+  flex: 0 0 auto;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+/* Profil yuvası: kapalıyken SIFIR genişlik — çan en sağa oturur, boşluk
+ * kalmaz. Açılınca 44px'e açılır ve avatar belirir. */
+.profileHost {
+  display: inline-flex;
+  inline-size: 0;
+  overflow: clip;
+  /* flex gap'inin (6px) sıfır genişlikte bıraktığı payı geri al. */
+  margin-inline-start: -6px;
+  transition:
+    inline-size var(--ai-command-card-hover-duration) ease,
+    margin var(--ai-command-card-hover-duration) ease;
+}
+
+[data-slot="ai-command-card-shell"][data-state="expanding"] .profileHost,
+[data-slot="ai-command-card-shell"][data-state="expanded"] .profileHost {
+  inline-size: 44px;
+  margin-inline-start: 0;
+}
+
+/* Orb'un header'daki ölçüm çapası. Açıkken orb composer'a göçtüğü için yuva
+ * SIFIR genişliğe iner ve boşalan alan breadcrumb başlığına kalır; kapanışta
+ * geri açılır. (overflow görünür kalmalı — orb bu kutunun çocuğudur.) */
+.triggerHome {
+  /* DİKKAT: position vermeyin — orb mutlak katmanı SHELL'e göre konumlanır;
+   * yuva positioned olursa çapa hesabı çifte ofsetlenir. */
+  display: inline-flex;
+  inline-size: 44px;
+  block-size: 44px;
+  transition:
+    inline-size var(--ai-command-card-hover-duration) ease,
+    margin var(--ai-command-card-hover-duration) ease;
+}
+
+[data-slot="ai-command-card-shell"][data-state="expanding"] .triggerHome,
+[data-slot="ai-command-card-shell"][data-state="expanded"] .triggerHome {
+  inline-size: 0;
+  margin-inline-start: -6px; /* flex gap payını geri al */
+}

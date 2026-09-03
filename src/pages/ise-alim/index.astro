@@ -1,0 +1,86 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import AiHint from "../../islands/AiHint";
+import { CANDIDATES, OPEN_ROLES } from "../../data/hr";
+import { Plus, Sparkle } from "@phosphor-icons/react";
+
+const STAGES = ["Başvuru", "Ön Eleme", "Mülakat", "Teklif", "İşe Alındı"] as const;
+const scoreColor = (s: number) => (s >= 80 ? "var(--good)" : s >= 60 ? "var(--warning)" : "var(--critical)");
+---
+
+<AdminLayout pageId="ise-alim" description="4 ilan, 136 başvuru. Adaylar ilanla örtüşmeye göre AI tarafından puanlanır; karar sizindir.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Backend ilanı için ilan metni taslağı yaz"><Sparkle size={14} weight="fill" /> AI ile ilan yaz</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Yeni ilan</button>
+  </Fragment>
+
+  <AiBrief
+    lead="Hat <strong>akıcı</strong>: ön elemeden mülakata dönüşüm %41. Darboğaz teklif aşamasında, ortalama 9 gün. Bu hafta 2 aday ikinci tura hazır."
+    points={[
+      { tone: "good", text: "<strong>Gizem Ak</strong> (91) Backend ilanıyla %94 örtüşüyor; teknik mülakat için Ahmet Yıldız uygun." },
+      { tone: "warning", text: "<strong>Satış Uzmanı</strong> ilanı 34 gündür açık; Nazlı Erdem'in teklifi 3 gündür yanıt bekliyor." },
+      { tone: "info", text: "Backend ilanına Kariyer.net kaynaklı başvuruların AI puanı ortalama 18 puan düşük; kaynak bütçesini LinkedIn'e kaydırın." },
+    ]}
+    chips={["En güçlü 5 adayı sırala", "İşe alım hattının durumunu göster", "Mülakat bekleyen adayları listele"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Açık pozisyon" value="4" delta="1 kapatıldı" dir="up" />
+    <Kpi label="Aktif aday" value="136" delta="+23 bu hafta" dir="up" />
+    <Kpi label="Ortalama kapanış" value="27 gün" delta="-4 gün" dir="up" ai="Teklif aşaması kısalırsa 22 güne iner." />
+    <Kpi label="Teklif kabul" value="%78" delta="+6 puan" dir="up" ai="Piyasa medyanı üstü tekliflerde %91." />
+  </div>
+
+  <Panel title="Aday hattı" sub="Sürükle-bırak yerine AI önerili aşama geçişi" flush>
+    <div class="kanban" style="padding:12px 16px 14px">
+      {STAGES.map((stage) => {
+        const cards = CANDIDATES.filter((c) => c.stage === stage);
+        return (
+          <div class="kanban-col">
+            <div class="kanban-col-head"><span>{stage}</span><span class="kanban-count">{cards.length}</span></div>
+            {cards.map((c) => (
+              <article class="kanban-card">
+                <div class="row-between">
+                  <Avatar name={c.name} sub={c.role} hue={c.hue} size={28} />
+                  <span class="score-ring" style={`--score:${c.score};--ring-color:${scoreColor(c.score)}`}><span>{c.score}</span></span>
+                </div>
+                <p class="small muted" style="line-height:1.45">{c.aiNote}</p>
+                <div class="row-between">
+                  <span class="small faint">{c.source} · {c.days} gün</span>
+                  <AiHint client:visible label="Öneri" title={`${c.name} için sonraki adım`} answer={c.stage === "Başvuru" ? `${c.aiNote}. Öneri: ${c.score >= 60 ? "ön elemeye al ve 15 dakikalık tanışma görüşmesi planla" : "nazik ret e-postası gönder, yetenek havuzuna ekle"}.` : c.stage === "Ön Eleme" ? `${c.aiNote}. Teknik test 48 saat içinde gönderilirse aday kaybı riski %60 azalır.` : c.stage === "Mülakat" ? `${c.aiNote}. Panel: yöneticisi + 1 ekip üyesi; 45 dakika yeterli.` : c.stage === "Teklif" ? `${c.aiNote}. 2 gün içinde yanıt gelmezse kısa bir arama öner.` : `${c.aiNote}`} actions={c.stage === "Başvuru" ? ["Ön elemeye al", "Ret taslağı yaz"] : c.stage === "Ön Eleme" ? ["Test gönder"] : c.stage === "Mülakat" ? ["Mülakat planla"] : c.stage === "Teklif" ? ["Hatırlatma gönder"] : ["Oryantasyonu aç"]} mode="popover" />
+                </div>
+              </article>
+            ))}
+            {cards.length === 0 ? <p class="empty">Aday yok</p> : null}
+          </div>
+        );
+      })}
+    </div>
+  </Panel>
+
+  <Panel title="Açık ilanlar" sub="AI hedef tarih tahmini ile" flush>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Pozisyon</th><th>Departman</th><th class="num">Başvuru</th><th class="num">Aktif</th><th class="num">Açık gün</th><th>Hedef</th><th class="cell-ai">AI</th></tr></thead>
+        <tbody>
+          {OPEN_ROLES.map((r) => (
+            <tr>
+              <td class="strong">{r.title}</td>
+              <td>{r.dept}</td>
+              <td class="num">{r.applicants}</td>
+              <td class="num">{r.stageOpen}</td>
+              <td class="num">{r.days}</td>
+              <td><Badge tone={r.target === "Kapatıldı" ? "good" : r.days > 30 ? "warning" : "info"}>{r.target}</Badge></td>
+              <td class="cell-ai"><AiHint client:visible title={`${r.title} · tahmin`} answer={r.target === "Kapatıldı" ? "Pozisyon Barış Uçar ile kapatıldı; başlangıç 15 Eylül. Oryantasyon planı otomasyonla oluşturuldu." : `Mevcut hızla kapanış tahmini ${r.target} ortası. ${r.days > 30 ? "İlan 30 günü aştı: başlık ve ücret aralığını güncellemek başvuru kalitesini %20 artırır." : "Hat sağlıklı; ek kaynak gerekmiyor."}`} actions={r.target === "Kapatıldı" ? [] : ["İlanı yenile", "Kaynak öner"]} mode="popover" /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </Panel>
+</AdminLayout>

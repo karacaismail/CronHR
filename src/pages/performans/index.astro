@@ -1,0 +1,84 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { GOALS, PERFORMANCE_DISTRIBUTION, employee } from "../../data/hr";
+import { Plus, Sparkle } from "@phosphor-icons/react";
+
+const tone = { Yolunda: "good", Riskli: "warning", Geride: "critical", Tamamlandı: "info" } as const;
+---
+
+<AdminLayout pageId="performans" description="3. çeyrek hedefleri. AI ilerlemeyi tahmin eder, geride kalanları işaretler ve değerlendirme taslakları yazar.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Ahmet Yıldız için değerlendirme taslağı yaz"><Sparkle size={14} weight="fill" /> Değerlendirme taslağı</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Yeni hedef</button>
+  </Fragment>
+
+  <AiBrief
+    lead="6 hedefin <strong>2'si yolunda, 2'si riskli, 1'i geride</strong>, 1'i erken tamamlandı. Çeyrek sonuna 26 gün var; Satış hedefi mevcut hızla %58'de kalacak."
+    points={[
+      { tone: "critical", text: "<strong>Yeni müşteri kazanımı</strong> (Mert Kaya) 2 hafta geride. Deneme süresi etkisi olası; haftalık koçluk öner." },
+      { tone: "warning", text: "<strong>Mobil onboarding</strong> deney sonucu 12 Eylül'de; karar noktası yaklaşıyor." },
+      { tone: "good", text: "<strong>Burak Şahin</strong> tasarım sistemini 3 hafta erken bitirdi; terfi dosyasına kanıt olarak eklendi." },
+    ]}
+    chips={["Geride kalan hedefleri listele", "Terfi adaylarını öner", "Ekip başına hedef ilerlemesini karşılaştır"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Ortalama ilerleme" value="%63" delta="+11 bu ay" dir="up" />
+    <Kpi label="Yolunda" value="3" delta="6 hedeften" dir="up" />
+    <Kpi label="Riskli / geride" value="3" delta="AI tahmini" dir="down" ai="2'si çeyrek sonunda toparlanabilir." />
+    <Kpi label="Değerlendirme dönemi" value="26 gün" delta="30 Eyl" dir="flat" ai="8 yönetici geri bildirim eğitimini bitirmedi." />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Hedefler" sub="AI tahmini her satırda" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Hedef</th><th>Sahibi</th><th>İlerleme</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {GOALS.map((g) => {
+              const e = employee(g.owner);
+              return (
+                <tr>
+                  <td class="strong" style="white-space:normal;min-inline-size:220px">{g.title}<div class="small muted" style="font-weight:500">{g.team}</div></td>
+                  <td><Avatar name={e.name} hue={e.hue} size={26} /></td>
+                  <td>
+                    <span class="row" style="gap:8px;min-inline-size:140px">
+                      <span class="meter" data-tone={g.status === "Geride" ? "critical" : g.status === "Riskli" ? "warning" : "good"} style="inline-size:80px"><span style={`inline-size:${g.progress}%`}></span></span>
+                      <span class="small strong">%{g.progress}</span>
+                    </span>
+                  </td>
+                  <td><Badge tone={tone[g.status]}>{g.status}</Badge></td>
+                  <td class="cell-ai"><AiHint client:visible title="AI tahmini" answer={g.aiNote} actions={g.status === "Geride" ? ["Koçluk planla", "Hedefi revize et"] : g.status === "Riskli" ? ["Kontrol noktası ekle"] : g.status === "Tamamlandı" ? ["Terfi dosyasına ekle"] : ["Not ekle"]} mode="popover" /></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+
+    <div class="stack" style="gap:16px">
+      <Panel title="Performans dağılımı" sub="Son değerlendirme dönemi">
+        <Bars items={PERFORMANCE_DISTRIBUTION.map((p, i) => ({ label: p.label, value: p.value, tone: i === 0 ? "good" : i === 2 ? "warning" : i === 3 ? "critical" : "accent" }))} unit=" kişi" />
+      </Panel>
+      <Panel title="AI ile değerlendirme yaz" sub="Hedef verisi ve geri bildirimlerden taslak">
+        <div class="field">
+          <label class="field-label" for="perf-person">Çalışan</label>
+          <select id="perf-person" class="select"><option>Ahmet Yıldız</option><option>Mert Kaya</option><option>Elif Demir</option></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="perf-tone">Ton <span class="field-ai"><Sparkle size={11} weight="fill" /> AI önerdi: dengeli</span></label>
+          <span class="segment"><button type="button">Takdir</button><button type="button" aria-pressed="true">Dengeli</button><button type="button">Gelişim</button></span>
+        </div>
+        <AiHint client:visible label="Taslağı oluştur" variant="chip" title="Ahmet Yıldız · 3. çeyrek değerlendirmesi" answer="Güçlü yönler: Ödeme servisi gecikme hedefinde %62 ilerleme; 3 kritik olayın çözümünde teknik liderlik; kod inceleme kalitesi ekip ortalamasının üstünde. Gelişim alanı: bilgi paylaşımı ve nöbet yükünü devretme. Öneri: Kıdemli+ ünvan değerlendirmesi ve mentorluk rolü; fazla mesai düşürülerek tükenmişlik riski azaltılmalı." actions={["Düzenle", "Yöneticiye gönder"]} />
+      </Panel>
+    </div>
+  </div>
+</AdminLayout>

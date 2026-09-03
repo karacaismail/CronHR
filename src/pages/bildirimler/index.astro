@@ -1,0 +1,44 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import AiHint from "../../islands/AiHint";
+import { NOTIFICATIONS } from "../../data/hr";
+import { Checks, Lightning, Sparkle, WarningCircle } from "@phosphor-icons/react";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const prTone = { "Yüksek": "critical", Orta: "warning", "Düşük": "neutral" } as const;
+---
+
+<AdminLayout pageId="panel" title="Bildirimler" description="AI, bildirimleri etkiye göre sıralar ve her birine önerilen ilk adımı ekler." eyebrow="Gelen kutusu" section="Bildirimler">
+  <Fragment slot="actions">
+    <button type="button" class="btn"><Checks size={14} /> Tümünü okundu işaretle</button>
+  </Fragment>
+
+  <AiBrief
+    lead="6 bildirimden <strong>2'si yüksek öncelikli</strong>: bir ayrılma riski artışı ve bir entegrasyon hatası. Diğerleri bu hafta içinde ele alınabilir."
+    chips={["Bugün dikkat etmem gereken 3 şey ne?", "Bekleyen onayları özetle"]}
+    askQuery="Bugün dikkat etmem gereken 3 şey ne?"
+  />
+
+  <Panel title="Tüm bildirimler" sub="Önceliğe göre sıralı" flush>
+    <ul>
+      {NOTIFICATIONS.map((n) => (
+        <li class="list-item" style="align-items:flex-start;padding-block:12px">
+          <span class="list-icon" data-tone={n.tone === "serious" ? "warning" : n.tone === "neutral" ? undefined : n.tone}>
+            {n.tone === "ai" ? <Sparkle size={16} weight="fill" /> : n.tone === "info" ? <Lightning size={16} /> : <WarningCircle size={16} />}
+          </span>
+          <span class="list-main">
+            <div class="row" style="gap:8px;flex-wrap:wrap"><span class="list-title">{n.title}</span><Badge tone={prTone[n.priority]}>{n.priority}</Badge><span class="small faint">{n.time}</span></div>
+            <div class="list-sub" style="margin-block-start:3px">{n.body}</div>
+            <div class="row" style="gap:6px;margin-block-start:8px">
+              <a class="btn btn-sm" href={`${base}/${n.page === "panel" ? "" : n.page + "/"}`}>Sayfaya git</a>
+              <AiHint client:visible label="İlk adım" variant="chip" title="Önerilen ilk adım" answer={n.id === "n1" ? "Yöneticisi Elif Demir ile bu hafta 30 dakikalık kariyer görüşmesi planlayın; görüşme öncesi AI, Ahmet'in son 6 ay katkı özetini hazırlar." : n.id === "n2" ? "Otomasyonlar sayfasında Slack bağlantısını yenileyin; ardından 3 talep otomatik içe alınır ve çakışma kontrolü yeniden çalışır." : n.id === "n3" ? "3 hazır talebi tek tıkla onaylayın; 2 dikkat gerektiren talep için AI tarih alternatifleri önerdi." : n.id === "n4" ? "Emre Doğan'ın pazar gecesi nöbetini devrederek en kritik anomaliyi çözün; kalan 3 kalem 10 dakikada kontrol edilir." : n.id === "n5" ? "Ahmet Yıldız'ın takviminde perşembe 14:00 boş; 45 dakikalık teknik mülakat daveti taslağı hazır." : "Zorunlu eğitim hatırlatma otomasyonunu yeniden başlatın; AI, 20 kişiye kişisel hatırlatma yazar."} actions={["Uygula"]} />
+            </div>
+          </span>
+        </li>
+      ))}
+    </ul>
+  </Panel>
+</AdminLayout>

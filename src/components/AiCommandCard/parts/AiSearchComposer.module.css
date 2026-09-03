@@ -1,0 +1,41 @@
+/* AiSearchComposer — AI sorgu input'u + orb'un iniş yuvası. */
+
+.composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--ai-cc-border);
+  /* Radius istisnası: search-bar kapsülü — uçlar %100 yuvarlak. */
+  border-radius: 999px;
+  padding: 6px 8px 6px 16px;
+  /* Cool grey input zemini — endüstri normu (Google #f1f3f4, Tailwind
+   * gray-100 #f3f4f6, Facebook #f0f2f5 ortası): soğuk beyazdan bir tık gri. */
+  background: #f1f3f5;
+  transition: border-color var(--ai-command-card-hover-duration) ease,
+    background-color var(--ai-command-card-hover-duration) ease,
+    box-shadow var(--ai-command-card-hover-duration) ease;
+}
+
+.composer:focus-within {
+  border-color: var(--ai-cc-accent);
+  background: var(--ai-cc-surface);
+  box-shadow: var(--ai-cc-focus-ring);
+}
+
+.composerInput {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  color: inherit;
+  block-size: 32px;
+}
+
+/* Orb'un composer içindeki rezerve iniş alanı. */
+.orbSlot {
+  flex: 0 0 auto;
+  inline-size: 44px;
+  block-size: 40px;
+}

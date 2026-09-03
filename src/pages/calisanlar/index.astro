@@ -1,0 +1,91 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { DEPARTMENTS, EMPLOYEES, formatDate, riskLabel, riskTone } from "../../data/hr";
+import { Export, Funnel, MagnifyingGlass, Plus, Sparkle } from "@phosphor-icons/react";
+
+const statusTone = { Aktif: "good", Deneme: "info", "İzinli": "neutral", "Ayrılıyor": "critical" } as const;
+const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
+---
+
+<AdminLayout pageId="calisanlar" description="120 çalışan, 7 departman. Her satırda AI risk skoru ve tek tıkla açıklama.">
+  <Fragment slot="actions">
+    <button type="button" class="btn"><Export size={14} /> Dışa aktar</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Yeni çalışan</button>
+  </Fragment>
+
+  <AiBrief
+    lead="Kadro <strong>sağlıklı</strong>: 12 ayda %22 büyüme, gönüllü ayrılma %9,6 (sektör %13). İki kişi izleme eşiğinin üstünde; ortak sinyal ünvan durağanlığı ve ücret bandı."
+    points={[
+      { tone: "critical", text: "<strong>Ahmet Yıldız</strong> (78) ve <strong>Selin Çelik</strong> (64) için bu hafta görüşme önerilir." },
+      { tone: "warning", text: "<strong>Mert Kaya</strong>'nın deneme süresi 16 Eylül'de bitiyor; ilk değerlendirme formu boş." },
+      { tone: "good", text: "Burak Şahin terfi sonrası katılımı 88'e çıkardı; mentor adayı." },
+    ]}
+    chips={["Ayrılma riski yüksek çalışanları listele", "Deneme süresi bu ay biten kişiler kim?", "Departman bazında kadro dağılımını göster"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Aktif çalışan" value="120" delta="+2" dir="up" ai="Ekim'de 3 başlangıç planlı." />
+    <Kpi label="Uzaktan oranı" value={`%${Math.round((remote / EMPLOYEES.length) * 100)}`} delta="hedef %35" dir="flat" ai="Politika sınırı içinde." />
+    <Kpi label="Ortalama kıdem" value="3,4 yıl" delta="+0,3" dir="up" />
+    <Kpi label="Gönüllü ayrılma" value="%9,6" delta="sektör %13" dir="up" ai="Mühendislik'te %12; izleme listesi orada." />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Çalışanlar" sub="AI risk skoru ile" flush>
+      <Fragment slot="tools">
+        <label class="row" style="gap:6px"><MagnifyingGlass size={14} color="var(--ink-faint)" /><input class="input" placeholder="İsim, ünvan, ekip" style="min-block-size:30px;inline-size:180px" /></label>
+        <button type="button" class="btn btn-sm"><Funnel size={13} /> Filtre</button>
+        <button type="button" class="btn btn-ai btn-sm" data-ask-ai="Ayrılma riski yüksek çalışanları listele"><Sparkle size={12} weight="fill" /> Riskli olanlar</button>
+      </Fragment>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Çalışan</th><th>Departman</th><th>Konum</th><th>Başlangıç</th><th>Durum</th><th>Ayrılma riski</th><th class="cell-ai">AI</th></tr>
+          </thead>
+          <tbody>
+            {EMPLOYEES.map((e) => (
+              <tr>
+                <td><Avatar name={e.name} sub={e.title} hue={e.hue} /></td>
+                <td>{e.department}</td>
+                <td>{e.location}</td>
+                <td class="muted">{formatDate(e.startDate)}</td>
+                <td><Badge tone={statusTone[e.status]}>{e.status}</Badge></td>
+                <td>
+                  <span class="row" style="gap:8px;min-inline-size:150px">
+                    <span class="meter" data-tone={riskTone(e.attritionRisk) === "good" ? "good" : riskTone(e.attritionRisk) === "warning" ? "warning" : "critical"} style="inline-size:70px"><span style={`inline-size:${e.attritionRisk}%`}></span></span>
+                    <span class="small strong">{e.attritionRisk}</span>
+                    <span class="small muted">{riskLabel(e.attritionRisk)}</span>
+                  </span>
+                </td>
+                <td class="cell-ai">
+                  <AiHint client:visible title={`${e.name} · AI değerlendirmesi`} answer={`${e.riskReason}. Katılım skoru ${e.engagement}/100. ${e.attritionRisk >= 55 ? "Önerilen adım: yöneticisiyle 30 dakikalık kariyer görüşmesi ve ücret bandı kontrolü." : "Şu an aksiyon gerekmiyor; 30 gün sonra yeniden değerlendirilecek."}`} actions={e.attritionRisk >= 55 ? ["Görüşme planla", "Ücret analizi", "Not ekle"] : ["Not ekle"]} mode="popover" />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Fragment slot="foot">10 / 120 gösteriliyor · AI skorları her gece yeniden hesaplanır</Fragment>
+    </Panel>
+
+    <div class="stack" style="gap:16px">
+      <Panel title="Departman dağılımı" sub="Kadro ve açık pozisyon">
+        <Bars items={DEPARTMENTS.map((d) => ({ label: d.name, value: d.headcount, tone: d.open > 0 ? "accent" : "info", hint: `${d.open} açık pozisyon` }))} unit=" kişi" />
+      </Panel>
+      <Panel title="AI ile hızlı kayıt" sub="Serbest metinden çalışan profili oluştur">
+        <textarea class="textarea" placeholder="Örn: Ayşe Kara, 15 Eylül'de Ürün ekibine Ürün Tasarımcısı olarak başlıyor, İstanbul hibrit, yöneticisi Elif Demir."></textarea>
+        <div class="row-between">
+          <span class="field-ai"><Sparkle size={12} weight="fill" /> Alanlar AI ile doldurulur, siz onaylarsınız.</span>
+          <button type="button" class="btn btn-ai btn-sm"><Sparkle size={12} weight="fill" /> Taslak oluştur</button>
+        </div>
+      </Panel>
+    </div>
+  </div>
+</AdminLayout>

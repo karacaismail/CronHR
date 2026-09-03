@@ -1,0 +1,51 @@
+/* AiCommandCardLogo — karo ikon + sağa uzayan açık mavi bantta wordmark.
+ * Bakan kişi buraya gerçek logonun yerleşeceğini anlar. */
+
+.logoAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* Adaptif: kapalı kart yüksekliğinden türetilir (64px'te 40px bant). */
+  block-size: calc(var(--ai-command-card-collapsed-height) - 24px);
+  padding-inline: 8px 14px;
+  border: none;
+  /* Sol taraf kapsül (%100), sağ üst/alt köşeler 0. */
+  border-radius: 999px 0 0 999px;
+  background: var(--ai-cc-accent-soft);
+  color: var(--ai-cc-accent);
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: opacity var(--ai-command-card-hover-duration) ease;
+}
+
+.logoAction:hover {
+  opacity: 0.85;
+}
+
+.logoAction:focus-visible {
+  outline: none;
+  box-shadow: var(--ai-cc-focus-ring);
+}
+
+.logoGlyph {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 24px;
+  block-size: 24px;
+  flex: 0 0 auto;
+}
+
+.logoLabel {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.logoStatic {
+  cursor: default;
+}
+
+.logoStatic:hover {
+  opacity: 1;
+}

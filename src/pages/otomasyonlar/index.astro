@@ -1,0 +1,74 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import AiHint from "../../islands/AiHint";
+import { AUTOMATIONS } from "../../data/hr";
+import { ArrowsClockwise, Play, Plus, Sparkle, Timer } from "@phosphor-icons/react";
+
+const statusTone = { Aktif: "good", "Duraklatıldı": "neutral", "Hatalı": "critical" } as const;
+const kindTone = { Rapor: "info", "Hatırlatma": "ai", "Onay akışı": "warning", "AI kuralı": "ai", Entegrasyon: "neutral" } as const;
+---
+
+<AdminLayout pageId="otomasyonlar" description="Zamanlanmış görevler ve AI kuralları. Kuralı düz Türkçe yazın; CronHR zamanlamayı, alıcıları ve şablonu çıkarır.">
+  <Fragment slot="actions">
+    <button type="button" class="btn"><Play size={14} /> Test çalıştır</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Yeni otomasyon</button>
+  </Fragment>
+
+  <AiBrief
+    lead="7 otomasyondan <strong>5'i aktif</strong>, 1'i hatalı, 1'i duraklatılmış. Bugün 4 çalıştırma planlı. Slack senkronu 2 gündür başarısız; izin verileri eksik olabilir."
+    points={[
+      { tone: "critical", text: "<strong>Slack → izin talebi senkronu</strong>: yetki belirteci geçersiz. Yeniden bağlantı 1 dakika; 3 talep sonra otomatik içe alınır." },
+      { tone: "warning", text: "<strong>Zorunlu eğitim hatırlatması</strong> duraklatılmış; KVKK son tarihi 30 Eylül. Yeniden başlatılması önerilir." },
+      { tone: "good", text: "<strong>Ayrılma riski kuralı</strong> son 30 günde 3 kez tetiklendi; 2'si görüşmeyle sonuçlandı." },
+    ]}
+    chips={["Başarısız olan görevleri listele", "Bugün çalışacak otomasyonları göster", "Doğum günü kutlama mesajı otomasyonu kur"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Aktif otomasyon" value="5" delta="7 toplam" dir="flat" />
+    <Kpi label="Bugün çalışacak" value="4" delta="sonraki 08:30" dir="flat" />
+    <Kpi label="Bu ay çalıştırma" value="1.212" delta="%99,6 başarı" dir="up" />
+    <Kpi label="Kazanılan süre" value="38 sa" delta="bu ay" dir="up" ai="En çok: doğum günü mesajları ve haftalık rapor." />
+  </div>
+
+  <Panel title="Doğal dille otomasyon kur" sub="Ne olmasını istediğinizi yazın; AI tetikleyici, zamanlama ve aksiyonu çıkarır">
+    <div class="row" style="gap:8px;align-items:stretch">
+      <input class="input" value="Her pazartesi 09:00'da, geçen haftanın devamsızlık özetini ekip liderlerine gönder ve %5'i aşan ekipleri işaretle" style="flex:1 1 auto" />
+      <AiHint client:visible label="Kuralı çıkar" variant="chip" title="Anlaşılan kural" answer="Tetikleyici: zamanlama, her pazartesi 09:00 (cron 0 9 * * 1). Kapsam: önceki hafta, tüm ekipler. Aksiyon: devamsızlık özet raporu, alıcılar 7 ekip lideri, kanal e-posta + Slack. Koşul: devamsızlık > %5 olan ekipler kırmızı işaretlenir ve İK'ya kopya gider. Tahmini çalışma süresi 12 saniye." actions={["Otomasyonu oluştur", "Düzenle"]} />
+    </div>
+    <div class="token-row">
+      <span class="token">Tetikleyici: zamanlama</span><span class="token mono">0 9 * * 1</span><span class="token">Alıcı: ekip liderleri</span><span class="token">Koşul: devamsızlık &gt; %5</span><span class="token">Kanal: e-posta + Slack</span>
+    </div>
+  </Panel>
+
+  <Panel title="Otomasyonlar" sub="Zamanlama, son ve sonraki çalıştırma" flush>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Otomasyon</th><th>Tür</th><th>Zamanlama</th><th>Son</th><th>Sonraki</th><th class="num">Çalıştırma</th><th>Durum</th><th class="cell-ai">AI</th></tr></thead>
+        <tbody>
+          {AUTOMATIONS.map((a) => (
+            <tr>
+              <td class="strong"><span class="row" style="gap:8px"><span class="list-icon" data-tone={a.status === "Hatalı" ? "critical" : "ai"} style="inline-size:28px;block-size:28px"><Timer size={14} /></span>{a.name}</span></td>
+              <td><Badge tone={kindTone[a.kind]} plain>{a.kind}</Badge></td>
+              <td><div>{a.schedule}</div><div class="mono faint">{a.cron}</div></td>
+              <td class="muted">{a.lastRun}</td>
+              <td class="muted">{a.nextRun}</td>
+              <td class="num">{new Intl.NumberFormat("tr-TR").format(a.runs)}</td>
+              <td><Badge tone={statusTone[a.status]}>{a.status}</Badge></td>
+              <td class="cell-ai">
+                <span class="row" style="gap:2px;justify-content:flex-end">
+                  {a.status === "Hatalı" ? <button type="button" class="icon-btn" aria-label="Yeniden bağla" style="inline-size:28px;block-size:28px"><ArrowsClockwise size={13} /></button> : null}
+                  <AiHint client:visible title={`${a.name} · AI notu`} answer={a.aiNote + "."} actions={a.status === "Hatalı" ? ["Yeniden bağla"] : a.status === "Duraklatıldı" ? ["Yeniden başlat"] : ["Günlüğü aç"]} mode="popover" />
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </Panel>
+</AdminLayout>

@@ -1,0 +1,113 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import AreaChart from "../../components/AreaChart.astro";
+import AiHint from "../../islands/AiHint";
+import { ABSENCE_TREND, LEAVE_BALANCES, LEAVE_REQUESTS, MONTHS, employee, formatDate } from "../../data/hr";
+import { Check, Sparkle, X } from "@phosphor-icons/react";
+
+const pending = LEAVE_REQUESTS.filter((r) => r.status === "Bekliyor");
+const done = LEAVE_REQUESTS.filter((r) => r.status !== "Bekliyor");
+const heat = Array.from({ length: 42 }, (_, i) => [0, 0, 1, 0, 2, 0, 0, 1, 0, 3, 0, 0, 1, 0, 0, 0, 2, 1, 0, 0, 0, 4, 0, 1, 0, 0, 2, 0, 0, 0, 1, 0, 3, 0, 0, 1, 0, 0, 2, 0, 0, 1][i]);
+---
+
+<AdminLayout pageId="izin-devam" description="5 talep bekliyor. AI her talebi politika, ekip takvimi ve iş yüküyle karşılaştırıp görüş bildirir.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Bekleyen izin taleplerini özetle"><Sparkle size={14} weight="fill" /> Talepleri özetle</button>
+    <button type="button" class="btn btn-primary"><Check size={14} weight="bold" /> Hazır 3'ünü onayla</button>
+  </Fragment>
+
+  <AiBrief
+    lead="<strong>3 talep</strong> politika içinde ve çakışmasız; tek tıkla onaylanabilir. <strong>2 talep</strong> dikkat istiyor: bir ekip çakışması ve deneme süresinde tekrarlayan mazeret izni."
+    points={[
+      { tone: "warning", text: "14–19 Eylül: <strong>Ahmet Yıldız</strong> ve <strong>Burak Şahin</strong> aynı hafta izinli; ödeme servisinde tek yedek kalıyor." },
+      { tone: "warning", text: "<strong>Mert Kaya</strong> deneme süresinde 3. mazeret izni; yöneticisiyle konuşulmalı." },
+      { tone: "good", text: "Devamsızlık %3,2 ile yıl ortalamasının altında; geç kalma örüntüsü yalnızca Destek gece vardiyasında." },
+    ]}
+    chips={["Çakışan izinleri bul", "Bu ayın devamsızlık trendini çiz", "Geç kalma örüntülerini analiz et"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Bekleyen talep" value="5" delta="3 hazır" dir="up" />
+    <Kpi label="Bugün izinli" value="6" delta="%5 kadro" dir="flat" ai="Kritik ekiplerde boşluk yok." />
+    <Kpi label="Devamsızlık" value="%3,2" delta="-0,5 puan" dir="up" spark={ABSENCE_TREND} />
+    <Kpi label="Kullanılmayan izin" value="412 gün" delta="yıl sonu riski" dir="down" ai="14 kişi 15+ gün biriktirdi; Kasım'da hatırlatma öner." />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="Bekleyen talepler" sub="AI görüşü her satırda" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Çalışan</th><th>Tür</th><th>Tarih</th><th class="num">Gün</th><th>AI görüşü</th><th>İşlem</th></tr></thead>
+          <tbody>
+            {pending.map((r) => {
+              const e = employee(r.employeeId);
+              return (
+                <tr>
+                  <td><Avatar name={e.name} sub={e.department} hue={e.hue} /></td>
+                  <td>{r.type}</td>
+                  <td class="muted">{formatDate(r.from)}{r.days > 1 ? ` – ${formatDate(r.to)}` : ""}</td>
+                  <td class="num">{r.days}</td>
+                  <td>
+                    <span class="row" style="gap:6px">
+                      <Badge tone={r.aiVerdict === "Onayla" ? "good" : r.aiVerdict === "Dikkat" ? "warning" : "critical"}>{r.aiVerdict}</Badge>
+                      <AiHint client:visible title="Gerekçe" answer={r.aiReason + (r.aiVerdict === "Dikkat" ? ". Alternatif: tarihi bir hafta kaydırmak veya yedek atamak." : ". Politika kontrolü ve takvim çakışması geçti.")} actions={r.aiVerdict === "Onayla" ? ["Onayla"] : ["Tarih öner", "Yöneticiye sor"]} mode="popover" />
+                    </span>
+                  </td>
+                  <td>
+                    <span class="row" style="gap:4px">
+                      <button type="button" class="icon-btn" aria-label="Onayla" style="color:var(--good)"><Check size={14} weight="bold" /></button>
+                      <button type="button" class="icon-btn" aria-label="Reddet"><X size={14} weight="bold" /></button>
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+            {done.map((r) => {
+              const e = employee(r.employeeId);
+              return (
+                <tr style="opacity:.62">
+                  <td><Avatar name={e.name} sub={e.department} hue={e.hue} /></td>
+                  <td>{r.type}</td>
+                  <td class="muted">{formatDate(r.from)} – {formatDate(r.to)}</td>
+                  <td class="num">{r.days}</td>
+                  <td><Badge tone="neutral">{r.status}</Badge></td>
+                  <td></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+
+    <div class="stack" style="gap:16px">
+      <Panel title="İzin bakiyeleri" sub="En yüksek bakiye üstte">
+        <ul class="stack">
+          {LEAVE_BALANCES.map((b) => {
+            const e = employee(b.employeeId);
+            const left = b.total - b.used;
+            return (
+              <li class="stack" style="gap:4px">
+                <div class="row-between"><span class="strong">{e.name}</span><span class="small muted">{left} / {b.total} gün</span></div>
+                <span class="meter" data-tone={left >= 12 ? "warning" : undefined}><span style={`inline-size:${(left / b.total) * 100}%`}></span></span>
+              </li>
+            );
+          })}
+        </ul>
+      </Panel>
+      <Panel title="Devamsızlık ısı haritası" sub="Son 6 hafta · gün başına olay">
+        <div class="heat" aria-hidden="true">{heat.map((l) => <span data-l={l}></span>)}</div>
+        <p class="small muted">AI: Pazartesi sabahları ve Cuma öğleden sonraları yoğunlaşma var; Destek gece vardiyası ana kaynak.</p>
+      </Panel>
+    </div>
+  </div>
+
+  <Panel title="Devamsızlık trendi" sub="Son 12 ay">
+    <AreaChart labels={MONTHS} series={[{ name: "Devamsızlık %", values: ABSENCE_TREND }]} unit="%" height={170} />
+  </Panel>
+</AdminLayout>

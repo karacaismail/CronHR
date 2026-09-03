@@ -1,0 +1,242 @@
+/*
+ * AiCommandCard master stylesheet — YALNIZCA orkestrasyon katmanı:
+ * design tokenları, scrim, kalıcı shell'in morph geometrisi, expanded region
+ * ve reduced-motion kill-switch'i. Her mikro parçanın görsel kimliği kendi
+ * parts/<Ad>.module.css dosyasındadır (lego kuralı). Parçalar, durumu
+ * [data-slot="ai-command-card-shell"][data-state=...] sözleşmesinden okur.
+ */
+
+.host {
+  /* Sabit 72px: mobil/masaüstü tüm cihazlarda değişmez. */
+  --ai-command-card-collapsed-height: 72px;
+  --ai-command-card-collapsed-max-width: 700px;
+  --ai-command-card-expanded-max-width: 1050px;
+  --ai-command-card-expanded-height: 520px;
+  --ai-command-card-mobile-gutter: 8px;
+  /* Radius istisnası: kapalı shell, composer ile aynı search-bar kapsülü
+   * (uçlar %100 yuvarlak); açıkken 8px kuralına döner.
+   * DİKKAT: 999px DEĞİL, gerçek kapsül değeri (yükseklik/2). 999'dan
+   * interpolasyon, 32px üstü kısıldığı için tıklamadan sonra "ölü bekleme"
+   * yaratıyordu; gerçek değerden başlayınca radius ANINDA değişmeye başlar. */
+  --ai-command-card-collapsed-radius: calc(var(--ai-command-card-collapsed-height) / 2);
+  --ai-command-card-expanded-radius: 8px;
+  /* Faz süreleri: radius 0,7sn + büyüme/küçülme 0,7sn = toplam 1,4sn. */
+  --ai-command-card-expand-duration: 700ms;
+  --ai-command-card-collapse-duration: 700ms;
+  /* KEMİK KURAL (değişmez): açılışta ÖNCE radius değişir, SONRA kart büyür.
+   * Kapanışta ayna: önce küçülür, sonra kapsüle döner. */
+  --ai-command-card-radius-morph-duration: 700ms;
+  --ai-command-card-reveal-delay: 840ms; /* radius morph (700ms) + 140ms */
+  --ai-command-card-item-stagger: 35ms;
+  --ai-command-card-hover-duration: 140ms;
+  --ai-command-card-press-duration: 90ms;
+  /* Ease-in-out: yumuşak girer, ortada hızlanır, yumuşak çıkar. */
+  --ai-command-card-easing: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --ai-cc-surface: #ffffff;
+  --ai-cc-surface-muted: #f4f5f7;
+  --ai-cc-border: #d9dce1;
+  --ai-cc-text: #1c1e21;
+  --ai-cc-text-muted: #5b6371;
+  --ai-cc-accent: #4f46e5;
+  --ai-cc-accent-soft: #eef2ff;
+  --ai-cc-focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.35);
+
+  box-sizing: border-box;
+  inline-size: 100%;
+  padding-inline: var(--ai-command-card-mobile-gutter);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ai-cc-text);
+}
+
+.host *,
+.host *::before,
+.host *::after {
+  box-sizing: border-box;
+}
+
+/*
+ * Katman ayrımı: açıkken kart (üst) ile sayfa (alt) arasına görsel bir orta
+ * katman girer — 2px blur + yarı saydam cool grey. pointer-events kapalı:
+ * modal backdrop değildir; dış tıklama document'a ulaşır ve controller kartı
+ * kapatır.
+ */
+.host::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(100, 116, 139, 0.35);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ai-command-card-collapse-duration) ease;
+}
+
+.host[data-state="expanding"]::before,
+.host[data-state="expanded"]::before {
+  opacity: 1;
+  transition-duration: var(--ai-command-card-expand-duration);
+}
+
+/* ------------------------------------------------------------------ shell */
+
+/*
+ * Tek kalıcı yüzey. Asla unmount edilmez, key almaz, klonlanmaz, değiştirilmez;
+ * collapsed/expanded aynı DOM node'un CSS state'leridir. Gerçek inline-size/
+ * block-size transition edilir (transform: scale yok).
+ */
+.shell {
+  container: ai-command-shell / inline-size;
+  position: relative;
+  margin-inline: auto;
+  inline-size: min(100%, var(--ai-command-card-collapsed-max-width));
+  block-size: var(--ai-command-card-collapsed-height);
+  border: 1px solid var(--ai-cc-border);
+  border-radius: var(--ai-command-card-collapsed-radius);
+  background: var(--ai-cc-surface);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.07);
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  /* Kapanış: önce boyut küçülür, radius kapsüle EN SONDA döner. */
+  transition:
+    inline-size var(--ai-command-card-collapse-duration) var(--ai-command-card-easing),
+    block-size var(--ai-command-card-collapse-duration) var(--ai-command-card-easing),
+    box-shadow var(--ai-command-card-collapse-duration) var(--ai-command-card-easing),
+    border-radius var(--ai-command-card-radius-morph-duration) var(--ai-command-card-easing)
+      var(--ai-command-card-collapse-duration);
+}
+
+.shell[data-state="expanding"],
+.shell[data-state="expanded"] {
+  inline-size: min(100%, var(--ai-command-card-expanded-max-width));
+  block-size: min(
+    var(--ai-command-card-expanded-height),
+    calc(100dvh - 2 * var(--ai-command-card-mobile-gutter))
+  );
+  border-radius: var(--ai-command-card-expanded-radius);
+  box-shadow: 0 16px 40px rgba(16, 24, 40, 0.16);
+  /* Açılış: ÖNCE radius (gecikmesiz, kısa), büyüme radius bitince başlar. */
+  transition:
+    border-radius var(--ai-command-card-radius-morph-duration) var(--ai-command-card-easing),
+    inline-size var(--ai-command-card-expand-duration) var(--ai-command-card-easing)
+      var(--ai-command-card-radius-morph-duration),
+    block-size var(--ai-command-card-expand-duration) var(--ai-command-card-easing)
+      var(--ai-command-card-radius-morph-duration),
+    box-shadow var(--ai-command-card-expand-duration) var(--ai-command-card-easing)
+      var(--ai-command-card-radius-morph-duration);
+}
+
+/* will-change yalnızca geometri gerçekten animasyondayken */
+.shell[data-state="expanding"],
+.shell[data-state="collapsing"] {
+  will-change: inline-size, block-size;
+}
+
+/* Açılış/kapanış boyunca kart scrim'in üstünde kalır. */
+.shell[data-state="expanding"],
+.shell[data-state="expanded"],
+.shell[data-state="collapsing"] {
+  z-index: 31;
+}
+
+/* -------------------------------------------------- expanded content body */
+
+/*
+ * Expanded içerik her zaman shell içinde mounted kalır; collapsed'da inert +
+ * aria-hidden (JSX) ve burada görsel olarak gizlidir. Portal veya sibling
+ * panel asla kullanılmaz.
+ */
+.expandedRegion {
+  container: ai-command-region / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 14px 14px;
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow-y: auto;
+  overflow-x: clip;
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 -6px;
+  transition:
+    opacity var(--ai-command-card-collapse-duration) ease,
+    translate var(--ai-command-card-collapse-duration) ease,
+    visibility 0s linear var(--ai-command-card-collapse-duration);
+}
+
+.shell[data-state="expanding"] .expandedRegion,
+.shell[data-state="expanded"] .expandedRegion {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  transition:
+    opacity var(--ai-command-card-expand-duration) ease var(--ai-command-card-reveal-delay),
+    translate var(--ai-command-card-expand-duration) ease var(--ai-command-card-reveal-delay),
+    visibility 0s;
+}
+
+/* ------------------------------------------------------------ scroll cue */
+
+/*
+ * "Aşağıda devamı var" sezgisi: içerik fold altına taşıyorsa alt kenarda
+ * yüzeye karışan bir solma + süzülen ok görünür; en alta inince kaybolur.
+ */
+.scrollHint {
+  position: absolute;
+  inset-inline: 1px;
+  inset-block-end: 1px;
+  block-size: 72px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-block-end: 6px;
+  background: linear-gradient(180deg, transparent 0%, var(--ai-cc-surface) 78%);
+  /* Beyaz solma alanı, altındaki kartları 2px bulanıklaştırır. */
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  color: var(--ai-cc-text-muted);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+  z-index: 2;
+}
+
+.scrollHint[data-visible="true"] {
+  /* Komple %20 kısık: tam opaklık yerine 0.8. */
+  opacity: 0.8;
+}
+
+.scrollHint svg {
+  animation: scrollHintBob 1.6s ease-in-out infinite;
+}
+
+@keyframes scrollHintBob {
+  0%, 100% { translate: 0 0; opacity: 0.6; }
+  50% { translate: 0 4px; opacity: 1; }
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+.host[data-motion="reduced"] .shell,
+.host[data-motion="reduced"] .shell * {
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  animation: none !important;
+}
+
+/* Adaptive cihaz blokları (320 iPhone 4 FIRST — taban .host'un kendisidir;
+ * büyük cihazlar data-device damgasıyla ayrı kodlanır). */
+.host[data-device="tablet"],
+.host[data-device="desktop"] {
+  padding-inline: 24px;
+}
+
+/* Dikey yönde açık kart, ekran yüksekliğinin ~%84'ünü kaplar
+ * (yatayda 520px hedefi geçerli kalır). */
+.host[data-orientation="portrait"] {
+  --ai-command-card-expanded-height: 84dvh;
+}

@@ -1,0 +1,34 @@
+/* Ortak yuvarlak aksiyon butonu tabanı — trigger, bildirim ve profil bunu
+ * genişletir. Lego kuralı: parçalar yalnızca bu tabanı ve host'tan miras alınan
+ * --ai-cc-* tokenlarını paylaşır. */
+
+.iconAction {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border: 1px solid transparent;
+  border-radius: 100%;
+  background: transparent;
+  color: var(--ai-cc-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--ai-command-card-hover-duration) ease,
+    scale var(--ai-command-card-press-duration) ease,
+    border-color var(--ai-command-card-hover-duration) ease;
+}
+
+.iconAction:hover {
+  background: var(--ai-cc-surface-muted);
+}
+
+.iconAction:active {
+  scale: 0.97;
+}
+
+.iconAction:focus-visible {
+  outline: none;
+  box-shadow: var(--ai-cc-focus-ring);
+}

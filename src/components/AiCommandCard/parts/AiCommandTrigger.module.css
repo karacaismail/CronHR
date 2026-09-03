@@ -1,0 +1,132 @@
+/* AiCommandTrigger — AI orb. Bu parçanın TÜM görsel kimliği bu dosyada:
+ * liquid-glass orb, 5 sn kalp atışı, glow ve composer'a göç (translate). */
+
+/*
+ * GEZEGEN KATMANI: orb, layout akışının DIŞINDA, shell'e mutlak konumlu
+ * bağımsız bir üst katmandır (güneş tutulmasındaki ay gibi). Konumu her an
+ * controller tarafından ölçülüp --orb-x/--orb-y ile verilir; header/composer
+ * layout'u değişse, içerik kaysa bile orb'u hiçbir şey itemez veya bozamaz.
+ */
+.aiTrigger {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 40;
+  background: transparent;
+  border-color: transparent;
+  translate: var(--orb-x, 10px) var(--orb-y, 10px);
+  /* Gezegenin TEK hareket kuralı: her hedefe 600ms'de, gecikmesiz, aynı
+   * eğriyle süzülür. Duruma göre süre/delay farkı YOK — ara hedef ve nihai
+   * düzeltme tek kavisli yolculuk oluşturur; ışınlanma imkânsızdır. */
+  transition: translate 600ms var(--ai-command-card-easing);
+}
+
+.aiTrigger:hover {
+  background: transparent;
+}
+
+/*
+ * GERÇEK skeuomorphic buton: gradyan YOK — düz renkli gövde; tüm biçim
+ * yalnızca gölge ve ışıkla kurulur. Merkez içbükey (üstten içe çöküş
+ * gölgesi), yalnızca alt kenar dışbükey (alt iç kenarda kabaran ışık),
+ * zemine oturma gölgesi.
+ */
+.aiOrb {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: 100%;
+  color: #fff;
+  /* "Yıldızın dışı": kendi taban rengi; hue döngüsüyle sürekli değişir.
+   * Fosforlu değil: doygunluk yüksek (S88) ama bir tık koyu (L56).
+   * Gölgelendirme kontrastı bilinçli olarak düşük tutuldu. */
+  background: hsl(244, 88%, 56%);
+  border: 1px solid rgba(35, 26, 112, 0.35);
+  box-shadow:
+    /* üstten içe çöküş: merkez çukur (yumuşatılmış) */
+    inset 0 4px 6px rgba(24, 16, 72, 0.32),
+    inset 0 1px 2px rgba(24, 16, 72, 0.22),
+    /* alt iç kenarda dışbükey kabarma ışığı (yumuşatılmış) */
+    inset 0 -4px 5px rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.4),
+    /* butonun zemine oturma gölgesi */
+    0 2px 3px rgba(30, 20, 90, 0.3);
+  /* Gövde ("yıldızın dışı") gökkuşağı: gerçek HSL durakları, doygunluk %95
+   * (%100'e yakın); 24 sn'de tam tur. Kararsız gezegen yalpası + kendi
+   * ekseninde dönüş orbWobble ile. */
+  animation:
+    aiHeartbeat 5s ease-in-out infinite,
+    orbBodyRainbow 24s linear infinite,
+    orbWobble 18s ease-in-out infinite;
+}
+
+@keyframes orbBodyRainbow {
+  0%   { background-color: hsl(244, 88%, 56%); }
+  16.7% { background-color: hsl(304, 88%, 56%); }
+  33.3% { background-color: hsl(4, 88%, 56%); }
+  50%  { background-color: hsl(64, 88%, 56%); }
+  66.7% { background-color: hsl(124, 88%, 56%); }
+  83.3% { background-color: hsl(184, 88%, 56%); }
+  100% { background-color: hsl(244, 88%, 56%); }
+}
+
+/*
+ * Kararsız gezegen: kendi ekseninde tam tur dönerken merkezden düzensiz
+ * yüzdelerle sapar (%10 sağa, %15 sola, %10 yukarı, %15 aşağı, %20...) —
+ * güneşle arasında mesafe yok, eksen etrafında yalpalı dönüş.
+ */
+@keyframes orbWobble {
+  0%   { translate: 0 0; rotate: 0deg; }
+  9%   { translate: 10% -6%; rotate: 34deg; }
+  19%  { translate: -15% 4%; rotate: 70deg; }
+  30%  { translate: 6% 12%; rotate: 108deg; }
+  41%  { translate: -8% -15%; rotate: 148deg; }
+  53%  { translate: 15% 8%; rotate: 191deg; }
+  64%  { translate: -10% -4%; rotate: 230deg; }
+  76%  { translate: 4% 15%; rotate: 274deg; }
+  88%  { translate: -6% -10%; rotate: 317deg; }
+  100% { translate: 0 0; rotate: 360deg; }
+}
+
+/* Uydular gezegeni GECİKEREK takip eder: aynı yalpa, 0.6 sn faz gerisinde. */
+.aiTrigger [data-slot="ai-particle-field"] {
+  animation: orbWobble 18s ease-in-out 0.6s infinite;
+}
+
+.aiOrbGlow {
+  position: absolute;
+  inset: 2px;
+  border-radius: 100%;
+  background: radial-gradient(closest-side, rgba(139, 92, 246, 0.55), rgba(139, 92, 246, 0));
+  filter: blur(4px);
+  animation: aiHeartbeatGlow 5s ease-in-out infinite;
+}
+
+/* Kullanıcı yazarken/gönderirken ambient ritim durur. */
+[data-slot="ai-command-card-shell"][data-query-state="typing"] .aiOrb,
+[data-slot="ai-command-card-shell"][data-query-state="submitting"] .aiOrb,
+[data-slot="ai-command-card-shell"][data-query-state="typing"] .aiOrbGlow,
+[data-slot="ai-command-card-shell"][data-query-state="submitting"] .aiOrbGlow {
+  animation-play-state: paused;
+}
+
+/* Kalp atışı: lub (%8) — dub (%24) — 5 sn'lik döngünün kalanı dinlenme. */
+@keyframes aiHeartbeat {
+  0% { scale: 1; }
+  8% { scale: 1.14; }
+  16% { scale: 1; }
+  24% { scale: 1.1; }
+  36% { scale: 1; }
+  100% { scale: 1; }
+}
+
+@keyframes aiHeartbeatGlow {
+  0% { opacity: 0.35; scale: 1; }
+  8% { opacity: 1; scale: 1.5; }
+  16% { opacity: 0.45; scale: 1.1; }
+  24% { opacity: 0.9; scale: 1.4; }
+  36% { opacity: 0.35; scale: 1; }
+  100% { opacity: 0.35; scale: 1; }
+}

@@ -1,0 +1,75 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import Avatar from "../../components/Avatar.astro";
+import AreaChart from "../../components/AreaChart.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { MONTHS, PAYROLL, employee, tl } from "../../data/hr";
+import { LockKey, Sparkle } from "@phosphor-icons/react";
+
+const diff = PAYROLL.gross - PAYROLL.prevGross;
+const mtl = (v: number) => `${(v / 1_000_000).toFixed(2).replace(".", ",")} M ₺`;
+const toneLabel = { critical: "Kritik", serious: "Dikkat", warning: "Uyarı", info: "Bilgi", good: "İyi", neutral: "Nötr" } as const;
+---
+
+<AdminLayout pageId="bordro" description={`${PAYROLL.period} dönemi taslak. AI, her kalemi geçen dönem ve politikayla karşılaştırır; onay sizde.`}>
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Bu dönemin bordro anomalilerini göster"><Sparkle size={14} weight="fill" /> Anomalileri açıkla</button>
+    <button type="button" class="btn btn-primary"><LockKey size={14} /> Onaya gönder</button>
+  </Fragment>
+
+  <AiBrief
+    lead={`Brüt maliyet <strong>${tl(PAYROLL.gross)}</strong>, geçen döneme göre <strong>+%${((diff / PAYROLL.prevGross) * 100).toFixed(1).replace(".", ",")}</strong>. Artışın %58'i 2 yeni başlangıç ve fazla mesai. 4 anomali onay öncesi çözülmeli.`}
+    points={[
+      { tone: "critical", text: "<strong>Emre Doğan</strong>: 62 saat fazla mesai. Politika sınırı 72; vardiya planında pazar gecesi devredilirse sınır içinde kalır." },
+      { tone: "warning", text: "<strong>Selin Çelik</strong> piyasa medyanının %14 altında; ayrılma riski 64 ile ilişkili. Ücret revizyonu maliyeti yıllık 74.400 ₺." },
+      { tone: "info", text: "<strong>Deniz Koç</strong> ayrılışı: kıdem ve izin ücreti 84.500 ₺ hesaplandı, kontrol bekliyor." },
+    ]}
+    chips={["Geçen döneme göre farkları açıkla", "Fazla mesai maliyetini departmana göre kır", "Bordroyu onaya hazırla"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Brüt toplam" value={mtl(PAYROLL.gross)} delta={`+${tl(diff)}`} dir="down" spark={PAYROLL.costTrend} />
+    <Kpi label="Net ödeme" value={mtl(PAYROLL.net)} delta="120 kişi" dir="flat" />
+    <Kpi label="İşveren maliyeti" value={mtl(PAYROLL.employer)} delta="%23,5" dir="flat" />
+    <Kpi label="Fazla mesai" value={tl(PAYROLL.overtime)} delta="+%18" dir="down" ai="Mühendislik nöbetleri %61'ini oluşturuyor." />
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="AI anomali kontrolü" sub="Onay öncesi çözülmesi gereken kalemler" flush>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Çalışan</th><th>Tür</th><th>Detay</th><th class="num">Etki</th><th>Seviye</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {PAYROLL.anomalies.map((a) => {
+              const e = employee(a.employeeId);
+              return (
+                <tr>
+                  <td><Avatar name={e.name} sub={e.department} hue={e.hue} /></td>
+                  <td class="strong">{a.kind}</td>
+                  <td style="white-space:normal;min-inline-size:260px" class="muted">{a.detail}</td>
+                  <td class="num strong">{a.amount < 0 ? "−" : "+"}{tl(Math.abs(a.amount))}</td>
+                  <td><Badge tone={a.tone}>{toneLabel[a.tone]}</Badge></td>
+                  <td class="cell-ai"><AiHint client:visible title={`${a.kind} · çözüm önerisi`} answer={a.kind === "Fazla mesai" ? "Pazar gecesi nöbeti Burak Şahin'e devredilirse Emre'nin toplamı 54 saate iner ve bu kalem 5.400 ₺ azalır. Telafi izni tanımlamak yıl sonu yükümlülüğünü de düşürür." : a.kind === "Ücret bandı" ? "Piyasa verisi: aynı ünvan İstanbul medyanı 6.200 ₺ üstünde. Revizyon yıllık 74.400 ₺; ayrılma halinde yeniden işe alım maliyeti tahmini 210.000 ₺." : a.kind === "Ayrılış" ? "Kıdem: 7 yıl 22 gün, tavan içinde. Kullanılmamış 9 gün izin ücreti dahil. Hesap yasal güncel katsayılarla doğrulandı." : "3 mazeret izni politika gereği ücretli olmalı. Düzeltme 2.150 ₺ ekler; Mert Kaya'nın yöneticisine bilgi verilmesi önerilir."} actions={a.kind === "Fazla mesai" ? ["Vardiyayı devret"] : a.kind === "Ücret bandı" ? ["Revizyon taslağı"] : a.kind === "Ayrılış" ? ["Kontrol edildi"] : ["Düzelt"]} mode="popover" /></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <Fragment slot="foot">Toplam etki 99.050 ₺ · Kontrol tamamlanmadan onaya gönderilemez</Fragment>
+    </Panel>
+
+    <Panel title="Departman maliyeti" sub="Milyon ₺ · bu dönem">
+      <Bars items={PAYROLL.byDept.map((d) => ({ label: d.name, value: d.value }))} unit=" M" />
+    </Panel>
+  </div>
+
+  <Panel title="Brüt maliyet trendi" sub="Son 12 ay · milyon ₺">
+    <AreaChart labels={MONTHS} series={[{ name: "Brüt maliyet", values: PAYROLL.costTrend }]} unit=" M" height={180} />
+  </Panel>
+</AdminLayout>

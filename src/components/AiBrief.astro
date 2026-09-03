@@ -1,0 +1,50 @@
+---
+import { Sparkle } from "@phosphor-icons/react";
+
+interface Point {
+  tone: "good" | "warning" | "critical" | "info";
+  text: string;
+}
+
+interface Props {
+  title?: string;
+  time?: string;
+  lead: string;
+  points?: Point[];
+  chips?: string[];
+  askQuery?: string;
+}
+
+const { title = "AI özeti", time = "az önce güncellendi", lead, points = [], chips = [], askQuery } = Astro.props;
+---
+
+<section class="ai-brief" aria-label={title}>
+  <span class="ai-brief-orb" aria-hidden="true"><Sparkle size={16} weight="fill" /></span>
+  <div class="ai-brief-body">
+    <div class="ai-brief-head">
+      <span class="ai-brief-title">{title}</span>
+      <span class="ai-brief-time">{time}</span>
+    </div>
+    <p class="ai-brief-lead" set:html={lead} />
+    {points.length ? (
+      <ul class="ai-brief-points">
+        {points.map((p) => (
+          <li class="ai-point"><span class="ai-point-dot" data-tone={p.tone}></span><span set:html={p.text} /></li>
+        ))}
+      </ul>
+    ) : null}
+    {chips.length ? (
+      <div class="ai-chip-row">
+        {chips.map((c) => (
+          <button type="button" class="ai-chip" data-ask-ai={c}><Sparkle size={11} weight="fill" />{c}</button>
+        ))}
+      </div>
+    ) : null}
+  </div>
+  <div class="ai-brief-actions">
+    <button type="button" class="btn btn-ai btn-sm" data-ask-ai={askQuery ?? "Bu sayfayı açıkla"}>
+      <Sparkle size={13} weight="fill" /> AI'ya sor
+    </button>
+    <slot />
+  </div>
+</section>

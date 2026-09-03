@@ -1,0 +1,45 @@
+---
+/** Yatay çubuk listesi: etiket · çubuk · değer. Sıralı/karşılaştırmalı veri için. */
+interface Item {
+  label: string;
+  value: number;
+  tone?: "accent" | "good" | "warning" | "critical" | "info";
+  hint?: string;
+}
+
+interface Props {
+  items: Item[];
+  unit?: string;
+  max?: number;
+}
+
+const { items, unit = "", max } = Astro.props;
+const top = max ?? Math.max(...items.map((i) => i.value));
+const color: Record<string, string> = {
+  accent: "var(--accent)",
+  good: "var(--good)",
+  warning: "var(--warning)",
+  critical: "var(--critical)",
+  info: "var(--info)",
+};
+const fmt = (v: number) => (Number.isInteger(v) ? new Intl.NumberFormat("tr-TR").format(v) : v.toFixed(2).replace(".", ","));
+---
+
+<ul class="bars">
+  {items.map((item) => (
+    <li class="bar-row">
+      <span class="bar-label" title={item.hint}>{item.label}</span>
+      <span class="bar-track"><span class="bar-fill" style={`inline-size:${Math.max(2, (item.value / top) * 100)}%;background:${color[item.tone ?? "accent"]}`}></span></span>
+      <span class="bar-value">{fmt(item.value)}{unit}</span>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .bars { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: grid; grid-template-columns: minmax(90px, 130px) minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 12px; }
+  .bar-label { color: var(--ink-2); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { block-size: 8px; border-radius: 999px; background: var(--surface-sunken); overflow: hidden; }
+  .bar-fill { display: block; block-size: 100%; border-radius: 999px; }
+  .bar-value { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); min-inline-size: 44px; text-align: end; }
+</style>

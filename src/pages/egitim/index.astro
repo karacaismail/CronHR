@@ -1,0 +1,65 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import AiHint from "../../islands/AiHint";
+import { COURSES } from "../../data/hr";
+import { GraduationCap, Plus, Sparkle } from "@phosphor-icons/react";
+
+const kindTone = { Zorunlu: "critical", Teknik: "info", Liderlik: "ai", Uyum: "good" } as const;
+---
+
+<AdminLayout pageId="egitim" description="6 aktif program. AI tamamlama riskini tahmin eder ve kişiye özel öğrenme yolu önerir.">
+  <Fragment slot="actions">
+    <button type="button" class="btn btn-ai" data-ask-ai="Satış ekibi için öğrenme yolu öner"><Sparkle size={14} weight="fill" /> Öğrenme yolu öner</button>
+    <button type="button" class="btn btn-primary"><Plus size={14} weight="bold" /> Program ekle</button>
+  </Fragment>
+
+  <AiBrief
+    lead="<strong>KVKK eğitimi</strong> son tarihe 26 gün kala %83'te; 20 kişi tamamlamadı ve hatırlatma otomasyonu duraklatılmış. Teknik programlarda tamamlayanların iş çıktısı ölçülebilir şekilde daha iyi."
+    points={[
+      { tone: "critical", text: "KVKK'yı tamamlamayan 20 kişinin 12'si Satış'ta. Otomasyonu yeniden başlatın; AI kişisel hatırlatma yazar." },
+      { tone: "info", text: "<strong>Kubernetes Operasyonları</strong> Emre Doğan'ın nöbet yükünü azaltır; öncelikli atama önerilir." },
+      { tone: "good", text: "Danışmanlı Satış eğitimini bitirenlerin dönüşüm oranı %11 daha yüksek; programı genişletin." },
+    ]}
+    chips={["Zorunlu eğitimi tamamlamayanları listele", "Süresi dolacak sertifikaları göster", "Tamamlama oranı trendini çiz"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Aktif program" value="6" delta="2 zorunlu" dir="flat" />
+    <Kpi label="Ortalama tamamlama" value="%66" delta="+8 puan" dir="up" />
+    <Kpi label="Zorunlu uyum" value="%83" delta="hedef %100" dir="down" ai="26 gün kaldı; mevcut hızla %94." />
+    <Kpi label="Kişi başı eğitim saati" value="7,4" delta="çeyrek" dir="up" />
+  </div>
+
+  <div class="grid grid-3">
+    {COURSES.map((c) => (
+      <article class="panel">
+        <div class="panel-head">
+          <span class="list-icon" data-tone={c.kind === "Zorunlu" ? "critical" : c.kind === "Teknik" ? "info" : c.kind === "Liderlik" ? "ai" : "good"}><GraduationCap size={17} /></span>
+          <div style="min-width:0">
+            <h2 class="panel-title" style="font-size:13px">{c.title}</h2>
+            <p class="panel-sub">{c.enrolled} kayıtlı{c.due ? ` · son tarih ${c.due}` : ""}</p>
+          </div>
+          <span class="panel-tools"><Badge tone={kindTone[c.kind]} plain>{c.kind}</Badge></span>
+        </div>
+        <div class="panel-body">
+          <div class="row-between"><span class="small muted">Tamamlama</span><span class="small strong">%{c.completion}</span></div>
+          <span class="meter" data-tone={c.completion < 50 ? "warning" : c.completion >= 90 ? "good" : undefined}><span style={`inline-size:${c.completion}%`}></span></span>
+          <AiHint client:visible label="AI notu" variant="chip" title={`${c.title} · AI notu`} answer={c.aiNote + "."} actions={c.kind === "Zorunlu" ? ["Hatırlatma gönder", "Tamamlamayanlar"] : ["Kişi ata", "Detay"]} />
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <Panel title="AI öğrenme yolu" sub="Rol, hedef ve performans verisinden kişiye özel plan">
+    <div class="grid grid-3" style="gap:12px">
+      <div class="field"><label class="field-label" for="lp-team">Ekip</label><select id="lp-team" class="select"><option>Satış</option><option>Mühendislik</option><option>Destek</option></select></div>
+      <div class="field"><label class="field-label" for="lp-goal">Hedef</label><select id="lp-goal" class="select"><option>Dönüşüm oranını artır</option><option>Yeni ürün lansmanı</option><option>Liderliğe hazırlık</option></select></div>
+      <div class="field"><label class="field-label" for="lp-weeks">Süre</label><select id="lp-weeks" class="select"><option>6 hafta</option><option>12 hafta</option></select></div>
+    </div>
+    <AiHint client:visible label="Yolu oluştur" variant="chip" title="Satış ekibi · 6 haftalık öğrenme yolu" answer="Hafta 1–2: Danışmanlı Satış Teknikleri (mevcut program, %72 tamamlanmış). Hafta 3: İtiraz karşılama atölyesi, 2 saat, canlı. Hafta 4–5: CRM'de fırsat hijyeni mikro dersleri, günde 10 dakika. Hafta 6: Rol oyunu ve AI ile görüşme analizi. Beklenen etki: dönüşümde +%8–11; en çok fayda görecek 5 kişi: Mert Kaya, Onur Kılıç ve 3 yeni başlangıç." actions={["Ekibe ata", "Düzenle"]} />
+  </Panel>
+</AdminLayout>

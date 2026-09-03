@@ -1,0 +1,24 @@
+---
+interface Props {
+  title: string;
+  sub?: string;
+  flush?: boolean;
+  class?: string;
+}
+
+const { title, sub, flush = false, class: className } = Astro.props;
+---
+
+<section class:list={["panel", className]}>
+  <header class="panel-head">
+    <div>
+      <h2 class="panel-title"><slot name="icon" />{title}</h2>
+      {sub ? <p class="panel-sub">{sub}</p> : null}
+    </div>
+    <div class="panel-tools"><slot name="tools" /></div>
+  </header>
+  <div class:list={["panel-body", { flush }]}>
+    <slot />
+  </div>
+  {Astro.slots.has("foot") ? <footer class="panel-foot"><slot name="foot" /></footer> : null}
+</section>

@@ -1,0 +1,72 @@
+/* AiQuerySuggestionList — wrap olan öneri pill'leri + beckon dalgası. */
+
+.suggestionList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestionPill {
+  border: 1px solid var(--ai-cc-border);
+  border-radius: 999px;
+  background: var(--ai-cc-surface);
+  color: var(--ai-cc-text-muted);
+  font-size: 12px;
+  padding: 8px 12px;
+  min-block-size: 34px;
+  cursor: pointer;
+  transition:
+    background-color var(--ai-command-card-hover-duration) ease,
+    border-color var(--ai-command-card-hover-duration) ease,
+    scale var(--ai-command-card-press-duration) ease;
+}
+
+/*
+ * Beckon: --pill-index ile kaydırılmış yumuşak bir glow dalgası pill'lerin
+ * üzerinden geçer ve tıklamaya davet eder. Hover/focus'ta durur; reduced
+ * motion'da tamamen kalkar (host kill-switch'i).
+ */
+[data-slot="ai-command-card-shell"][data-state="expanded"] .suggestionPill {
+  animation: pillBeckon 6s ease-in-out infinite;
+  animation-delay: calc(var(--pill-index, 0) * 600ms);
+}
+
+.suggestionPill:hover,
+.suggestionPill:focus-visible {
+  animation-play-state: paused;
+}
+
+@keyframes pillBeckon {
+  0%, 24%, 100% {
+    border-color: var(--ai-cc-border);
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+    translate: 0 0;
+  }
+  8% {
+    border-color: var(--ai-cc-accent);
+    box-shadow: 0 2px 12px 0 rgba(139, 92, 246, 0.35);
+    translate: 0 -2px;
+  }
+  16% {
+    border-color: var(--ai-cc-border);
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+    translate: 0 0;
+  }
+}
+
+.suggestionPill:hover {
+  background: var(--ai-cc-accent-soft);
+  border-color: var(--ai-cc-accent);
+}
+
+.suggestionPill:active {
+  scale: 0.97;
+}
+
+.suggestionPill:focus-visible {
+  outline: none;
+  box-shadow: var(--ai-cc-focus-ring);
+}

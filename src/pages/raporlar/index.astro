@@ -1,0 +1,77 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import AreaChart from "../../components/AreaChart.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { ATTRITION_TREND, DEPARTMENTS, HEADCOUNT_TREND, MONTHS } from "../../data/hr";
+import { ChartBar, ChartLineUp, Clock, Download, Sparkle, Users } from "@phosphor-icons/react";
+
+const READY = [
+  { title: "Aylık İK özeti", desc: "Kadro, devamsızlık, ayrılma, işe alım", when: "Her ayın 1'i", icon: ChartBar, tone: "ai" },
+  { title: "Ayrılma analizi", desc: "Nedenler, ekipler, risk tahmini", when: "Haftalık", icon: ChartLineUp, tone: "info" },
+  { title: "Kadro ve bütçe", desc: "Departman doluluğu, açık pozisyon", when: "İstek üzerine", icon: Users, tone: "good" },
+  { title: "Fazla mesai ve vardiya", desc: "Saat, maliyet, kural ihlalleri", when: "Haftalık", icon: Clock, tone: "warning" },
+] as const;
+---
+
+<AdminLayout pageId="raporlar" description="Hazır raporlar ve serbest metinle AI rapor üretimi. Her rapor yorumla birlikte gelir.">
+  <Fragment slot="actions">
+    <button type="button" class="btn"><Download size={14} /> PDF</button>
+    <button type="button" class="btn btn-ai" data-ask-ai="Aylık İK özet raporu oluştur"><Sparkle size={14} weight="fill" /> AI ile rapor üret</button>
+  </Fragment>
+
+  <AiBrief
+    title="Bu ayın öne çıkanları"
+    lead="Kadro 12 ayda <strong>%22</strong> büyüdü, gönüllü ayrılma sektörün altında. Fazla mesai maliyeti üç aydır artıyor ve Mühendislik nöbetlerinde yoğunlaşıyor; yönetim kurulu özeti için ana başlık bu olmalı."
+    points={[
+      { tone: "info", text: "Ayrılma oranı Temmuz zirvesinden (%2,1) Eylül'de %0,9'a indi; çıkış görüşmeleri ana neden olarak kariyer durağanlığını gösteriyor." },
+      { tone: "warning", text: "Fazla mesai maliyeti son 3 ayda +%18; vardiya kurallarının sıkılaştırılması öneriliyor." },
+    ]}
+    chips={["Yönetim kuruluna sunum özeti yaz", "Departman bazında maliyet raporu hazırla", "İşe alım hunisi raporunu göster"]}
+  />
+
+  <div class="grid grid-4">
+    {READY.map((r) => {
+      const Icon = r.icon;
+      return (
+        <article class="panel">
+          <div class="panel-head">
+            <span class="list-icon" data-tone={r.tone}><Icon size={17} /></span>
+            <div style="min-width:0"><h2 class="panel-title" style="font-size:13px">{r.title}</h2><p class="panel-sub">{r.desc}</p></div>
+          </div>
+          <div class="panel-body">
+            <div class="row-between"><span class="small muted">{r.when}</span><Badge tone="ai" plain><Sparkle size={10} weight="fill" /> AI yorumlu</Badge></div>
+            <div class="row" style="gap:6px"><button type="button" class="btn btn-sm">Aç</button><button type="button" class="btn btn-ghost btn-sm">Zamanla</button></div>
+          </div>
+        </article>
+      );
+    })}
+  </div>
+
+  <div class="grid grid-2">
+    <Panel title="Kadro büyümesi" sub="Son 12 ay">
+      <Fragment slot="tools"><AiHint client:visible label="Yorumla" title="Kadro yorumu" answer="Büyüme ilk 6 ayda hızlı, son 3 ayda plana oturdu. Ekim'de planlı 3 başlangıçla 123'e ulaşılır; bütçe 124 kişiyi karşılıyor. Mühendislik payı %35'e çıktı; Destek oransal olarak geride kaldı ve bu, ilk yanıt süresini etkileyebilir." actions={["Rapora ekle"]} mode="popover" /></Fragment>
+      <AreaChart labels={MONTHS} series={[{ name: "Kadro", values: HEADCOUNT_TREND, color: "var(--series-3)" }]} height={180} />
+    </Panel>
+    <Panel title="Ayrılma oranı" sub="Aylık %">
+      <Fragment slot="tools"><AiHint client:visible label="Yorumla" title="Ayrılma yorumu" answer="Temmuz zirvesi 3 gönüllü ayrılıştan geldi; üçü de 18+ aydır ünvan değişimi yaşamamıştı. Eylül'de oran normale döndü ama aynı örüntü 2 çalışanda daha görülüyor. Kariyer patikası programı bu riski doğrudan hedefler." actions={["Rapora ekle", "Riskli listeyi aç"]} mode="popover" /></Fragment>
+      <AreaChart labels={MONTHS} series={[{ name: "Ayrılma %", values: ATTRITION_TREND, color: "var(--series-2)" }]} unit="%" height={180} />
+    </Panel>
+  </div>
+
+  <div class="grid grid-main">
+    <Panel title="AI ile rapor üret" sub="Ne istediğinizi yazın; tablo, grafik ve yorumla döner">
+      <textarea class="textarea" placeholder="Örn: Son 6 ayda Mühendislik ekibinin fazla mesai maliyetini, nöbet dağılımını ve ayrılma riskini tek sayfada özetle; yönetim kurulu için 3 madde öneri ekle."></textarea>
+      <div class="row-between">
+        <span class="token-row"><span class="token">Son 6 ay</span><span class="token">Mühendislik</span><span class="token">Fazla mesai</span><span class="token">Ayrılma riski</span></span>
+        <AiHint client:visible label="Raporu üret" variant="chip" title="Mühendislik · 6 aylık özet" answer="Rapor hazır (4 sayfa): 1) Fazla mesai maliyeti 6 ayda +%31, nöbetlerin %61'i 3 kişide. 2) Nöbet dağılımı: Emre Doğan 14 gece/ay, ekip ortalaması 5. 3) Ayrılma riski: 2 çalışan izleme eşiğinde, ortak sinyal ünvan durağanlığı. Öneriler: nöbet rotasyonu kuralı, Kıdemli+ patikası, Kubernetes eğitimiyle nöbet yükünün azaltılması." actions={["PDF olarak indir", "Yönetime gönder"]} />
+      </div>
+    </Panel>
+    <Panel title="Departman doluluğu" sub="Bütçe kullanımı %">
+      <Bars items={DEPARTMENTS.map((d) => ({ label: d.name, value: Math.round(d.budgetUse * 100), tone: d.budgetUse >= 0.8 ? "warning" : "accent" }))} unit="%" max={100} />
+    </Panel>
+  </div>
+</AdminLayout>

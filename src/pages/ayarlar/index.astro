@@ -1,0 +1,95 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Panel from "../../components/Panel.astro";
+import Badge from "../../components/Badge.astro";
+import AiHint from "../../islands/AiHint";
+import { Buildings, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react";
+
+const ROLES = [
+  { name: "Yönetici", people: 2, scope: "Tüm modüller, AI ayarları, bordro" },
+  { name: "İK Uzmanı", people: 5, scope: "Çalışan, izin, işe alım, belgeler" },
+  { name: "Ekip Lideri", people: 14, scope: "Kendi ekibi, izin onayı, hedefler" },
+  { name: "Finans", people: 3, scope: "Bordro (salt okunur), raporlar" },
+  { name: "Çalışan", people: 120, scope: "Kendi profili, izin talebi, eğitim" },
+];
+
+const AI_DATA = [
+  { field: "Ad, ünvan, ekip, başlangıç", on: true, note: "AI bağlamı için temel" },
+  { field: "İzin ve devam kayıtları", on: true, note: "Çakışma ve devamsızlık analizi" },
+  { field: "Performans hedefleri ve notlar", on: true, note: "Değerlendirme taslakları" },
+  { field: "Ücret ve bordro kalemleri", on: false, note: "Yalnızca anomali kontrolü; maskeli" },
+  { field: "Sağlık raporları", on: false, note: "Asla AI'ya gönderilmez" },
+];
+---
+
+<AdminLayout pageId="ayarlar" description="Şirket, roller, onay akışları ve AI tercihleri. AI'nın neyi görebildiği ve neyi yapamayacağı burada belirlenir.">
+  <Fragment slot="actions">
+    <button type="button" class="btn">Vazgeç</button>
+    <button type="button" class="btn btn-primary">Kaydet</button>
+  </Fragment>
+
+  <AiBrief
+    title="AI güvenlik özeti"
+    lead="AI asistanı <strong>rol bazlı</strong> çalışır: yalnızca sizin görebildiğiniz veriyi kullanır, hiçbir öneriyi onaysız uygulamaz ve her öneri kayıt altındadır. Ücret ve sağlık verileri varsayılan olarak kapalıdır."
+    points={[
+      { tone: "good", text: "Son 30 günde 412 AI önerisi üretildi, 138'i uygulandı, 0 otomatik uygulama." },
+      { tone: "info", text: "Model: CronHR Copilot (yerleşik). Veriler eğitim için kullanılmaz; bölge: AB." },
+    ]}
+    chips={["AI asistanının izinlerini açıkla", "Hangi veriler AI ile paylaşılıyor?", "Onay akışlarını özetle"]}
+    askQuery="AI asistanının izinlerini açıkla"
+  />
+
+  <div class="grid grid-2">
+    <Panel title="Şirket" sub="Temel bilgiler">
+      <Fragment slot="icon"><Buildings size={15} /></Fragment>
+      <div class="grid grid-2" style="gap:12px">
+        <div class="field"><label class="field-label" for="s-name">Şirket adı</label><input id="s-name" class="input" value="Karaca Teknoloji A.Ş." /></div>
+        <div class="field"><label class="field-label" for="s-tz">Saat dilimi</label><select id="s-tz" class="select"><option>Europe/Istanbul (UTC+3)</option></select></div>
+        <div class="field"><label class="field-label" for="s-week">Çalışma haftası</label><select id="s-week" class="select"><option>Pazartesi – Cuma</option><option>Pazartesi – Cumartesi</option></select></div>
+        <div class="field"><label class="field-label" for="s-leave">Yıllık izin (varsayılan) <span class="field-ai"><Sparkle size={11} weight="fill" /> AI: kıdeme göre 14/20/26</span></label><input id="s-leave" class="input" value="14 gün" /></div>
+      </div>
+    </Panel>
+
+    <Panel title="AI tercihleri" sub="Asistanın davranışı">
+      <Fragment slot="icon"><Sparkle size={15} weight="fill" /></Fragment>
+      <ul class="stack" style="gap:10px">
+        <li class="row-between"><span><div class="strong">Sayfa açılışında AI özeti</div><div class="small muted">Her sayfada üstte otomatik brifing</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="AI özeti"></button></li>
+        <li class="row-between"><span><div class="strong">Satır bazlı AI önerileri</div><div class="small muted">Tablolarda ve kartlarda AI düğmesi</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Satır önerileri"></button></li>
+        <li class="row-between"><span><div class="strong">Proaktif bildirimler</div><div class="small muted">Risk eşiği aşılınca AI uyarır</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Proaktif bildirim"></button></li>
+        <li class="row-between"><span><div class="strong">Otomatik uygulama</div><div class="small muted">Önerileri onaysız uygula (önerilmez)</div></span><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Otomatik uygulama"></button></li>
+        <li class="row-between"><span><div class="strong">Ton</div><div class="small muted">Yanıt üslubu</div></span><span class="segment"><button type="button">Resmi</button><button type="button" aria-pressed="true">Dengeli</button><button type="button">Samimi</button></span></li>
+      </ul>
+    </Panel>
+
+    <Panel title="AI ile paylaşılan veri" sub="Alan bazında kontrol · varsayılan en kısıtlı">
+      <Fragment slot="icon"><ShieldCheck size={15} /></Fragment>
+      <ul class="stack" style="gap:10px">
+        {AI_DATA.map((d) => (
+          <li class="row-between"><span><div class="strong">{d.field}</div><div class="small muted">{d.note}</div></span><button type="button" class="switch" role="switch" aria-checked={d.on ? "true" : "false"} aria-label={d.field}></button></li>
+        ))}
+      </ul>
+      <AiHint client:visible label="Bu ayarlar ne anlama geliyor?" variant="chip" title="Veri paylaşımı" answer="Açık alanlar AI bağlamına girer ve yalnızca sizin rolünüzün görebildiği kayıtlarla sınırlıdır. Kapalı alanlar hiçbir sorguda kullanılmaz; bordro anomali kontrolü maskelenmiş tutarlarla çalışır. Her değişiklik denetim günlüğüne yazılır ve yöneticilere bildirilir." />
+    </Panel>
+
+    <Panel title="Roller ve erişim" sub="Kim neyi görür" flush>
+      <Fragment slot="icon"><UsersThree size={15} /></Fragment>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>Rol</th><th class="num">Kişi</th><th>Kapsam</th><th class="cell-ai">AI</th></tr></thead>
+          <tbody>
+            {ROLES.map((r) => (
+              <tr>
+                <td class="strong">{r.name}</td>
+                <td class="num">{r.people}</td>
+                <td class="muted" style="white-space:normal">{r.scope}</td>
+                <td class="cell-ai"><AiHint client:visible title={`${r.name} · AI kapsamı`} answer={`${r.name} rolündeki kullanıcılar için AI yalnızca şu kapsamı görür: ${r.scope}. Bu rolün göremediği bir kayıt hakkında soru sorulursa AI "yetkiniz dışında" yanıtı verir ve olay günlüğe yazılır.`} mode="popover" /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Fragment slot="foot"><Badge tone="good">SSO açık</Badge><span>Son denetim günlüğü: bugün 08:10</span></Fragment>
+    </Panel>
+  </div>
+</AdminLayout>

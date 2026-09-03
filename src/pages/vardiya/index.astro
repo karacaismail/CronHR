@@ -1,0 +1,91 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
+import Panel from "../../components/Panel.astro";
+import Avatar from "../../components/Avatar.astro";
+import Bars from "../../components/Bars.astro";
+import AiHint from "../../islands/AiHint";
+import { SHIFT_ROWS, WEEK_DAYS, employee } from "../../data/hr";
+import { CaretLeft, CaretRight, Sparkle } from "@phosphor-icons/react";
+---
+
+<AdminLayout pageId="vardiya" description="7–13 Eylül haftası. Boş vardiyaları AI önerir, çakışmaları anında işaretler; yayınlamadan önce siz onaylarsınız.">
+  <Fragment slot="actions">
+    <span class="segment"><button type="button" aria-pressed="true">Hafta</button><button type="button">Ay</button></span>
+    <button type="button" class="btn btn-ai" data-ask-ai="Bu haftaki boş vardiyaları doldur"><Sparkle size={14} weight="fill" /> AI ile doldur</button>
+    <button type="button" class="btn btn-primary">Planı yayınla</button>
+  </Fragment>
+
+  <AiBrief
+    lead="Planda <strong>2 boşluk</strong> ve <strong>1 çakışma</strong> var. AI iki boşluk için öneri üretti; Emre Doğan'ın pazar gecesi nöbeti aylık fazla mesai sınırını aşıyor."
+    points={[
+      { tone: "critical", text: "<strong>Emre Doğan</strong> · Paz 13 gece: bu ay 62 saat fazla mesai; yasal sınıra 28 saat kaldı. Öneri: Burak Şahin'e devret." },
+      { tone: "info", text: "Per 10 sabah ve Cmt 12 gündüz boş; AI, izin bakiyesi ve önceki tercihlerine göre Mert Kaya ve Ayşe Aydın'ı öneriyor." },
+      { tone: "good", text: "Can Öztürk 12 Eylül'de izinden dönüyor; gelecek hafta Destek gece dengesi normale döner." },
+    ]}
+    chips={["Çakışan vardiyaları bul", "Gece vardiyası dağılımını dengele", "Gelecek haftanın planını taslak olarak oluştur"]}
+  />
+
+  <div class="grid grid-4">
+    <Kpi label="Planlanan saat" value="1.284" delta="hedef 1.320" dir="flat" />
+    <Kpi label="Boş vardiya" value="2" delta="AI önerdi" dir="up" />
+    <Kpi label="Çakışma" value="1" delta="fazla mesai" dir="down" ai="Emre Doğan · Paz 13 gece" />
+    <Kpi label="Gece yükü dengesi" value="%71" delta="+9 puan" dir="up" ai="En yüksek yük Emre'de (6/7 gece)." />
+  </div>
+
+  <Panel title="Haftalık plan" sub="Hücreye tıklayıp AI önerisini uygulayın" flush>
+    <Fragment slot="tools">
+      <button type="button" class="icon-btn" aria-label="Önceki hafta"><CaretLeft size={14} /></button>
+      <span class="small strong">7 – 13 Eylül 2026</span>
+      <button type="button" class="icon-btn" aria-label="Sonraki hafta"><CaretRight size={14} /></button>
+    </Fragment>
+    <div class="table-wrap">
+      <div class="shift-grid">
+        <div class="shift-head">Çalışan</div>
+        {WEEK_DAYS.map((d) => <div class="shift-head">{d}</div>)}
+        {SHIFT_ROWS.map((row) => {
+          const e = employee(row.employeeId);
+          return (
+            <>
+              <div><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></div>
+              {row.cells.map((cell, i) => (
+                <div>
+                  {cell.kind === "ai" ? (
+                    <AiHint client:visible label={cell.label} variant="chip" title={`${e.name} · ${WEEK_DAYS[i]}`} answer={`Bu vardiya boş. ${e.name} uygun: izin yok, haftalık saat sınırı içinde ve son 4 haftada aynı vardiyayı 3 kez tercih etmiş. Alternatif: Selin Çelik.`} actions={["Ata", "Alternatifi göster"]} mode="popover" />
+                  ) : cell.kind === "conflict" ? (
+                    <AiHint client:visible label="22–06 · Çakışma" variant="chip" title="Fazla mesai sınırı" answer="Bu nöbetle Emre Doğan'ın aylık fazla mesaisi 70 saate çıkar; yasal sınır 90 saat ama şirket politikası 72. Öneri: nöbeti Burak Şahin'e devret, Emre'ye telafi izni tanımla." actions={["Burak'a devret", "Telafi izni ekle"]} mode="popover" />
+                  ) : (
+                    <span class="shift" data-kind={cell.kind}>{cell.label}</span>
+                  )}
+                </div>
+              ))}
+            </>
+          );
+        })}
+      </div>
+    </div>
+    <Fragment slot="foot">
+      <span class="shift" data-kind="morning" style="inline-size:auto">Sabah</span>
+      <span class="shift" data-kind="day" style="inline-size:auto">Gündüz</span>
+      <span class="shift" data-kind="night" style="inline-size:auto">Gece</span>
+      <span class="shift" data-kind="leave" style="inline-size:auto">İzin</span>
+      <span class="shift" data-kind="ai" style="inline-size:auto">AI önerisi</span>
+      <span class="shift" data-kind="conflict" style="inline-size:auto">Çakışma</span>
+    </Fragment>
+  </Panel>
+
+  <div class="grid grid-2">
+    <Panel title="Gece vardiyası dağılımı" sub="Bu ay · kişi başına gece sayısı">
+      <Bars items={[{ label: "Emre Doğan", value: 14, tone: "critical" }, { label: "Can Öztürk", value: 8 }, { label: "Selin Çelik", value: 6 }, { label: "Burak Şahin", value: 3 }, { label: "Ayşe Aydın", value: 2 }]} unit=" gece" />
+    </Panel>
+    <Panel title="AI kuralları" sub="Plan üretirken uygulanan kısıtlar">
+      <ul class="stack" style="gap:8px">
+        <li class="row-between"><span>İki vardiya arası en az 11 saat dinlenme</span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Dinlenme kuralı"></button></li>
+        <li class="row-between"><span>Ardışık gece vardiyası en fazla 3</span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Gece kuralı"></button></li>
+        <li class="row-between"><span>Aylık fazla mesai üst sınırı 72 saat</span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Mesai kuralı"></button></li>
+        <li class="row-between"><span>Çalışan tercihlerini önceliklendir</span><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Tercih kuralı"></button></li>
+      </ul>
+    </Panel>
+  </div>
+</AdminLayout>

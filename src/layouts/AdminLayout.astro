@@ -1,0 +1,72 @@
+---
+import "../styles/global.css";
+import Sidebar from "../components/Sidebar.astro";
+import CommandBar from "../islands/CommandBar";
+import { findPage } from "../data/nav";
+
+interface Props {
+  pageId: string;
+  title?: string;
+  description?: string;
+  eyebrow?: string;
+  section?: string;
+}
+
+const { pageId, title, description, eyebrow, section } = Astro.props;
+const page = findPage(pageId);
+const base = import.meta.env.BASE_URL;
+const docTitle = `${title ?? page.label} · CronHR`;
+---
+
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content={description ?? page.description} />
+    <meta name="theme-color" content="#eceef3" />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <title>{docTitle}</title>
+  </head>
+  <body>
+    <div class="app">
+      <Sidebar currentId={pageId} />
+      <div class="main">
+        <div class="topbar">
+          <CommandBar client:load currentPageId={pageId} section={section} base={base} />
+        </div>
+        <main class="content">
+          <header class="page-head">
+            <div>
+              <p class="page-eyebrow">{eyebrow ?? page.group.toUpperCase()}</p>
+              <h1 class="page-title">{title ?? page.label}</h1>
+              {(description ?? page.description) ? <p class="page-desc">{description ?? page.description}</p> : null}
+            </div>
+            <div class="page-actions">
+              <slot name="actions" />
+            </div>
+          </header>
+          <slot />
+        </main>
+      </div>
+    </div>
+    <script>
+      // Sayfa içi "AI'ya sor" düğmeleri: komuta kartını açar.
+      document.addEventListener("click", (event) => {
+        const target = (event.target as HTMLElement).closest<HTMLElement>("[data-ask-ai]");
+        if (!target) return;
+        window.dispatchEvent(new CustomEvent("cronhr:ask", { detail: { query: target.dataset.askAi } }));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      // Statik anahtar/segment düğmeleri: yalnızca görsel durum (frontend demo).
+      document.addEventListener("click", (event) => {
+        const el = event.target as HTMLElement;
+        const sw = el.closest<HTMLElement>(".switch");
+        if (sw) sw.setAttribute("aria-checked", sw.getAttribute("aria-checked") === "true" ? "false" : "true");
+        const seg = el.closest<HTMLElement>(".segment > button");
+        if (seg && seg.parentElement) {
+          for (const b of seg.parentElement.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b === seg));
+        }
+      });
+    </script>
+  </body>
+</html>

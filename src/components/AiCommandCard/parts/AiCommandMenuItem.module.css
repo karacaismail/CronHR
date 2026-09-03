@@ -1,0 +1,175 @@
+/* AiCommandMenuItem — birleşik ızgara hücresi (Excel disiplini).
+ *
+ * 320 iPhone 4 FIRST: taban blok condensed tipografili 320 tasarımıdır.
+ * Daha büyük cihazlar host'un data-device damgası üzerinden AYRI bloklar
+ * halinde yukarı ölçeklenir (media yaması yok). */
+
+/* ---------------------------------------------------- TABAN: 320 (condensed) */
+.menuItem {
+  min-width: 0;
+  display: flex; /* buton hücre yüksekliğini tam doldursun */
+}
+
+.menuItemButton {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  row-gap: 5px;
+  align-items: center;
+  align-content: start;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 68px;
+  margin: 0;
+  border: none;
+  border-inline-end: 1px solid var(--ai-cc-border);
+  border-block-end: 1px solid var(--ai-cc-border);
+  border-radius: 0;
+  /* Kırık beyaz — tereyağı(10)↔beyaz(1) skalasında 6. */
+  background: #fcfbf7;
+  padding: 10px;
+  text-align: start;
+  cursor: pointer;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  translate: 0 8px;
+  transition:
+    opacity 240ms ease,
+    translate 240ms ease,
+    background-color var(--ai-command-card-hover-duration) ease,
+    box-shadow var(--ai-command-card-hover-duration) ease;
+}
+
+/* Reveal: kart açılırken --menu-item-index'e göre stagger ile belirir. */
+[data-slot="ai-command-card-shell"][data-state="expanding"] .menuItemButton,
+[data-slot="ai-command-card-shell"][data-state="expanded"] .menuItemButton {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay:
+    calc(var(--ai-command-card-reveal-delay) + var(--menu-item-index, 0) * var(--ai-command-card-item-stagger)),
+    calc(var(--ai-command-card-reveal-delay) + var(--menu-item-index, 0) * var(--ai-command-card-item-stagger)),
+    0s, 0s;
+}
+
+.menuItemButton:not(:disabled):hover {
+  background: #ffffff;
+}
+
+/* Dokununca/basınca PARLAR: saf beyaz + içten accent ışıması. */
+.menuItemButton:not(:disabled):active {
+  background: #ffffff;
+  box-shadow: inset 0 0 0 2px var(--ai-cc-accent-soft), inset 0 0 18px rgba(99, 102, 241, 0.18);
+}
+
+.menuItemButton:focus-visible {
+  outline: none;
+  box-shadow: inset var(--ai-cc-focus-ring);
+}
+
+.menuItemButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.menuItemIcon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--ai-cc-accent);
+}
+
+.menuItemIcon svg {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+.menuItemLabel {
+  font-size: 13px;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+.menuItemDescription {
+  grid-column: 1 / -1;
+  font-size: 11.5px;
+  letter-spacing: -0.01em;
+  line-height: 1.45;
+  color: var(--ai-cc-text-muted);
+  overflow-wrap: break-word;
+}
+
+/* İkonsuz kartta başlık ilk satırın tamamını alır. */
+.menuItemButton:not(:has(.menuItemIcon)) .menuItemLabel {
+  grid-column: 1 / -1;
+}
+
+/* Rozetli kartta başlık köşedeki rozetin altına girmez. */
+.menuItemButton:has(.menuItemBadge) .menuItemLabel {
+  padding-inline-end: 38px;
+}
+
+/* Sağ üst köşede yüzer; hücrenin grid ölçülerine katılmaz. */
+.menuItemBadge {
+  position: absolute;
+  inset-block-start: 6px;
+  inset-inline-end: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ai-cc-accent);
+  background: var(--ai-cc-accent-soft);
+  border-radius: 999px;
+  padding: 2px 8px;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------- CİHAZ: phone (360-767) */
+[data-slot="ai-command-card-host"][data-device="phone"] .menuItemButton {
+  padding: 12px 14px;
+  column-gap: 10px;
+  row-gap: 6px;
+  min-block-size: 76px;
+}
+
+[data-slot="ai-command-card-host"][data-device="phone"] .menuItemIcon svg {
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+[data-slot="ai-command-card-host"][data-device="phone"] .menuItemLabel {
+  font-size: 14px;
+  letter-spacing: normal;
+}
+
+[data-slot="ai-command-card-host"][data-device="phone"] .menuItemDescription {
+  font-size: 12.5px;
+  letter-spacing: normal;
+}
+
+/* --------------------------------------- CİHAZ: tablet + desktop (768+) */
+[data-slot="ai-command-card-host"][data-device="tablet"] .menuItemButton,
+[data-slot="ai-command-card-host"][data-device="desktop"] .menuItemButton {
+  padding: 12px 14px;
+  column-gap: 10px;
+  row-gap: 6px;
+  min-block-size: 76px;
+}
+
+[data-slot="ai-command-card-host"][data-device="tablet"] .menuItemIcon svg,
+[data-slot="ai-command-card-host"][data-device="desktop"] .menuItemIcon svg {
+  inline-size: 22px;
+  block-size: 22px;
+}
+
+[data-slot="ai-command-card-host"][data-device="tablet"] .menuItemLabel,
+[data-slot="ai-command-card-host"][data-device="desktop"] .menuItemLabel {
+  font-size: 15px;
+  letter-spacing: normal;
+}
+
+[data-slot="ai-command-card-host"][data-device="tablet"] .menuItemDescription,
+[data-slot="ai-command-card-host"][data-device="desktop"] .menuItemDescription {
+  font-size: 13px;
+  letter-spacing: normal;
+}

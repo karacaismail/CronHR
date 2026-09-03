@@ -1,0 +1,45 @@
+/* AiCommandMenuGrid — Excel gibi birleşik ızgara.
+ *
+ * 320 iPhone 4 FIRST: taban blok = phone-narrow dikey (2 sütun). Daha büyük
+ * cihazlar media yaması değil, host'un data-device / data-orientation
+ * damgaları üzerinden AYRI bloklar olarak kodlanır.
+ *
+ * DEĞİŞMEZ KURALLAR: yan yana EN FAZLA 3 kart; EN FAZLA 12 kart. */
+
+/* ------------------------------------------------ TABAN: 320 dikey (2 sütun) */
+.menuGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block-start: 1px solid var(--ai-cc-border);
+  border-inline-start: 1px solid var(--ai-cc-border);
+}
+
+/* Maks 12 kart. */
+.menuGrid > :nth-child(n + 13) {
+  display: none;
+}
+
+/* ------------------------------------- CİHAZ: phone-narrow yatay (3 sütun) */
+[data-slot="ai-command-card-host"][data-device="phone-narrow"][data-orientation="landscape"] .menuGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* ------------------------------------------------- CİHAZ: phone (360-767) */
+[data-slot="ai-command-card-host"][data-device="phone"][data-orientation="landscape"] .menuGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* ------------------------------------------------- CİHAZ: tablet (768-1023) */
+[data-slot="ai-command-card-host"][data-device="tablet"] .menuGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* -------------------------------------------------- CİHAZ: desktop (1024+) */
+[data-slot="ai-command-card-host"][data-device="desktop"] .menuGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}

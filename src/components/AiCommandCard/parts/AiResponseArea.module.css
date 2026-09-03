@@ -1,0 +1,80 @@
+/* AiResponseArea — AI yanıt yüzeyi: thinking noktaları, daktilo akışı veya
+ * zengin rapor. Aynı shell içinde yaşar; ayrı panel değildir. */
+
+.responseArea {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid var(--ai-cc-border);
+  border-radius: 8px;
+  background: var(--ai-cc-accent-soft);
+  padding: 12px 14px;
+}
+
+.responseIcon {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 22px;
+  block-size: 22px;
+  flex: 0 0 auto;
+  border-radius: 100%;
+  color: #fff;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 45%, #d946ef 100%);
+}
+
+.responseRich {
+  min-width: 0;
+  flex: 1 1 auto;
+  animation: richReveal 360ms ease;
+}
+
+@keyframes richReveal {
+  from { opacity: 0; translate: 0 6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+.responseText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ai-cc-text);
+  overflow-wrap: anywhere;
+}
+
+.responseCaret {
+  display: inline-block;
+  inline-size: 7px;
+  block-size: 13px;
+  margin-inline-start: 2px;
+  vertical-align: text-bottom;
+  background: var(--ai-cc-accent);
+  animation: caretBlink 0.8s steps(2, jump-none) infinite;
+}
+
+@keyframes caretBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.responseThinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  block-size: 22px;
+}
+
+.thinkingDot {
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 100%;
+  background: var(--ai-cc-accent);
+  animation: thinkingPulse 1.2s ease-in-out infinite;
+}
+
+.thinkingDot:nth-child(2) { animation-delay: 0.15s; }
+.thinkingDot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes thinkingPulse {
+  0%, 100% { opacity: 0.3; translate: 0 0; }
+  50% { opacity: 1; translate: 0 -2px; }
+}

@@ -1,0 +1,64 @@
+/* AiCommandCardBreadcrumb — collapsed'da yalnız current page, expanded'da
+ * (yeterli genişlikte) tam yol. */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.breadcrumbList {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.breadcrumbAncestor {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ai-cc-text-muted);
+  font-size: 13px;
+  white-space: nowrap;
+  /* Collapsed: yer kaplamaz, current page logoya yaslanır. */
+  max-inline-size: 0;
+  overflow: clip;
+  opacity: 0;
+  translate: -4px 0;
+  transition:
+    opacity var(--ai-command-card-hover-duration) ease,
+    translate var(--ai-command-card-hover-duration) ease,
+    max-inline-size var(--ai-command-card-collapse-duration) var(--ai-command-card-easing);
+  transition-delay: var(--ai-command-card-reveal-delay);
+}
+
+/* Ata seviyeleri yalnızca shell yeterince genişken açılır; dar ekranda
+ * current page önceliği korur. */
+@container ai-command-shell (min-width: 560px) {
+  [data-slot="ai-command-card-shell"][data-state="expanded"] .breadcrumbAncestor,
+  [data-slot="ai-command-card-shell"][data-state="expanding"] .breadcrumbAncestor {
+    max-inline-size: 320px;
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.breadcrumbSeparator {
+  color: var(--ai-cc-border);
+}
+
+.currentPage {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+}

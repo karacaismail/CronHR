@@ -6,11 +6,12 @@ import Panel from "../../components/Panel.astro";
 import Badge from "../../components/Badge.astro";
 import Avatar from "../../components/Avatar.astro";
 import AiHint from "../../islands/AiHint";
+import ScoreRing from "../../components/ScoreRing.astro";
 import { CANDIDATES, OPEN_ROLES } from "../../data/hr";
 import { Plus, Sparkle } from "@phosphor-icons/react";
 
 const STAGES = ["Başvuru", "Ön Eleme", "Mülakat", "Teklif", "İşe Alındı"] as const;
-const scoreColor = (s: number) => (s >= 80 ? "var(--good)" : s >= 60 ? "var(--warning)" : "var(--critical)");
+const scoreTone = (s: number): "good" | "warning" | "critical" => (s >= 80 ? "good" : s >= 60 ? "warning" : "critical");
 ---
 
 <AdminLayout pageId="ise-alim" description="4 ilan, 136 başvuru. Adaylar ilanla örtüşmeye göre AI tarafından puanlanır; karar sizindir.">
@@ -47,7 +48,7 @@ const scoreColor = (s: number) => (s >= 80 ? "var(--good)" : s >= 60 ? "var(--wa
               <article class="kanban-card">
                 <div class="row-between">
                   <Avatar name={c.name} sub={c.role} hue={c.hue} size={28} />
-                  <span class="score-ring" style={`--score:${c.score};--ring-color:${scoreColor(c.score)}`}><span>{c.score}</span></span>
+                  <ScoreRing score={c.score} tone={scoreTone(c.score)} />
                 </div>
                 <p class="small muted" style="line-height:1.45">{c.aiNote}</p>
                 <div class="row-between">

@@ -3,9 +3,8 @@ import AdminLayout from "../../../layouts/AdminLayout.astro";
 import AiBrief from "../../../components/AiBrief.astro";
 import Panel from "../../../components/Panel.astro";
 import Badge from "../../../components/Badge.astro";
-import Avatar from "../../../components/Avatar.astro";
 import AiHint from "../../../islands/AiHint";
-import { EMPLOYEES, employee, formatDate, riskLabel, riskTone, tl } from "../../../data/hr";
+import { EMPLOYEES, employee, formatDate, initials, riskLabel, riskTone, tl } from "../../../data/hr";
 import { dossier } from "../../../data/hr2";
 import { FileText, LockKey, Package, Sparkle } from "@phosphor-icons/react";
 
@@ -28,14 +27,14 @@ const statusTone = { Aktif: "good", Deneme: "info", "İzinli": "neutral", "Ayrı
     <button type="button" class="btn btn-primary">İşlem başlat</button>
   </Fragment>
 
-  <div class="panel" style="padding:16px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center">
-    <Avatar name={e.name} hue={e.hue} size={56} />
-    <div>
+  <div class="panel profile-head">
+    <span class="avatar" data-hue={e.hue % 6} style="inline-size:56px;block-size:56px;font-size:16px" aria-hidden="true">{initials(e.name)}</span>
+    <div style="min-width:0">
       <div class="row" style="gap:8px;flex-wrap:wrap"><span class="strong" style="font-size:15px">{e.name}</span><Badge tone={statusTone[e.status]}>{e.status}</Badge><Badge tone={riskTone(e.attritionRisk)}>Risk {e.attritionRisk} · {riskLabel(e.attritionRisk)}</Badge></div>
       <div class="muted small" style="margin-block-start:4px">{d.employeeNo} · {d.employment.entity} · {d.employment.workplace} · Yönetici: {d.employment.manager} · Başlangıç {formatDate(e.startDate)}</div>
       <div class="anchor-tabs" style="margin-block-start:10px">{SECTIONS.map((s) => <a href={`#${s.toLowerCase().replace(/[^a-z0-9ğüşöçı]/g, "-")}`}>{s}</a>)}</div>
     </div>
-    <div class="stat-strip" style="min-inline-size:220px">
+    <div class="stat-strip profile-stats">
       <div class="stat"><b>%{d.completeness}</b><span>dosya tamlığı</span></div>
       <div class="stat"><b>{e.engagement}</b><span>katılım</span></div>
     </div>

@@ -42,11 +42,11 @@
  * gecikmeler fazları 1/5 tur kaydırır — uydular hep birbirinden farklı
  * renkte kalır; doygunluk %80, açıklık %60 sabit (çamurlaşma yok). Taban
  * renkler reduced-motion'da statik yedek. */
-.particleA { animation: constellationA 12s ease-in-out infinite, satelliteRainbow 24s linear infinite; color: hsl(4, 80%, 60%); }
-.particleB { animation: constellationB 12s ease-in-out infinite, satelliteRainbow 24s linear -4.8s infinite; color: hsl(76, 80%, 60%); }
-.particleC { animation: constellationC 12s ease-in-out infinite, satelliteRainbow 24s linear -9.6s infinite; color: hsl(148, 80%, 60%); }
-.particleD { animation: constellationD 12s ease-in-out infinite, satelliteRainbow 24s linear -14.4s infinite; color: hsl(220, 80%, 60%); }
-.particleE { animation: constellationE 12s ease-in-out infinite, satelliteRainbow 24s linear -19.2s infinite; color: hsl(292, 80%, 60%); }
+.particleA { animation: constellationA 12s ease-in-out infinite; color: var(--ai-cc-accent); }
+.particleB { animation: constellationB 12s ease-in-out infinite; color: #8b5cf6; }
+.particleC { animation: constellationC 12s ease-in-out infinite; color: var(--ai-cc-accent); }
+.particleD { animation: constellationD 12s ease-in-out infinite; color: #06b6d4; }
+.particleE { animation: constellationE 12s ease-in-out infinite; color: #8b5cf6; }
 
 @keyframes satelliteRainbow {
   0%   { color: hsl(4, 80%, 60%); }

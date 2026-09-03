@@ -19,7 +19,7 @@
   flex: 0 0 auto;
   border-radius: 100%;
   color: #fff;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 45%, #d946ef 100%);
+  background: var(--ai-cc-accent);
 }
 
 .responseRich {

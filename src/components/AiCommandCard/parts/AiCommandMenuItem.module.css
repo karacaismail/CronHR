@@ -59,8 +59,8 @@
 
 /* Dokununca/basınca PARLAR: saf beyaz + içten accent ışıması. */
 .menuItemButton:not(:disabled):active {
-  background: #ffffff;
-  box-shadow: inset 0 0 0 2px var(--ai-cc-accent-soft), inset 0 0 18px rgba(99, 102, 241, 0.18);
+  background: var(--ai-cc-accent-soft);
+  box-shadow: inset 0 0 0 1px var(--ai-cc-accent);
 }
 
 .menuItemButton:focus-visible {

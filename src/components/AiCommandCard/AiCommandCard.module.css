@@ -66,9 +66,8 @@
   position: fixed;
   inset: 0;
   z-index: 30;
-  background: rgba(100, 116, 139, 0.35);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  /* FLAT 2.0: düz yarı saydam perde, cam/blur yok. */
+  background: rgba(28, 30, 33, 0.32);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--ai-command-card-collapse-duration) ease;
@@ -117,7 +116,7 @@
     calc(100dvh - 2 * var(--ai-command-card-mobile-gutter))
   );
   border-radius: var(--ai-command-card-expanded-radius);
-  box-shadow: 0 16px 40px rgba(16, 24, 40, 0.16);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12); /* FLAT 2.0 yüzen katman = --shadow-2 */
   /* Açılış: ÖNCE radius (gecikmesiz, kısa), büyüme radius bitince başlar. */
   transition:
     border-radius var(--ai-command-card-radius-morph-duration) var(--ai-command-card-easing),
@@ -189,20 +188,26 @@
   position: absolute;
   inset-inline: 1px;
   inset-block-end: 1px;
-  block-size: 72px;
+  block-size: 40px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding-block-end: 6px;
-  background: linear-gradient(180deg, transparent 0%, var(--ai-cc-surface) 78%);
-  /* Beyaz solma alanı, altındaki kartları 2px bulanıklaştırır. */
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  /* FLAT 2.0: solma/blur yok; ok, kenarlıklı düz bir rozet içinde. */
+  background: transparent;
   color: var(--ai-cc-text-muted);
   opacity: 0;
   pointer-events: none;
   transition: opacity 220ms ease;
   z-index: 2;
+}
+
+.scrollHint > svg {
+  background: var(--ai-cc-surface);
+  border: 1px solid var(--ai-cc-border);
+  border-radius: 100%;
+  padding: 4px;
+  box-sizing: content-box;
 }
 
 .scrollHint[data-visible="true"] {

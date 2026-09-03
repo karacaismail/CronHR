@@ -42,24 +42,14 @@
   /* "Yıldızın dışı": kendi taban rengi; hue döngüsüyle sürekli değişir.
    * Fosforlu değil: doygunluk yüksek (S88) ama bir tık koyu (L56).
    * Gölgelendirme kontrastı bilinçli olarak düşük tutuldu. */
-  background: hsl(244, 88%, 56%);
-  border: 1px solid rgba(35, 26, 112, 0.35);
-  box-shadow:
-    /* üstten içe çöküş: merkez çukur (yumuşatılmış) */
-    inset 0 4px 6px rgba(24, 16, 72, 0.32),
-    inset 0 1px 2px rgba(24, 16, 72, 0.22),
-    /* alt iç kenarda dışbükey kabarma ışığı (yumuşatılmış) */
-    inset 0 -4px 5px rgba(255, 255, 255, 0.28),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.4),
-    /* butonun zemine oturma gölgesi */
-    0 2px 3px rgba(30, 20, 90, 0.3);
+  /* FLAT 2.0: düz accent gövde; iç gölge, bevel ve parlama yok. */
+  background: var(--ai-cc-accent);
+  border: 1px solid transparent;
+  box-shadow: none;
   /* Gövde ("yıldızın dışı") gökkuşağı: gerçek HSL durakları, doygunluk %95
    * (%100'e yakın); 24 sn'de tam tur. Kararsız gezegen yalpası + kendi
    * ekseninde dönüş orbWobble ile. */
-  animation:
-    aiHeartbeat 5s ease-in-out infinite,
-    orbBodyRainbow 24s linear infinite,
-    orbWobble 18s ease-in-out infinite;
+  animation: aiHeartbeat 5s ease-in-out infinite;
 }
 
 @keyframes orbBodyRainbow {
@@ -92,16 +82,15 @@
 
 /* Uydular gezegeni GECİKEREK takip eder: aynı yalpa, 0.6 sn faz gerisinde. */
 .aiTrigger [data-slot="ai-particle-field"] {
-  animation: orbWobble 18s ease-in-out 0.6s infinite;
+  animation: none;
 }
 
 .aiOrbGlow {
   position: absolute;
   inset: 2px;
   border-radius: 100%;
-  background: radial-gradient(closest-side, rgba(139, 92, 246, 0.55), rgba(139, 92, 246, 0));
-  filter: blur(4px);
-  animation: aiHeartbeatGlow 5s ease-in-out infinite;
+  /* FLAT 2.0: ışıma yok. */
+  display: none;
 }
 
 /* Kullanıcı yazarken/gönderirken ambient ritim durur. */

@@ -1,0 +1,22 @@
+---
+/** Düz (flat) SVG puan halkası: gradient yok, stroke-dasharray ile ilerleme. */
+interface Props {
+  score: number;
+  size?: number;
+  tone?: "good" | "warning" | "critical" | "accent";
+}
+
+const { score, size = 34, tone = "accent" } = Astro.props;
+const r = (size - 4) / 2;
+const c = 2 * Math.PI * r;
+const filled = (Math.max(0, Math.min(100, score)) / 100) * c;
+const color = { good: "var(--good)", warning: "var(--warning)", critical: "var(--critical)", accent: "var(--accent)" }[tone];
+---
+
+<span class="score-ring" style={`inline-size:${size}px;block-size:${size}px`} aria-label={`Puan ${score}`}>
+  <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} aria-hidden="true">
+    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-sunken)" stroke-width="3" />
+    <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} stroke-width="3" stroke-linecap="round" stroke-dasharray={`${filled.toFixed(1)} ${c.toFixed(1)}`} transform={`rotate(-90 ${size / 2} ${size / 2})`} />
+  </svg>
+  <span>{score}</span>
+</span>

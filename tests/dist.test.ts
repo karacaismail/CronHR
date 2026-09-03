@@ -17,7 +17,7 @@ function htmlFiles(dir: string, out: string[] = []): string[] {
 const skip = !existsSync(DIST);
 
 describe.skipIf(skip)("dist çıktısı", () => {
-  const files = htmlFiles(DIST);
+  const files = skip ? [] : htmlFiles(DIST);
 
   it("46 sayfa üretilmiştir", () => {
     expect(files.length).toBeGreaterThanOrEqual(46);

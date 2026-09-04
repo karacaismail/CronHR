@@ -277,48 +277,6 @@ svg {
   gap: 6px;
 }
 
-.ai-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.ai-status-trigger {
-  inline-size: 100%;
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-sm);
-  padding: 4px 2px;
-  color: inherit;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.ai-status-trigger:hover {
-  background: var(--surface);
-}
-
-.ai-status-trigger[aria-expanded="true"] {
-  background: var(--surface);
-}
-
-.ai-dot {
-  inline-size: 8px;
-  block-size: 8px;
-  border-radius: 100%;
-  background: var(--good);
-  outline: 3px solid var(--good-soft);
-}
-
-.ai-status-meta {
-  font-size: 11px;
-  color: var(--ink-muted);
-  line-height: 1.45;
-}
-
 .main {
   min-width: 0;
   display: flex;

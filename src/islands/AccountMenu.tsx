@@ -1,27 +1,19 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { CaretUp, Gear, MapTrifold, User, UserCircle } from "@phosphor-icons/react";
-import selectStyles from "./Select.module.css";
+import styles from "./AccountMenu.module.css";
 
 export interface AccountMenuProps {
   base: string;
+  name: string;
+  initials: string;
 }
-
-// Menü öğesi <a> ise tarayıcı stili sorun çıkarmaz; <button> ise tarayıcının
-// varsayılan gövde/kenarlığını (Profilim, Hesabım) burada sıfırlıyoruz.
-const BUTTON_RESET: React.CSSProperties = {
-  inlineSize: "100%",
-  border: "none",
-  background: "transparent",
-  font: "inherit",
-  textAlign: "start",
-  cursor: "pointer",
-};
 
 /**
  * Sol alt "options" alanı — kenar çubuğunun en altında, gerçek bir dropdown.
- * Yukarı açılır (aşağıda yer yok): yardım/mimari, ayarlar, profil, hesap.
+ * Yukarı açılır (aşağıda yer yok): kapalıyken ok yukarı bakar ("üstte daha
+ * fazlası var"), açılınca aşağı döner (içerik zaten üstte belirdi).
  */
-export function AccountMenu({ base }: AccountMenuProps) {
+export function AccountMenu({ base, name, initials }: AccountMenuProps) {
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLUListElement>(null);
@@ -52,40 +44,40 @@ export function AccountMenu({ base }: AccountMenuProps) {
   }, [open, close]);
 
   return (
-    <div style={{ position: "relative", inlineSize: "100%" }}>
+    <div className={styles.root}>
       <button
         ref={buttonRef}
         type="button"
-        className="ai-status ai-status-trigger"
+        className={styles.trigger}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         onClick={() => setOpen((o) => !o)}
       >
-        <span className="ai-dot" aria-hidden="true"></span>
-        <span>AI asistan çevrimiçi</span>
-        <CaretUp size={12} weight="bold" aria-hidden="true" style={{ marginInlineStart: "auto", rotate: open ? "0deg" : "180deg", transition: "rotate 160ms ease" }} />
+        <span className="avatar" data-hue="0" aria-hidden="true">{initials}</span>
+        <span className={styles.name}>{name}</span>
+        <CaretUp size={13} weight="bold" aria-hidden="true" className={styles.caret} style={{ rotate: open ? "180deg" : "0deg" }} />
       </button>
       {open ? (
-        <ul ref={menuRef} id={menuId} role="menu" className={selectStyles.list} data-place="up" aria-label="Hesap seçenekleri">
+        <ul ref={menuRef} id={menuId} role="menu" className={styles.menu} aria-label="Hesap seçenekleri">
           <li role="none">
-            <a role="menuitem" className={selectStyles.option} href={`${base}mimari/`} onClick={() => close(false)}>
-              <MapTrifold size={15} aria-hidden="true" /> <span className={selectStyles.optionLabel}>Yardım ve mimari</span>
+            <a role="menuitem" className={styles.item} href={`${base}mimari/`} onClick={() => close(false)}>
+              <MapTrifold size={16} aria-hidden="true" /> Yardım ve mimari
             </a>
           </li>
           <li role="none">
-            <a role="menuitem" className={selectStyles.option} href={`${base}ayarlar/`} onClick={() => close(false)}>
-              <Gear size={15} aria-hidden="true" /> <span className={selectStyles.optionLabel}>Ayarlar</span>
+            <a role="menuitem" className={styles.item} href={`${base}ayarlar/`} onClick={() => close(false)}>
+              <Gear size={16} aria-hidden="true" /> Ayarlar
             </a>
           </li>
           <li role="none">
-            <button role="menuitem" type="button" className={selectStyles.option} style={BUTTON_RESET} onClick={() => close()}>
-              <User size={15} aria-hidden="true" /> <span className={selectStyles.optionLabel}>Profilim</span>
+            <button role="menuitem" type="button" className={styles.item} onClick={() => close()}>
+              <User size={16} aria-hidden="true" /> Profilim
             </button>
           </li>
           <li role="none">
-            <button role="menuitem" type="button" className={selectStyles.option} style={BUTTON_RESET} onClick={() => close()}>
-              <UserCircle size={15} aria-hidden="true" /> <span className={selectStyles.optionLabel}>Hesabım</span>
+            <button role="menuitem" type="button" className={styles.item} onClick={() => close()}>
+              <UserCircle size={16} aria-hidden="true" /> Hesabım
             </button>
           </li>
         </ul>

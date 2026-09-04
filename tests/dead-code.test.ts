@@ -81,7 +81,7 @@ describe("Yardım düğmesi üst çubuktan kaldırıldı — tek kaynak: sol alt
   it("AccountMenu.tsx yardım/mimari, ayarlar, profil ve hesap öğelerini içerir", () => {
     const menu = readFileSync(join(ROOT, "src/islands/AccountMenu.tsx"), "utf8");
     expect(menu).toMatch(/Yardım ve mimari/);
-    expect(menu).toMatch(/>Ayarlar</);
+    expect(menu).toMatch(/\bAyarlar\b/);
     expect(menu).toMatch(/Profilim/);
     expect(menu).toMatch(/Hesabım/);
   });

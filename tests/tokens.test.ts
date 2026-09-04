@@ -144,4 +144,21 @@ describe("Flat 2.0 sözleşmesi", () => {
     expect(parallaxTargets).not.toBeNull();
     expect(parallaxTargets![1]).toMatch(/orb, head/);
   });
+
+  it("belge asla yatay kaymaz: html ve body'de overflow-x: hidden (320px tabanının kırılmaz güvenlik payı)", () => {
+    const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
+    const htmlRule = css.match(/(?<!\.)\bhtml\s*\{([^}]*)\}/);
+    const bodyRule = css.match(/(?<!\.)\bbody\s*\{([^}]*)\}/);
+    expect(htmlRule, "html kuralı bulunamadı").not.toBeNull();
+    expect(bodyRule, "body kuralı bulunamadı").not.toBeNull();
+    expect(htmlRule![1]).toMatch(/overflow-x:\s*hidden/);
+    expect(bodyRule![1]).toMatch(/overflow-x:\s*hidden/);
+  });
+
+  it("row-between esnemeyen bir satır yerine gerekirse sarar (dar/uzun içerik taşırmaz)", () => {
+    const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
+    const rule = css.match(/\.row-between\s*\{([^}]*)\}/);
+    expect(rule, ".row-between kuralı bulunamadı").not.toBeNull();
+    expect(rule![1]).toMatch(/flex-wrap:\s*wrap/);
+  });
 });

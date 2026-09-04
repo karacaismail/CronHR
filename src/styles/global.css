@@ -87,6 +87,11 @@ html {
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  /* 320px tabanı hiçbir zaman yatay kaymaz: tek bir bileşen taşsa bile
+     (uzun kelime, esnemeyen flex satırı) belge genişliği viewport'u aşamaz.
+     position:fixed öğeler (sidebar, bottom-nav, drawer-backdrop) viewport'a
+     göre konumlandığı için bundan etkilenmez. */
+  overflow-x: hidden;
 }
 
 body {
@@ -97,6 +102,7 @@ body {
   color: var(--ink);
   background: var(--bg);
   min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, p, ul, ol, figure {
@@ -903,6 +909,7 @@ svg {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 10px;
 }
 

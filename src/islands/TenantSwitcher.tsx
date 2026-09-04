@@ -125,7 +125,10 @@ export function TenantSwitcher() {
         <CaretUpDown size={13} color="var(--ink-faint)" />
       </button>
       {open ? (
-        <ul ref={listRef} id={listId} role="listbox" className={selectStyles.list} data-place="down" aria-label="Tenant / şirket değiştir" tabIndex={-1}>
+        <div className="overlay-scrim" style={{ position: "fixed", inset: 0, zIndex: 80 }} onClick={() => close()} aria-hidden="true" />
+      ) : null}
+      {open ? (
+        <ul ref={listRef} id={listId} role="listbox" className={selectStyles.list} data-place="down" aria-label="Tenant / şirket değiştir" tabIndex={-1} style={{ zIndex: 90 }}>
           {TENANTS.map((t, i) => (
             <li
               key={t.id}

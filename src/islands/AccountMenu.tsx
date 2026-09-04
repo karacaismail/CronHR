@@ -59,7 +59,10 @@ export function AccountMenu({ base, name, initials }: AccountMenuProps) {
         <CaretUp size={13} weight="bold" aria-hidden="true" className={styles.caret} style={{ rotate: open ? "180deg" : "0deg" }} />
       </button>
       {open ? (
-        <ul ref={menuRef} id={menuId} role="menu" className={styles.menu} aria-label="Hesap seçenekleri">
+        <div className="overlay-scrim" style={{ position: "fixed", inset: 0, zIndex: 80 }} onClick={() => close()} aria-hidden="true" />
+      ) : null}
+      {open ? (
+        <ul ref={menuRef} id={menuId} role="menu" className={styles.menu} aria-label="Hesap seçenekleri" style={{ zIndex: 90 }}>
           <li role="none">
             <a role="menuitem" className={styles.item} href={`${base}ayarlar/`} onClick={() => close(false)}>
               <Gear size={16} aria-hidden="true" /> Ayarlar

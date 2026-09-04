@@ -39,4 +39,10 @@ describe("Modal arka plan perdesi (.overlay-scrim)", () => {
     expect(card).not.toMatch(/overlay-scrim/);
     expect(card).not.toMatch(/backdrop-filter/);
   });
+
+  it("büyük yardımcı dropdown'lar (bildirim merkezi, tenant, hesap menüsü) da bu sınıfı kullanır", () => {
+    for (const f of ["src/islands/NotificationsMenu.tsx", "src/islands/TenantSwitcher.tsx", "src/islands/AccountMenu.tsx"]) {
+      expect(read(f), `${f} overlay-scrim içermeli`).toMatch(/overlay-scrim/);
+    }
+  });
 });

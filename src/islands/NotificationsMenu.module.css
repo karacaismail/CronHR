@@ -1,19 +1,23 @@
 .menu {
   position: fixed;
   z-index: 90;
-  inline-size: min(380px, calc(100vw - 24px));
-  max-block-size: min(520px, calc(100vh - 96px));
+  /* Zil, AiCommandCard'ın kendi genişliğine göre yatayda kaymasın diye
+   * sağ kenara sabit bir boşlukla hizalanır — hangi genişlikte olursa
+   * olsun panel her zaman sağ üstte, beklenen yerde açılır. */
+  inset-inline-end: max(16px, var(--space-4));
+  inline-size: min(400px, calc(100vw - 24px));
+  max-block-size: min(560px, calc(100vh - 96px));
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-2);
-  animation: notif-in 140ms ease-out;
+  animation: notif-in 160ms var(--ease-out, ease-out);
 }
 
 @keyframes notif-in {
-  from { opacity: 0; translate: 0 -4px; }
+  from { opacity: 0; translate: 0 -6px; }
   to { opacity: 1; translate: 0 0; }
 }
 
@@ -59,7 +63,8 @@
   gap: 2px;
 }
 
-.item {
+.item,
+.insightItem {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -69,6 +74,11 @@
 
 .item:hover {
   background: var(--info-soft);
+}
+
+.insightItem {
+  background: var(--surface-muted);
+  margin-block-end: 2px;
 }
 
 .itemMain {
@@ -101,11 +111,95 @@
   padding-block-start: 2px;
 }
 
+.insightActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-block-start: 4px;
+}
+
+.insightPrimary {
+  border: none;
+  background: var(--accent-bg);
+  color: var(--on-accent);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.insightGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-2);
+  border-radius: var(--radius-sm);
+  padding: 5px 9px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.iconGhost {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 26px;
+  block-size: 26px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.iconGhost:hover {
+  background: var(--info-soft);
+  color: var(--info-ink);
+}
+
+.appliedNote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--good-ink);
+}
+
+.appliedNote button {
+  border: none;
+  background: transparent;
+  color: var(--info-ink);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
 .empty {
   padding: 24px 12px;
   text-align: center;
   font-size: 13px;
   color: var(--ink-muted);
+}
+
+.toast {
+  flex: 0 0 auto;
+  margin: 0 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--good-soft);
+  color: var(--good-ink);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .showAll {

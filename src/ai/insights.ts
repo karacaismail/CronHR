@@ -1,7 +1,7 @@
 /**
  * Proaktif AI içgörü akışı — verinin kendisinden üretilmiş uyarı/öneri kartları.
- * Her içgörü Dashboard'da ve ilgili sayfalarda görünür; kullanıcı Uygula,
- * Ertele veya Kapat seçebilir (durum tarayıcıda tutulur, bkz. AiInsightFeed).
+ * Bildirim merkezinde (üst çubuk zili) görünür; kullanıcı Uygula, Ertele
+ * veya Kapat seçebilir (durum tarayıcıda tutulur, bkz. NotificationsMenu).
  */
 import { GEN } from "../data/generate";
 

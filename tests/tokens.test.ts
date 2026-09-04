@@ -112,4 +112,19 @@ describe("Flat 2.0 sözleşmesi", () => {
     const bad = pages.filter((f) => /<select\b/.test(readFileSync(f, "utf8")));
     expect(bad.map((f) => f.replace(ROOT, ""))).toEqual([]);
   });
+
+  it("masaüstünde kenar çubuğu yapışkandır: top:0 bir inset kısayoluyla ezilmez", () => {
+    const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
+    const desktopBlockMatch = css.match(/@media \(min-width: 64em\) \{([\s\S]*?)\n\}/);
+    expect(desktopBlockMatch, "64em kırılım bloğu bulunamadı").not.toBeNull();
+    const desktopBlock = desktopBlockMatch![1];
+    const sidebarRuleMatch = desktopBlock.match(/\.sidebar\s*\{([^}]*)\}/);
+    expect(sidebarRuleMatch, ".sidebar kuralı 64em bloğunda bulunamadı").not.toBeNull();
+    const rule = sidebarRuleMatch![1];
+    expect(rule).toMatch(/position:\s*sticky/);
+    expect(rule).toMatch(/top:\s*0/);
+    // `inset:` kısayolu, ondan önce gelen `top: 0` bildirimini sessizce ezer
+    // (regresyon: sidebar bir daha yapışkanlığını kaybetmesin).
+    expect(rule).not.toMatch(/(?<!-)inset:\s*auto/);
+  });
 });

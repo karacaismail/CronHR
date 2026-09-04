@@ -2217,7 +2217,7 @@ body,
 
 @media (min-width: 64em) {
   .app { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
-  .sidebar { position: sticky; top: 0; inset: auto; inline-size: auto; translate: 0 0; z-index: auto; transition: none; box-shadow: none; }
+  .sidebar { position: sticky; top: 0; inset-inline-start: auto; inset-block-end: auto; inline-size: auto; translate: 0 0; z-index: auto; transition: none; box-shadow: none; }
   .drawer-backdrop, .menu-btn, .bottom-nav { display: none; }
   .content { padding-inline: var(--space-6); padding-block-end: 56px; }
   .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }

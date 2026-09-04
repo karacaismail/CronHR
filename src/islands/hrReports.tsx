@@ -9,6 +9,7 @@ import {
 } from "../components/AiCommandCard/AiCommandCard.reports";
 import styles from "../components/AiCommandCard/AiCommandCard.reports.module.css";
 import type { AiCommandQueryRequest } from "../components/AiCommandCard";
+import { GEN } from "../data/generate";
 import {
   ABSENCE_TREND,
   ATTRITION_TREND,
@@ -248,6 +249,120 @@ function TeamOccupancyReport() {
   );
 }
 
+function ExceptionsReport() {
+  const open = GEN.exceptions.filter((x) => x.state === "İstisna" || x.state === "İnceleme");
+  const byKind = new Map<string, number>();
+  for (const x of open) byKind.set(x.kind, (byKind.get(x.kind) ?? 0) + 1);
+  return (
+    <Report title="Eksik giriş/çıkış ve PDKS istisnaları" lead={`${open.length} açık istisna. ${open.filter((x) => x.aiSuggestion.includes("öner")).length} tanesi için AI düzeltme önerisi hazır; tek tıkla uygulanabilir.`} footnote="Ham hareketler değiştirilmez; öneriler ayrı düzeltme kaydı olarak yazılır.">
+      <BarChart heading="Türe göre açık istisna" data={[...byKind.entries()].map(([label, value]) => ({ label, value }))} unit="" />
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead><tr><th>Çalışan</th><th>Tarih</th><th>Tür</th><th>AI önerisi</th></tr></thead>
+          <tbody>{open.slice(0, 8).map((x) => <tr key={x.id}><td>{GEN.employees.find((e) => e.id === x.employeeId)?.name}</td><td>{x.date}</td><td>{x.kind}</td><td>{x.aiSuggestion}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </Report>
+  );
+}
+
+function OvertimeLimitReport() {
+  const near = GEN.timesheet.filter((t) => t.overtime >= 40).map((t) => ({ ...t, name: GEN.employees.find((e) => e.id === t.employeeId)?.name ?? t.employeeId }));
+  return (
+    <Report title="Fazla mesai sınırına yaklaşanlar" lead={`${near.length} çalışan aylık 72 saat politika sınırının %55'inin üstünde. Toplam fazla mesai ${GEN.timesheet.reduce((s, t) => s + t.overtime, 0)} saat.`}>
+      <FunnelChart heading="Saat" data={near.sort((a, b) => b.overtime - a.overtime).slice(0, 8).map((t) => ({ label: t.name, value: t.overtime }))} unit=" sa" />
+      <KpiRow tiles={[{ label: "Sınıra yakın", value: String(near.length) }, { label: "Onay bekleyen", value: String(GEN.overtime.filter((o) => o.state === "Onay bekliyor").length) }, { label: "Ortalama / kişi", value: (GEN.timesheet.reduce((s, t) => s + t.overtime, 0) / GEN.timesheet.length).toFixed(1).replace(".", ",") + " sa" }]} />
+    </Report>
+  );
+}
+
+function TimesheetReadinessReport() {
+  const pend = GEN.timesheet.filter((t) => t.state === "Onay bekliyor").length;
+  const calc = GEN.timesheet.filter((t) => t.state === "Hesaplandı").length;
+  const locked = GEN.timesheet.filter((t) => t.state === "Kilitli").length;
+  const issues = GEN.timesheet.filter((t) => t.issues.length).length;
+  return (
+    <Report title="Puantaj bordroya hazır mı?" lead={`${GEN.timesheet.length} satırın ${locked} kilitli, ${GEN.timesheet.filter((t) => t.state === "Onaylandı").length} onaylı. ${pend} onay bekliyor, ${calc} yalnız hesaplandı. ${issues} satırda düzeltme notu var; bordro Validate adımı bunlar çözülmeden geçmez.`}>
+      <KpiRow tiles={[{ label: "Kilitli", value: String(locked) }, { label: "Onaylı", value: String(GEN.timesheet.filter((t) => t.state === "Onaylandı").length) }, { label: "Bekleyen", value: String(pend + calc) }, { label: "Sorunlu", value: String(issues) }]} />
+      <ul className={styles.bulletList}>
+        <li>Önce fazla mesai sınırına yakın satırlar (vardiya devri ile çözülür).</li>
+        <li>Sonra devamsızlık işaretli satırlar (düzeltme talepleri onaylanınca kendiliğinden düşer).</li>
+        <li>Kalanlar toplu onaya uygundur; AI tek tıkla önerir, kilit yönetici onayıyla atılır.</li>
+      </ul>
+    </Report>
+  );
+}
+
+function OpenPositionsReport() {
+  const open = GEN.positions.filter((p) => p.status === "Boş");
+  return (
+    <Report title="Boş pozisyonlar" lead={`${open.length} boş pozisyon, aylık bütçe etkisi ${new Intl.NumberFormat("tr-TR").format(open.reduce((s, p) => s + p.budget, 0))} ₺. En uzun süredir açık olanlar ilanda yenileme ister.`}>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead><tr><th>Pozisyon</th><th>Departman</th><th>Kademe</th><th>Bütçe</th><th>AI notu</th></tr></thead>
+          <tbody>{open.map((p) => <tr key={p.id}><td>{p.title}</td><td>{p.department}</td><td>{p.grade}</td><td>{new Intl.NumberFormat("tr-TR").format(p.budget)} ₺</td><td>{p.aiNote}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </Report>
+  );
+}
+
+function ExpiringDocsReport() {
+  const soon = GEN.docs.filter((d) => d.status === "Süresi doluyor" || d.status === "Süresi doldu");
+  return (
+    <Report title="Süresi dolan ve dolmak üzere olan belgeler" lead={`${soon.filter((d) => d.status === "Süresi doldu").length} belge doldu, ${soon.filter((d) => d.status === "Süresi doluyor").length} belge 30 gün içinde doluyor. Sertifikalar İSG zorunluluğu için öncelikli.`}>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead><tr><th>Belge</th><th>Tür</th><th>Bitiş</th><th>Durum</th></tr></thead>
+          <tbody>{soon.slice(0, 10).map((d) => <tr key={d.id}><td>{d.title}</td><td>{d.kind}</td><td>{d.expires ?? "—"}</td><td><StatusBadge level={d.status === "Süresi doldu" ? "critical" : "warning"} label={d.status} /></td></tr>)}</tbody>
+        </table>
+      </div>
+    </Report>
+  );
+}
+
+function OpenCasesReport() {
+  const open = GEN.cases.filter((c) => c.state === "Açık" || c.state === "İnceleme").sort((a, b) => (a.priority === "Yüksek" ? -1 : 1) - (b.priority === "Yüksek" ? -1 : 1));
+  return (
+    <Report title="Açık HR vakaları · öncelik sırası" lead={`${open.length} açık vaka; ${open.filter((c) => c.priority === "Yüksek").length} yüksek öncelikli. Disiplin ve olay vakaları SLA'sı en kısa olanlardır.`}>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead><tr><th>#</th><th>Çalışan</th><th>Tür</th><th>Konu</th><th>Öncelik</th><th>Durum</th></tr></thead>
+          <tbody>{open.slice(0, 10).map((c) => <tr key={c.id}><td>{c.id}</td><td>{GEN.employees.find((e) => e.id === c.employeeId)?.name}</td><td>{c.kind}</td><td>{c.title}</td><td><StatusBadge level={c.priority === "Yüksek" ? "critical" : c.priority === "Orta" ? "warning" : "good"} label={c.priority} /></td><td>{c.state}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </Report>
+  );
+}
+
+function FailedAutomationsReport() {
+  const bad = GEN.automations.filter((a) => a.status !== "Aktif");
+  return (
+    <Report title="Hatalı ve duraklatılmış otomasyonlar" lead={`${bad.filter((a) => a.status === "Hatalı").length} hatalı, ${bad.filter((a) => a.status === "Duraklatıldı").length} duraklatılmış. Hatalı olanlar entegrasyon yetkisi ister; duraklatılanlar son tarihe göre yeniden başlatılmalı.`}>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead><tr><th>Otomasyon</th><th>Tür</th><th>Zamanlama</th><th>Durum</th><th>AI notu</th></tr></thead>
+          <tbody>{bad.map((a) => <tr key={a.id}><td>{a.name}</td><td>{a.kind}</td><td>{a.schedule}</td><td><StatusBadge level={a.status === "Hatalı" ? "critical" : "warning"} label={a.status} /></td><td>{a.aiNote}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </Report>
+  );
+}
+
+function InterviewQueueReport() {
+  const q = GEN.candidates.filter((c) => c.stage === "Mülakat").sort((a, b) => b.score - a.score);
+  return (
+    <Report title="Mülakat bekleyen adaylar" lead={`${q.length} aday mülakat aşamasında; ortalama AI puanı ${Math.round(q.reduce((s, c) => s + c.score, 0) / Math.max(1, q.length))}. En yüksek puanlılar ilk 48 saatte planlanmalı.`}>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead><tr><th>Aday</th><th>Pozisyon</th><th>Puan</th><th>Gün</th><th>AI notu</th></tr></thead>
+          <tbody>{q.slice(0, 10).map((c) => <tr key={c.id}><td>{c.name}</td><td>{c.role}</td><td>{c.score}</td><td>{c.days}</td><td>{c.aiNote}</td></tr>)}</tbody>
+        </table>
+      </div>
+    </Report>
+  );
+}
+
 function PageExplanationReport(pageLabel: string) {
   return (
     <Report
@@ -264,6 +379,14 @@ function PageExplanationReport(pageLabel: string) {
 }
 
 const CANNED: readonly { match: RegExp; render: (request: AiCommandQueryRequest) => ReactNode }[] = [
+  { match: /eksik (giriş|çıkış)|istisna|gelmeyen/i, render: () => <ExceptionsReport /> },
+  { match: /mesai sınır|sınıra yaklaş|fazla mesai/i, render: () => <OvertimeLimitReport /> },
+  { match: /puantaj/i, render: () => <TimesheetReadinessReport /> },
+  { match: /boş pozisyon|pozisyonları listele/i, render: () => <OpenPositionsReport /> },
+  { match: /süresi dol|eksik (özlük|belge)/i, render: () => <ExpiringDocsReport /> },
+  { match: /açık vaka|vakaları/i, render: () => <OpenCasesReport /> },
+  { match: /başarısız|hatalı (entegrasyon|görev|otomasyon)|duraklat/i, render: () => <FailedAutomationsReport /> },
+  { match: /mülakat bekleyen|mülakat/i, render: () => <InterviewQueueReport /> },
   { match: /ayrılma riski|riskli çalışan/i, render: () => <AttritionRiskReport /> },
   { match: /devamsızlık|geç kalma/i, render: () => <AbsenceTrendReport /> },
   { match: /kadro|departman bazında/i, render: () => <HeadcountReport /> },

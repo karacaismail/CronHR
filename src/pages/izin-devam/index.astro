@@ -7,11 +7,12 @@ import Badge from "../../components/Badge.astro";
 import Avatar from "../../components/Avatar.astro";
 import AreaChart from "../../components/AreaChart.astro";
 import AiHint from "../../islands/AiHint";
-import { ABSENCE_TREND, LEAVE_BALANCES, LEAVE_REQUESTS, MONTHS, employee, formatDate } from "../../data/hr";
-import { Check, Sparkle, X } from "@phosphor-icons/react";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
+import { ABSENCE_TREND, LEAVE_BALANCES, MONTHS, employee } from "../../data/hr";
+import { Check, Sparkle } from "@phosphor-icons/react";
 
-const pending = LEAVE_REQUESTS.filter((r) => r.status === "Bekliyor");
-const done = LEAVE_REQUESTS.filter((r) => r.status !== "Bekliyor");
+const pending = GEN.leaves.filter((r) => r.status === "Bekliyor");
 const heat = Array.from({ length: 42 }, (_, i) => [0, 0, 1, 0, 2, 0, 0, 1, 0, 3, 0, 0, 1, 0, 0, 0, 2, 1, 0, 0, 0, 4, 0, 1, 0, 0, 2, 0, 0, 0, 1, 0, 3, 0, 0, 1, 0, 0, 2, 0, 0, 1][i]);
 ---
 
@@ -32,57 +33,15 @@ const heat = Array.from({ length: 42 }, (_, i) => [0, 0, 1, 0, 2, 0, 0, 1, 0, 3,
   />
 
   <div class="grid grid-4">
-    <Kpi label="Bekleyen talep" value="5" delta="3 hazır" dir="up" />
+    <Kpi label="Bekleyen talep" value={String(pending.length)} delta={`${pending.filter((r) => r.aiVerdict === "Onayla").length} hazır`} dir="up" />
     <Kpi label="Bugün izinli" value="6" delta="%5 kadro" dir="flat" ai="Kritik ekiplerde boşluk yok." />
     <Kpi label="Devamsızlık" value="%3,2" delta="-0,5 puan" dir="up" spark={ABSENCE_TREND} />
     <Kpi label="Kullanılmayan izin" value="412 gün" delta="yıl sonu riski" dir="down" ai="14 kişi 15+ gün biriktirdi; Kasım'da hatırlatma öner." />
   </div>
 
   <div class="grid grid-main">
-    <Panel title="Bekleyen talepler" sub="AI görüşü her satırda" flush>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th scope="col">Çalışan</th><th scope="col">Tür</th><th scope="col">Tarih</th><th scope="col" class="num">Gün</th><th scope="col">AI görüşü</th><th scope="col">İşlem</th></tr></thead>
-          <tbody>
-            {pending.map((r) => {
-              const e = employee(r.employeeId);
-              return (
-                <tr>
-                  <td><Avatar name={e.name} sub={e.department} hue={e.hue} /></td>
-                  <td>{r.type}</td>
-                  <td class="muted">{formatDate(r.from)}{r.days > 1 ? ` – ${formatDate(r.to)}` : ""}</td>
-                  <td class="num">{r.days}</td>
-                  <td>
-                    <span class="row" style="gap:6px">
-                      <Badge tone={r.aiVerdict === "Onayla" ? "good" : r.aiVerdict === "Dikkat" ? "warning" : "critical"}>{r.aiVerdict}</Badge>
-                      <AiHint client:visible title="Gerekçe" answer={r.aiReason + (r.aiVerdict === "Dikkat" ? ". Alternatif: tarihi bir hafta kaydırmak veya yedek atamak." : ". Politika kontrolü ve takvim çakışması geçti.")} actions={r.aiVerdict === "Onayla" ? ["Onayla"] : ["Tarih öner", "Yöneticiye sor"]} mode="popover" />
-                    </span>
-                  </td>
-                  <td>
-                    <span class="row" style="gap:4px">
-                      <button type="button" class="icon-btn" aria-label="Onayla" style="color:var(--good)"><Check size={14} weight="bold" /></button>
-                      <button type="button" class="icon-btn" aria-label="Reddet"><X size={14} weight="bold" /></button>
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-            {done.map((r) => {
-              const e = employee(r.employeeId);
-              return (
-                <tr style="opacity:.62">
-                  <td><Avatar name={e.name} sub={e.department} hue={e.hue} /></td>
-                  <td>{r.type}</td>
-                  <td class="muted">{formatDate(r.from)} – {formatDate(r.to)}</td>
-                  <td class="num">{r.days}</td>
-                  <td><Badge tone="neutral">{r.status}</Badge></td>
-                  <td></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+    <Panel title="İzin talepleri" sub="AI görüşü, filtre ve doğal dil sorgusu" flush>
+      <div class="panel-body"><DataTable client:load preset="leaves" title="İzin talepleri" rows={GEN.leaves} pageSize={10} /></div>
     </Panel>
 
     <div class="stack" style="gap:16px">

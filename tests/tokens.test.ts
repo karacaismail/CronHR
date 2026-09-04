@@ -89,6 +89,15 @@ describe("Flat 2.0 sözleşmesi", () => {
     expect(bad.map((f) => f.replace(ROOT, ""))).toEqual([]);
   });
 
+  it("global CSS mobile-first: max-width medya sorgusu yok, akışkan tip tokenları var", () => {
+    const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
+    expect(css).not.toMatch(/@media \(max-width/);
+    expect(css).toMatch(/--fs-body: clamp\(/);
+    expect(css).toMatch(/--space-4: clamp\(/);
+    expect(css).toMatch(/@media \(min-width: 48em\)/);
+    expect(css).toMatch(/@media \(min-width: 64em\)/);
+  });
+
   it("sayfalarda yerel <select> kullanılmaz; standart Select bileşeni kullanılır", () => {
     const pages = walk(join(ROOT, "src/pages"), [".astro"]);
     const bad = pages.filter((f) => /<select\b/.test(readFileSync(f, "utf8")));

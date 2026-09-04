@@ -62,6 +62,18 @@
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --sidebar-w: 240px;
   --content-max: 1240px;
+  /* Akışkan ölçek (mobile-first): 320px'te taban, geniş ekranda üst sınır. */
+  --fs-body: clamp(13px, 0.25vw + 12.2px, 14px);
+  --fs-small: clamp(11px, 0.2vw + 10.4px, 12px);
+  --fs-title: clamp(20px, 1vw + 16.8px, 26px);
+  --fs-kpi: clamp(22px, 0.8vw + 19.5px, 28px);
+  --space-1: clamp(4px, 0.3vw + 3px, 6px);
+  --space-2: clamp(6px, 0.4vw + 4.7px, 8px);
+  --space-3: clamp(8px, 0.6vw + 6px, 12px);
+  --space-4: clamp(12px, 0.8vw + 9.4px, 16px);
+  --space-5: clamp(14px, 1.2vw + 10px, 20px);
+  --space-6: clamp(16px, 1.6vw + 11px, 24px);
+  --bottom-nav-h: 60px;
   color-scheme: light;
 }
 
@@ -80,7 +92,7 @@ html {
 body {
   margin: 0;
   font-family: var(--font);
-  font-size: 13px;
+  font-size: var(--fs-body);
   line-height: 1.5;
   color: var(--ink);
   background: var(--bg);
@@ -119,14 +131,20 @@ svg {
 
 .app {
   display: grid;
-  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   min-height: 100dvh;
 }
 
 .sidebar {
-  position: sticky;
-  top: 0;
+  /* Mobil: kapalı çekmece. 64em ve üstünde yapışkan kolon. */
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 90;
+  inline-size: min(84vw, 300px);
   height: 100dvh;
+  translate: -100% 0;
+  transition: translate 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
   display: flex;
   flex-direction: column;
   background: var(--surface);
@@ -278,7 +296,7 @@ svg {
   position: sticky;
   top: 0;
   z-index: 40;
-  padding: 14px 20px 6px;
+  padding: var(--space-3) var(--space-3) var(--space-2);
   background: var(--bg);
 }
 
@@ -286,10 +304,10 @@ svg {
   inline-size: 100%;
   max-inline-size: var(--content-max);
   margin-inline: auto;
-  padding: 10px 24px 56px;
+  padding: var(--space-3) var(--space-3) calc(var(--bottom-nav-h) + 24px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-5);
 }
 
 /* ---------------------------------------------------------- page head */
@@ -313,7 +331,7 @@ svg {
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: var(--fs-title);
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.15;
@@ -426,13 +444,10 @@ svg {
   gap: 16px;
 }
 
-.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.grid-main { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
-.grid-side { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
-
-.span-2 { grid-column: span 2; }
+/* Mobile-first: tüm ızgaralar tek sütun; kırılımlar aşağıda genişletir. */
+.grid-2, .grid-3, .grid-4, .grid-main, .grid-side { grid-template-columns: minmax(0, 1fr); }
+.grid { gap: var(--space-4); }
+.span-2 { grid-column: auto; }
 
 /* -------------------------------------------------------------- panel */
 
@@ -450,7 +465,8 @@ svg {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 16px 10px;
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  flex-wrap: wrap;
 }
 
 .panel-title {
@@ -480,7 +496,7 @@ svg {
 }
 
 .panel-body {
-  padding: 4px 16px 16px;
+  padding: var(--space-1) var(--space-4) var(--space-4);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -531,7 +547,7 @@ svg {
 }
 
 .kpi-value {
-  font-size: 26px;
+  font-size: var(--fs-kpi);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -591,12 +607,14 @@ svg {
   border-inline-start: 3px solid var(--accent);
   border-radius: var(--radius);
   background: var(--ai-surface);
-  padding: 14px 16px;
+  padding: var(--space-4);
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 14px;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-3);
   align-items: start;
 }
+
+.ai-brief-actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
 
 .ai-brief-orb {
   inline-size: 36px;
@@ -1298,28 +1316,11 @@ svg {
 
 /* ------------------------------------------------------------ responsive */
 
-@media (max-width: 1180px) {
-  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 
-@media (max-width: 1023px) {
-  .app { grid-template-columns: minmax(0, 1fr); }
-  .sidebar { display: none; }
-  .topbar { padding-inline: 8px; }
-  .content { padding-inline: 14px; }
-  .grid-main, .grid-side { grid-template-columns: minmax(0, 1fr); }
-  .ai-brief { grid-template-columns: auto minmax(0, 1fr); }
-  .ai-brief-actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
-}
 
-@media (max-width: 640px) {
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: minmax(0, 1fr); }
-  .span-2 { grid-column: auto; }
-  .page-title { font-size: 20px; }
-  .content { padding-inline: 10px; gap: 14px; }
-  .ai-brief { padding: 12px; }
-}
+
+
+
 
 @media (prefers-reduced-motion: reduce) {
   .ai-brief-orb { animation: none; }
@@ -1343,8 +1344,9 @@ svg {
 
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .topbar > astro-island,
@@ -1355,20 +1357,23 @@ svg {
 }
 
 .topbar-side {
-  flex: 0 0 auto;
+  order: 1;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-block-start: 18px;
-}
-
-.topbar-left {
-  inline-size: 236px;
+  padding-block-start: 6px;
+  min-width: 0;
 }
 
 .topbar-right {
-  inline-size: 140px;
   justify-content: flex-end;
+}
+
+.topbar > astro-island,
+.topbar > [data-slot="ai-command-card-host"] {
+  order: 0;
+  flex-basis: 100%;
 }
 
 .context-switch {
@@ -1519,10 +1524,12 @@ svg {
 
 .pipeline {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
   counter-reset: pipe;
 }
+
+.pipe-step::after { display: none; }
 
 .pipe-step {
   position: relative;
@@ -1553,6 +1560,7 @@ svg {
 
 .pipe-step:not(:last-child)::after {
   content: "";
+  display: none;
   position: absolute;
   inset-inline-end: -6px;
   inset-block-start: 50%;
@@ -1804,20 +1812,9 @@ svg {
   background: var(--border-strong);
 }
 
-@media (max-width: 1280px) {
-  .topbar { flex-wrap: wrap; }
-  .topbar > astro-island,
-  .topbar > [data-slot="ai-command-card-host"] { flex-basis: 100%; order: 0; }
-  .topbar-side { order: 1; padding-block-start: 8px; inline-size: auto; flex: 1 1 auto; }
-  .topbar-right { justify-content: flex-end; }
-  .pipeline { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .pipe-step:nth-child(4)::after { display: none; }
-}
 
-@media (max-width: 640px) {
-  .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .pipe-step::after { display: none; }
-}
+
+
 
 .nav-caret { display: inline-flex; }
 
@@ -1878,21 +1875,18 @@ button.token:hover {
 /* ------------------------------------------------------ profile head */
 
 .profile-head {
-  padding: 16px;
+  padding: var(--space-4);
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 16px;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-4);
   align-items: center;
 }
 
 .profile-stats {
-  min-inline-size: 220px;
+  grid-column: 1 / -1;
 }
 
-@media (max-width: 900px) {
-  .profile-head { grid-template-columns: auto minmax(0, 1fr); }
-  .profile-stats { grid-column: 1 / -1; min-inline-size: 0; }
-}
+
 
 /* ============================ FLAT 2.0 · form kontrolü standardizasyonu */
 /* Yerel görünümler kapatılır; her tarayıcı ve cihazda aynı kutu. */
@@ -2123,13 +2117,131 @@ body,
 }
 
 /* 320px tabanı: tek sütun, sıkı boşluk, kart 8px gutter. */
-@media (max-width: 359px) {
-  .content { padding-inline: 8px; gap: 12px; }
-  .page-title { font-size: 18px; }
-  .page-actions .btn { min-block-size: 34px; padding-inline: 10px; }
-  .kpi-value { font-size: 22px; }
-  .panel-head, .panel-body { padding-inline: 12px; }
-  .table th, .table td { padding-inline: 10px; }
-  .ai-brief { grid-template-columns: minmax(0, 1fr); }
-  .ai-brief-orb { display: none; }
+
+
+/* ============================================ mobile-first kırılımlar */
+/* Taban: 320px. 40em=640 · 48em=768 · 64em=1024 · 80em=1280. */
+
+.menu-btn { display: inline-grid; }
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  background: rgba(28, 30, 33, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+:root[data-drawer="open"] .sidebar { translate: 0 0; box-shadow: var(--shadow-2); }
+:root[data-drawer="open"] .drawer-backdrop { opacity: 1; pointer-events: auto; }
+:root[data-drawer="open"] body { overflow: hidden; }
+
+.bottom-nav {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  block-size: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  padding-block-end: env(safe-area-inset-bottom, 0px);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.bottom-nav a,
+.bottom-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-block-size: 44px;
+  border: none;
+  background: transparent;
+  color: var(--ink-muted);
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bottom-nav a[aria-current="page"],
+.bottom-nav a[aria-current="page"] svg { color: var(--accent); }
+
+.bottom-nav .bn-ai {
+  color: var(--on-accent);
+}
+
+.bottom-nav .bn-ai span:first-child {
+  display: grid;
+  place-items: center;
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: 100%;
+  background: var(--accent-bg);
+  margin-block-start: -18px;
+}
+
+.bottom-nav .bn-ai span:last-child { color: var(--ink-muted); }
+
+.topbar-left .context-text { display: none; }
+.topbar-left .context-switch { padding-inline: 10px; }
+
+@media (min-width: 40em) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .span-2 { grid-column: span 2; }
+  .topbar-left .context-text { display: flex; }
+}
+
+@media (min-width: 48em) {
+  .content { padding-inline: var(--space-5); }
+  .topbar { padding-inline: var(--space-5); }
+  .pipeline { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .ai-brief { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .ai-brief-actions { grid-column: auto; flex-direction: column; }
+  .profile-head { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .profile-stats { grid-column: auto; min-inline-size: 220px; }
+}
+
+@media (min-width: 64em) {
+  .app { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
+  .sidebar { position: sticky; top: 0; inset: auto; inline-size: auto; translate: 0 0; z-index: auto; transition: none; box-shadow: none; }
+  .drawer-backdrop, .menu-btn, .bottom-nav { display: none; }
+  .content { padding-inline: var(--space-6); padding-block-end: 56px; }
+  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .grid-main { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  .grid-side { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+  .pipeline { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .pipe-step:not(:last-child)::after { display: block; }
+}
+
+@media (min-width: 80em) {
+  .topbar { flex-wrap: nowrap; }
+  .topbar-side { order: initial; flex: 0 0 auto; padding-block-start: 18px; }
+  .topbar-left { inline-size: 236px; }
+  .topbar-right { inline-size: 200px; }
+  .topbar > astro-island,
+  .topbar > [data-slot="ai-command-card-host"] { order: initial; flex: 1 1 auto; flex-basis: auto; }
+}
+
+.toast {
+  position: fixed;
+  inset-inline: var(--space-3);
+  inset-block-end: calc(var(--bottom-nav-h) + 12px);
+  z-index: 95;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow-2);
+}
+
+@media (min-width: 64em) {
+  .toast { inset-inline: auto 24px; inset-block-end: 24px; max-inline-size: 420px; }
 }

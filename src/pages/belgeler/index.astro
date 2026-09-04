@@ -3,14 +3,13 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
-import Badge from "../../components/Badge.astro";
 import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
 import Select from "../../islands/Select";
-import { DOCS, employee } from "../../data/hr";
-import { FileText, Sparkle, UploadSimple } from "@phosphor-icons/react";
+import { Sparkle, UploadSimple } from "@phosphor-icons/react";
 
-const statusTone = { "Geçerli": "good", "Süresi doluyor": "warning", "Süresi doldu": "critical", "İmza bekliyor": "info" } as const;
 ---
 
 <AdminLayout pageId="belgeler" description="Sözleşme, politika, sertifika ve formlar. AI süreleri izler, içeriği özetler ve eksikleri bulur.">
@@ -37,25 +36,8 @@ const statusTone = { "Geçerli": "good", "Süresi doluyor": "warning", "Süresi 
   </div>
 
   <div class="grid grid-main">
-    <Panel title="Belgeler" sub="AI özet ve süre takibi" flush>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th scope="col">Belge</th><th scope="col">Tür</th><th scope="col">İlgili</th><th scope="col">Güncelleme</th><th scope="col">Bitiş</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
-          <tbody>
-            {DOCS.map((d) => (
-              <tr>
-                <td class="strong"><span class="row" style="gap:8px"><FileText size={16} color="var(--ink-faint)" />{d.title}</span></td>
-                <td>{d.kind}</td>
-                <td class="muted">{d.owner ? employee(d.owner).name : "Şirket geneli"}</td>
-                <td class="muted">{d.updated}</td>
-                <td class="muted">{d.expires ?? "—"}</td>
-                <td><Badge tone={statusTone[d.status]}>{d.status}</Badge></td>
-                <td class="cell-ai"><AiHint client:visible title={`${d.title} · AI özeti`} answer={d.aiNote + "."} actions={d.status === "Süresi doluyor" ? ["Yenileme başlat", "Taslağı aç"] : d.status === "Süresi doldu" ? ["Kurs planla"] : d.status === "İmza bekliyor" ? ["Hatırlat"] : ["Özeti gör"]} mode="popover" /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <Panel title="Belgeler" sub="AI özet, süre takibi, filtre ve doğal dil sorgusu" flush>
+      <div class="panel-body"><DataTable client:load preset="docs" title="Belgeler" rows={GEN.docs} pageSize={10} /></div>
     </Panel>
 
     <div class="stack" style="gap:16px">

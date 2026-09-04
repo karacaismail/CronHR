@@ -7,6 +7,8 @@ import Badge from "../../components/Badge.astro";
 import Avatar from "../../components/Avatar.astro";
 import AiHint from "../../islands/AiHint";
 import ScoreRing from "../../components/ScoreRing.astro";
+import DataTable from "../../islands/DataTable";
+import { GEN } from "../../data/generate";
 import { CANDIDATES, OPEN_ROLES } from "../../data/hr";
 import { Plus, Sparkle } from "@phosphor-icons/react";
 
@@ -32,7 +34,7 @@ const scoreTone = (s: number): "good" | "warning" | "critical" => (s >= 80 ? "go
 
   <div class="grid grid-4">
     <Kpi label="Açık pozisyon" value="4" delta="1 kapatıldı" dir="up" />
-    <Kpi label="Aktif aday" value="136" delta="+23 bu hafta" dir="up" />
+    <Kpi label="Aktif aday" value={String(GEN.candidates.length)} delta="+23 bu hafta" dir="up" />
     <Kpi label="Ortalama kapanış" value="27 gün" delta="-4 gün" dir="up" ai="Teklif aşaması kısalırsa 22 güne iner." />
     <Kpi label="Teklif kabul" value="%78" delta="+6 puan" dir="up" ai="Piyasa medyanı üstü tekliflerde %91." />
   </div>
@@ -62,6 +64,10 @@ const scoreTone = (s: number): "good" | "warning" | "critical" => (s >= 80 ? "go
         );
       })}
     </div>
+  </Panel>
+
+  <Panel title="Tüm adaylar" sub="AI puanı, aşama, kaynak · filtre ve doğal dil sorgusu" flush>
+    <div class="panel-body"><DataTable client:load preset="candidates" title="Adaylar" rows={GEN.candidates} pageSize={10} /></div>
   </Panel>
 
   <Panel title="Açık ilanlar" sub="AI hedef tarih tahmini ile" flush>

@@ -35,6 +35,23 @@ npm run preview # dist/ önizleme
 Mimari omurga: **Vardiya planlar → PDKS ölçer → İzin açıklar → Puantaj hesaplar → Bordro paraya çevirir.**
 Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Tablolar, veri ve AI simülasyonları
+
+- **DataTable** (`src/islands/DataTable.tsx`): arama, sütun filtreleri (çoklu seçim, sayısal aralık),
+  sıralama (aria-sort), sayfalama, dışa aktarma, **doğal dille AI filtre** ("mühendislik riski 60
+  üstü riske göre sırala"), tablo durumundan **AI özeti**, satır başına AI önerisi. 320px'te kart
+  listesi, 48em'den itibaren tablo. Presetler `src/islands/tablePresets.tsx` (12 tablo).
+- **Veri**: `src/data/generate.ts` deterministik üreteç — 120 çalışan, 48 aday, 40 izin, 120 puantaj,
+  36 istisna, 30 mesai, 28 pozisyon, 40 belge, 24 vaka, 30 değişken ödeme, 20 kesinti, 19 otomasyon.
+- **AI**: komuta kartında 17 hazır rapor (istisnalar, mesai sınırı, puantaj hazırlığı, boş pozisyon,
+  belge süreleri, vakalar, otomasyonlar, mülakat kuyruğu …), tablo içi AI filtre/özet, satır AI.
+
+## Mobile-first
+
+- CSS taban 320px; yalnız `min-width` kırılımları (40/48/64/80em), `clamp()` ile akışkan tip ve boşluk.
+- Mobil UX: çekmece menü (Escape, arka plan, odak), alt gezinme çubuğu (Panel, Görevler, AI, İnsanlar,
+  Menü), 44px hedefler, iOS yakınlaştırma önleyen 16px girişler, kart tabloları.
+
 ## Bileşen standardı, hareket ve ölçek
 
 - **Dropdown:** yerel `<select>` kullanılmaz; `src/islands/Select.tsx` (APG select-only combobox)

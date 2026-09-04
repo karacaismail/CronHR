@@ -3,15 +3,12 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
-import Badge from "../../components/Badge.astro";
-import Avatar from "../../components/Avatar.astro";
 import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
-import { employee, tl } from "../../data/hr";
-import { DEDUCTIONS } from "../../data/hr2";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
 import { Plus, Sparkle } from "@phosphor-icons/react";
 
-const tone = { Aktif: "info", "Kapandı": "good", "İtiraz": "warning" } as const;
 ---
 
 <AdminLayout pageId="kesintiler" description="Yasal kesintiler bordro motorunda otomatik; bu sayfa avans, icra, borç ve diğer bireysel kesintileri yönetir. Yasal oranlar koda gömülü değil, sürümlü parametre.">
@@ -37,20 +34,8 @@ const tone = { Aktif: "info", "Kapandı": "good", "İtiraz": "warning" } as cons
   </div>
 
   <div class="grid grid-main">
-    <Panel title="Bireysel kesintiler" sub="Avans, icra, zimmet, ücretsiz izin" flush>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th scope="col">Çalışan</th><th scope="col">Tür</th><th scope="col" class="num">Toplam</th><th scope="col" class="num">Kalan</th><th scope="col">Plan</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
-          <tbody>
-            {DEDUCTIONS.map((d) => {
-              const e = employee(d.employeeId);
-              return (
-                <tr><td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td><td class="strong">{d.kind}</td><td class="num">{tl(d.amount)}</td><td class="num strong">{tl(d.remaining)}</td><td class="muted">{d.schedule}</td><td><Badge tone={tone[d.state]}>{d.state}</Badge></td><td class="cell-ai"><AiHint client:visible title={`${d.kind} · AI notu`} answer={d.aiNote + "."} actions={d.state === "İtiraz" ? ["Puantajı düzelt"] : d.state === "Aktif" ? ["Planı düzenle"] : []} mode="popover" /></td></tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+    <Panel title="Bireysel kesintiler" sub="Avans, icra, zimmet, ücretsiz izin, kredi" flush>
+      <div class="panel-body"><DataTable client:load preset="deductions" title="Kesintiler" rows={GEN.deductions} pageSize={10} /></div>
     </Panel>
     <Panel title="Yasal kesinti dağılımı" sub="Bu dönem · bin ₺">
       <Bars items={[{ label: "Gelir vergisi", value: 612 }, { label: "SGK işçi", value: 681 }, { label: "İşsizlik işçi", value: 49 }, { label: "Damga vergisi", value: 37 }]} unit=" b₺" />

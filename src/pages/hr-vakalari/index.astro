@@ -3,17 +3,12 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
-import Badge from "../../components/Badge.astro";
-import Avatar from "../../components/Avatar.astro";
 import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
-import { employee } from "../../data/hr";
-import { HR_CASES } from "../../data/hr2";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
 import { Plus, Sparkle } from "@phosphor-icons/react";
 
-const stateTone = { "Açık": "warning", "İnceleme": "info", "Çözüldü": "good", "Kapandı": "neutral" } as const;
-const kindTone = { "Şikayet": "warning", Disiplin: "critical", Talep: "info", "Yardım masası": "neutral", Olay: "serious" } as const;
-const prTone = { "Yüksek": "critical", Orta: "warning", "Düşük": "neutral" } as const;
 ---
 
 <AdminLayout pageId="vakalar" description="Disiplin, uyarı, olay, şikayet, çalışan talebi ve HR yardım masası tek vaka yönetiminde. SLA takibi, gizlilik ve denetim izi; AI kanıt toplar ve taslak yazar, karar vermez.">
@@ -33,27 +28,15 @@ const prTone = { "Yüksek": "critical", Orta: "warning", "Düşük": "neutral" }
   />
 
   <div class="grid grid-4">
-    <Kpi label="Açık vaka" value="3" delta="1 SLA riski" dir="down" />
+    <Kpi label="Açık vaka" value={String(GEN.cases.filter((c) => c.state === "Açık" || c.state === "İnceleme").length)} delta="1 SLA riski" dir="down" />
     <Kpi label="Ortalama çözüm" value="4,8 gün" delta="hedef 5" dir="up" />
     <Kpi label="Bu ay açılan" value="4" delta="+1" dir="flat" />
     <Kpi label="Tekrarlayan konu" value="Nöbet yükü" delta="2 vaka" dir="down" ai="Kök neden: rotasyon kuralı" />
   </div>
 
   <div class="grid grid-main">
-    <Panel title="Vakalar" sub="Tür, SLA, öncelik, durum" flush>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th scope="col">#</th><th scope="col">Çalışan</th><th scope="col">Tür</th><th scope="col">Konu</th><th scope="col">Açılış</th><th scope="col">SLA</th><th scope="col">Öncelik</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
-          <tbody>
-            {HR_CASES.map((c) => {
-              const e = employee(c.employeeId);
-              return (
-                <tr><td class="mono faint">{c.id}</td><td><Avatar name={e.name} hue={e.hue} size={26} /></td><td><Badge tone={kindTone[c.kind]} plain>{c.kind}</Badge></td><td class="strong">{c.title}</td><td class="muted">{c.opened}</td><td class="muted">{c.sla}</td><td><Badge tone={prTone[c.priority]}>{c.priority}</Badge></td><td><Badge tone={stateTone[c.state]}>{c.state}</Badge></td><td class="cell-ai"><AiHint client:visible title={`${c.id} · AI özeti`} answer={c.aiNote + "."} actions={c.state === "Açık" || c.state === "İnceleme" ? ["Taslağı aç", "Görüşme planla"] : []} mode="popover" /></td></tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+    <Panel title="Vakalar" sub="Tür, SLA, öncelik, durum · AI özeti her satırda" flush>
+      <div class="panel-body"><DataTable client:load preset="cases" title="HR vakaları" rows={GEN.cases} pageSize={10} /></div>
     </Panel>
     <Panel title="Vaka türleri" sub="Son 6 ay">
       <Bars items={[{ label: "Yardım masası", value: 38 }, { label: "Talep", value: 21, tone: "info" }, { label: "Şikayet", value: 6, tone: "warning" }, { label: "Disiplin", value: 4, tone: "critical" }, { label: "Olay", value: 2, tone: "critical" }]} unit="" />

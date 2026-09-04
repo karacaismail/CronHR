@@ -3,15 +3,12 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
-import Badge from "../../components/Badge.astro";
-import Avatar from "../../components/Avatar.astro";
 import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
-import { employee } from "../../data/hr";
-import { OVERTIME } from "../../data/hr2";
-import { Check, Sparkle, X } from "@phosphor-icons/react";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
+import { Sparkle } from "@phosphor-icons/react";
 
-const tone = { "Onay bekliyor": "warning", "Onaylandı": "good", Reddedildi: "critical" } as const;
 ---
 
 <AdminLayout pageId="fazla-mesai" description="Fazla mesai talepleri, onayları ve aylık sınır takibi. Onaylanan mesai puantaja, oradan bordroya akar; sınır aşımı engine tarafından engellenir.">
@@ -32,35 +29,14 @@ const tone = { "Onay bekliyor": "warning", "Onaylandı": "good", Reddedildi: "cr
 
   <div class="grid grid-4">
     <Kpi label="Bu ay toplam" value="214 sa" delta="+%18" dir="down" />
-    <Kpi label="Onay bekleyen" value="2" delta="11 saat" dir="flat" />
+    <Kpi label="Onay bekleyen" value={String(GEN.overtime.filter((o) => o.state === "Onay bekliyor").length)} delta={`${GEN.overtime.filter((o) => o.state === "Onay bekliyor").reduce((s, o) => s + o.hours, 0)} saat`} dir="flat" />
     <Kpi label="Sınıra yakın" value="1" delta="Emre Doğan" dir="down" ai="Pazar nöbetini devret" />
     <Kpi label="Maliyet (tahmini)" value="214.300 ₺" delta="bordroya akar" dir="flat" />
   </div>
 
   <div class="grid grid-main">
-    <Panel title="Talepler" sub="Onaylanan mesai puantaja yazılır" flush>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th scope="col">Çalışan</th><th scope="col">Tarih</th><th scope="col" class="num">Saat</th><th scope="col">Neden</th><th scope="col">Aylık toplam</th><th scope="col">Durum</th><th scope="col">İşlem</th></tr></thead>
-          <tbody>
-            {OVERTIME.map((o) => {
-              const e = employee(o.employeeId);
-              const pct = Math.min(100, Math.round(((o.monthTotal + (o.state === "Onay bekliyor" ? o.hours : 0)) / o.limit) * 100));
-              return (
-                <tr>
-                  <td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td>
-                  <td class="muted">{o.date}</td>
-                  <td class="num strong">{o.hours}</td>
-                  <td>{o.kind}</td>
-                  <td><span class="row" style="gap:8px;min-inline-size:150px"><span class="meter" data-tone={pct >= 90 ? "critical" : pct >= 70 ? "warning" : "good"} style="inline-size:70px"><span style={`inline-size:${pct}%`}></span></span><span class="small strong">{o.monthTotal} / {o.limit}</span></span></td>
-                  <td><Badge tone={tone[o.state]}>{o.state}</Badge></td>
-                  <td><span class="row" style="gap:4px"><AiHint client:visible title="AI görüşü" answer={o.aiNote + "."} actions={o.state === "Onay bekliyor" ? ["Onayla", "Devret"] : []} mode="popover" />{o.state === "Onay bekliyor" ? <><button type="button" class="icon-btn" aria-label="Onayla" style="color:var(--good);inline-size:28px;block-size:28px"><Check size={13} weight="bold" /></button><button type="button" class="icon-btn" aria-label="Reddet" style="inline-size:28px;block-size:28px"><X size={13} weight="bold" /></button></> : null}</span></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+    <Panel title="Talepler" sub="Onaylanan mesai puantaja yazılır · sınır takibi" flush>
+      <div class="panel-body"><DataTable client:load preset="overtime" title="Fazla mesai" rows={GEN.overtime} pageSize={10} /></div>
     </Panel>
     <Panel title="Departman dağılımı" sub="Bu ay · saat">
       <Bars items={[{ label: "Mühendislik", value: 131, tone: "critical" }, { label: "Destek", value: 42 }, { label: "Satış", value: 22 }, { label: "Ürün", value: 11 }, { label: "Diğer", value: 8 }]} unit=" sa" />

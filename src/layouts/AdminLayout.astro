@@ -6,7 +6,7 @@ import Sidebar from "../components/Sidebar.astro";
 import SubNav from "../components/SubNav.astro";
 import CommandBar from "../islands/CommandBar";
 import { resolvePage } from "../data/nav";
-import { Buildings, CaretUpDown, Plus, Question } from "@phosphor-icons/react";
+import { Buildings, CaretUpDown, List, Plus, Question, SquaresFour, Sparkle, Tray, Users } from "@phosphor-icons/react";
 
 interface Props {
   pageId: string;
@@ -51,9 +51,11 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
     <a class="skip-link" href="#icerik">İçeriğe atla</a>
     <div class="app">
       <Sidebar currentId={pageId} />
+      <div class="drawer-backdrop" data-drawer-close aria-hidden="true"></div>
       <div class="main">
         <header class="topbar" aria-label="Üst çubuk">
           <div class="topbar-side topbar-left">
+            <button type="button" class="icon-btn menu-btn" data-drawer-toggle aria-label="Menüyü aç" aria-controls="kenar-cubugu" aria-expanded="false"><List size={18} /></button>
             <button type="button" class="context-switch" title="Tenant / şirket değiştir">
               <Buildings size={15} />
               <span class="context-text"><span class="context-tenant">Karaca Holding</span><span class="context-company">Karaca Teknoloji A.Ş.</span></span>
@@ -81,12 +83,45 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
           {!hideSubNav && page.group.children ? <SubNav group={page.group} currentLeafId={page.leaf?.id} /> : null}
           <slot />
         </main>
+        <nav class="bottom-nav" aria-label="Hızlı gezinme">
+          <a href={`${base}`} aria-current={pageId === "panel" ? "page" : undefined}><SquaresFour size={20} /><span>Panel</span></a>
+          <a href={`${base}gorevler/`} aria-current={pageId === "gorevler" ? "page" : undefined}><Tray size={20} /><span>Görevler</span></a>
+          <button type="button" class="bn-ai" data-ask-ai="Bugün dikkat etmem gereken 3 şey ne?" aria-label="AI'ya sor"><span><Sparkle size={20} weight="fill" /></span><span>AI</span></button>
+          <a href={`${base}calisanlar/`} aria-current={pageId === "calisanlar" ? "page" : undefined}><Users size={20} /><span>İnsanlar</span></a>
+          <button type="button" data-drawer-toggle aria-label="Menü"><List size={20} /><span>Menü</span></button>
+        </nav>
+        <div class="toast" role="status" aria-live="polite" data-toast hidden></div>
       </div>
     </div>
     <script>
       import "../scripts/motion";
     </script>
     <script>
+      // Çekmece menü (mobil): aç/kapat, Escape, arka plan tıklaması, odak yönetimi.
+      const root = document.documentElement;
+      const setDrawer = (open: boolean) => {
+        root.dataset.drawer = open ? "open" : "closed";
+        for (const b of document.querySelectorAll<HTMLElement>("[data-drawer-toggle]")) b.setAttribute("aria-expanded", String(open));
+        if (open) document.querySelector<HTMLElement>(".sidebar a, .sidebar button")?.focus();
+      };
+      document.addEventListener("click", (event) => {
+        const el = event.target as HTMLElement;
+        if (el.closest("[data-drawer-toggle]")) setDrawer(root.dataset.drawer !== "open");
+        else if (el.closest("[data-drawer-close]")) setDrawer(false);
+        else if (el.closest(".sidebar a") && root.dataset.drawer === "open") setDrawer(false);
+      });
+      document.addEventListener("keydown", (event) => { if (event.key === "Escape" && root.dataset.drawer === "open") setDrawer(false); });
+      // Dışa aktarma: demo bildirimi (toast).
+      const toast = document.querySelector<HTMLElement>("[data-toast]");
+      let toastTimer = 0;
+      window.addEventListener("cronhr:export", (event) => {
+        const d = (event as CustomEvent<{ title?: string; rows: unknown[] }>).detail;
+        if (!toast) return;
+        toast.textContent = `${d.rows.length} kayıt dışa aktarıldı (demo): ${d.title ?? "tablo"}.csv`;
+        toast.hidden = false;
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => { toast.hidden = true; }, 3200);
+      });
       // Tema değiştirici: aria-pressed senkronu + localStorage + olay.
       const applyThemeButtons = () => {
         const t = document.documentElement.dataset.theme ?? "light";

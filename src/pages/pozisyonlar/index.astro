@@ -3,15 +3,14 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
-import Badge from "../../components/Badge.astro";
 import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
-import { POSITIONS } from "../../data/hr2";
-import { employee, tl } from "../../data/hr";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
+import { tl } from "../../data/hr";
 import { Plus, Sparkle } from "@phosphor-icons/react";
 
-const tone = { Dolu: "good", Boş: "warning", Bütçelenmiş: "info", Dondurulmuş: "neutral" } as const;
-const budgetTotal = POSITIONS.reduce((s, p) => s + p.budget, 0);
+const budgetTotal = GEN.positions.filter((p) => p.status === "Boş").reduce((s, p) => s + p.budget, 0);
 ---
 
 <AdminLayout pageId="pozisyonlar" description="Pozisyon, iş (job), iş ailesi, kademe ve bütçe. Çalışan pozisyona atanır; pozisyon bütçeye bağlıdır. İşe alım talepleri buradan açılır.">
@@ -32,33 +31,15 @@ const budgetTotal = POSITIONS.reduce((s, p) => s + p.budget, 0);
 
   <div class="grid grid-4">
     <Kpi label="Toplam pozisyon" value="128" delta="120 dolu" dir="flat" />
-    <Kpi label="Boş" value="3" delta="+1 bu ay" dir="down" />
+    <Kpi label="Boş" value={String(GEN.positions.filter((p) => p.status === "Boş").length)} delta="+1 bu ay" dir="down" />
     <Kpi label="Bütçelenmiş" value="1" delta="Ekim" dir="flat" />
-    <Kpi label="Pozisyon bütçesi (örnek)" value={tl(budgetTotal)} delta="aylık brüt" dir="flat" />
+    <Kpi label="Boş pozisyon bütçesi" value={tl(budgetTotal)} delta="aylık brüt" dir="flat" />
   </div>
 
   <div class="grid grid-main">
     <Panel title="Pozisyonlar" sub="Pozisyon ≠ kişi: boşalan pozisyon kadroda kalır" flush>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th scope="col">Pozisyon</th><th scope="col">İş / aile</th><th scope="col">Kademe</th><th scope="col">Departman</th><th scope="col">Sahibi</th><th scope="col" class="num">Bütçe</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
-          <tbody>
-            {POSITIONS.map((p) => (
-              <tr>
-                <td class="strong">{p.title}</td>
-                <td class="muted">{p.job}<div class="small faint">{p.family}</div></td>
-                <td><Badge tone="neutral" plain>{p.grade}</Badge></td>
-                <td>{p.department}</td>
-                <td>{p.holder ? employee(p.holder).name : <span class="faint">—</span>}</td>
-                <td class="num">{tl(p.budget)}</td>
-                <td><Badge tone={tone[p.status]}>{p.status}</Badge></td>
-                <td class="cell-ai"><AiHint client:visible title={`${p.title} · AI notu`} answer={p.aiNote + "."} actions={p.status === "Boş" ? ["İlana çıkar", "Dondur"] : p.status === "Bütçelenmiş" ? ["Onaya gönder"] : ["Detay"]} mode="popover" /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <Fragment slot="foot">8 / 128 gösteriliyor · Pozisyon durumu değişince işe alım ve bordro bütçesi otomatik güncellenir</Fragment>
+      <div class="panel-body"><DataTable client:load preset="positions" title="Pozisyonlar" rows={GEN.positions} pageSize={10} /></div>
+      <Fragment slot="foot">Pozisyon durumu değişince işe alım ve bordro bütçesi otomatik güncellenir</Fragment>
     </Panel>
 
     <div class="stack" style="gap:16px">

@@ -7,8 +7,10 @@ import Badge from "../../components/Badge.astro";
 import Avatar from "../../components/Avatar.astro";
 import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
 import { DEPARTMENTS, EMPLOYEES, formatDate, riskLabel, riskTone } from "../../data/hr";
-import { Export, Funnel, MagnifyingGlass, Plus, Sparkle } from "@phosphor-icons/react";
+import { Export, Plus, Sparkle } from "@phosphor-icons/react";
 
 const statusTone = { Aktif: "good", Deneme: "info", "İzinli": "neutral", "Ayrılıyor": "critical" } as const;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -32,48 +34,19 @@ const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
   />
 
   <div class="grid grid-4">
-    <Kpi label="Aktif çalışan" value="120" delta="+2" dir="up" ai="Ekim'de 3 başlangıç planlı." />
+    <Kpi label="Aktif çalışan" value={String(GEN.employees.filter((e) => e.status !== "Ayrılıyor").length)} delta="+2" dir="up" ai="Ekim'de 3 başlangıç planlı." />
     <Kpi label="Uzaktan oranı" value={`%${Math.round((remote / EMPLOYEES.length) * 100)}`} delta="hedef %35" dir="flat" ai="Politika sınırı içinde." />
     <Kpi label="Ortalama kıdem" value="3,4 yıl" delta="+0,3" dir="up" />
     <Kpi label="Gönüllü ayrılma" value="%9,6" delta="sektör %13" dir="up" ai="Mühendislik'te %12; izleme listesi orada." />
   </div>
 
   <div class="grid grid-main">
-    <Panel title="Çalışanlar" sub="AI risk skoru ile" flush>
+    <Panel title="Çalışanlar" sub="AI risk skoru, filtre, sıralama ve doğal dil sorgusu" flush>
       <Fragment slot="tools">
-        <label class="row" style="gap:6px"><MagnifyingGlass size={14} color="var(--ink-faint)" /><input class="input" aria-label="Çalışan ara" placeholder="İsim, ünvan, ekip" style="min-block-size:30px;inline-size:180px" /></label>
-        <button type="button" class="btn btn-sm"><Funnel size={13} /> Filtre</button>
         <button type="button" class="btn btn-ai btn-sm" data-ask-ai="Ayrılma riski yüksek çalışanları listele"><Sparkle size={12} weight="fill" /> Riskli olanlar</button>
       </Fragment>
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr><th scope="col">Çalışan</th><th scope="col">Departman</th><th scope="col">Konum</th><th scope="col">Başlangıç</th><th scope="col">Durum</th><th scope="col">Ayrılma riski</th><th scope="col" class="cell-ai">AI</th></tr>
-          </thead>
-          <tbody>
-            {EMPLOYEES.map((e) => (
-              <tr>
-                <td><a href={`${base}/calisanlar/${e.id}/`}><Avatar name={e.name} sub={e.title} hue={e.hue} /></a></td>
-                <td>{e.department}</td>
-                <td>{e.location}</td>
-                <td class="muted">{formatDate(e.startDate)}</td>
-                <td><Badge tone={statusTone[e.status]}>{e.status}</Badge></td>
-                <td>
-                  <span class="row" style="gap:8px;min-inline-size:150px">
-                    <span class="meter" data-tone={riskTone(e.attritionRisk) === "good" ? "good" : riskTone(e.attritionRisk) === "warning" ? "warning" : "critical"} style="inline-size:70px"><span style={`inline-size:${e.attritionRisk}%`}></span></span>
-                    <span class="small strong">{e.attritionRisk}</span>
-                    <span class="small muted">{riskLabel(e.attritionRisk)}</span>
-                  </span>
-                </td>
-                <td class="cell-ai">
-                  <AiHint client:visible title={`${e.name} · AI değerlendirmesi`} answer={`${e.riskReason}. Katılım skoru ${e.engagement}/100. ${e.attritionRisk >= 55 ? "Önerilen adım: yöneticisiyle 30 dakikalık kariyer görüşmesi ve ücret bandı kontrolü." : "Şu an aksiyon gerekmiyor; 30 gün sonra yeniden değerlendirilecek."}`} actions={e.attritionRisk >= 55 ? ["Görüşme planla", "Ücret analizi", "Not ekle"] : ["Not ekle"]} mode="popover" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <Fragment slot="foot">10 / 120 gösteriliyor · Satıra tıklayın: Employee 360 · AI skorları her gece yeniden hesaplanır</Fragment>
+      <div class="panel-body"><DataTable client:load preset="employees" title="Çalışanlar" rows={GEN.employees} pageSize={10} /></div>
+      <Fragment slot="foot">{GEN.employees.length} çalışan · Satıra tıklayın: Employee 360 · AI skorları her gece yeniden hesaplanır</Fragment>
     </Panel>
 
     <div class="stack" style="gap:16px">

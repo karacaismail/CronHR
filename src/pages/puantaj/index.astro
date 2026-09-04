@@ -3,16 +3,13 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
-import Badge from "../../components/Badge.astro";
-import Avatar from "../../components/Avatar.astro";
 import Pipeline from "../../components/Pipeline.astro";
 import AiHint from "../../islands/AiHint";
-import { employee } from "../../data/hr";
-import { TIMESHEET } from "../../data/hr2";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
 import { Calculator, LockKey, Sparkle } from "@phosphor-icons/react";
 
-const stateTone = { "Hesaplandı": "neutral", "Onay bekliyor": "warning", "Onaylandı": "good", Kilitli: "info" } as const;
-const totals = TIMESHEET.reduce((a, r) => ({ normal: a.normal + r.normalHours, ot: a.ot + r.overtime, night: a.night + r.night }), { normal: 0, ot: 0, night: 0 });
+const totals = GEN.timesheet.reduce((a, r) => ({ normal: a.normal + r.normalHours, ot: a.ot + r.overtime, night: a.night + r.night }), { normal: 0, ot: 0, night: 0 });
 ---
 
 <AdminLayout pageId="puantaj" description="Time Calculation Engine: vardiya (plan) + PDKS (gerçek) + izin (haklı yokluk) + fazla mesai/düzeltme › hesaplanmış çalışma ve payroll units. Bordro ham hareketi değil, bunu okur.">
@@ -37,42 +34,14 @@ const totals = TIMESHEET.reduce((a, r) => ({ normal: a.normal + r.normalHours, o
   </Panel>
 
   <div class="grid grid-4">
-    <Kpi label="Normal saat" value={String(totals.normal)} delta="8 çalışan (örnek)" dir="flat" />
+    <Kpi label="Normal saat" value={new Intl.NumberFormat("tr-TR").format(totals.normal)} delta="120 çalışan" dir="flat" />
     <Kpi label="Fazla mesai" value={`${totals.ot} sa`} delta="1 sınıra yakın" dir="down" ai="%86'sı Emre Doğan" />
     <Kpi label="Gece saati" value={`${totals.night} sa`} delta="gece primi" dir="flat" />
-    <Kpi label="Onay durumu" value="4 / 8" delta="onaylı + kilitli" dir="up" />
+    <Kpi label="Onay durumu" value={`${GEN.timesheet.filter((t) => t.state === "Onaylandı" || t.state === "Kilitli").length} / ${GEN.timesheet.length}`} delta="onaylı + kilitli" dir="up" />
   </div>
 
-  <Panel title="Eylül 2026 puantajı" sub="Payroll units: gün, saat, izin, mesai, gece, tatil" flush>
-    <Fragment slot="tools"><span class="segment"><button type="button" aria-pressed="true">Özet</button><button type="button">Günlük</button></span></Fragment>
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr><th scope="col">Çalışan</th><th scope="col" class="num">Plan</th><th scope="col" class="num">Çalışılan</th><th scope="col" class="num">Saat</th><th scope="col" class="num">Ücretli izin</th><th scope="col" class="num">Ücretsiz</th><th scope="col" class="num">Devamsız</th><th scope="col" class="num">Normal</th><th scope="col" class="num">F. mesai</th><th scope="col" class="num">Gece</th><th scope="col" class="num">Tatil</th><th scope="col" class="num">Geç</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
-        <tbody>
-          {TIMESHEET.map((r) => {
-            const e = employee(r.employeeId);
-            return (
-              <tr>
-                <td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td>
-                <td class="num">{r.plannedDays}</td>
-                <td class="num">{r.workedDays}</td>
-                <td class="num">{r.workedHours}</td>
-                <td class="num">{r.paidLeave}</td>
-                <td class="num" style={r.unpaidLeave ? "color:var(--critical);font-weight:700" : ""}>{r.unpaidLeave}</td>
-                <td class="num" style={r.absent ? "color:var(--critical);font-weight:700" : ""}>{r.absent}</td>
-                <td class="num strong">{r.normalHours}</td>
-                <td class="num" style={r.overtime > 40 ? "color:var(--critical);font-weight:700" : r.overtime ? "font-weight:700" : ""}>{r.overtime}</td>
-                <td class="num">{r.night}</td>
-                <td class="num">{r.holiday}</td>
-                <td class="num">{r.late}</td>
-                <td><Badge tone={stateTone[r.state]}>{r.state}</Badge></td>
-                <td class="cell-ai"><AiHint client:visible title={`${e.name} · puantaj kontrolü`} answer={r.issues.length ? `${r.issues.join(". ")}. ${r.state === "Onay bekliyor" ? "Onaylamadan önce düzeltme önerilir." : ""}` : "Plan, PDKS ve izin kayıtları tutarlı; sapma yok."} actions={r.issues.length ? ["Düzelt", "Yine de onayla"] : r.state === "Onaylandı" ? ["Kilitle"] : ["Onayla"]} mode="popover" /></td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+  <Panel title="Eylül 2026 puantajı" sub="Payroll units: gün, saat, izin, mesai, gece, devamsızlık · 120 çalışan" flush>
+    <div class="panel-body"><DataTable client:load preset="timesheet" title="Puantaj" rows={GEN.timesheet} pageSize={10} /></div>
     <Fragment slot="foot"><span class="state-flow"><span data-state="done">Hesaplandı</span><i></i><span data-state="current">Onay</span><i></i><span>Kilit</span><i></i><span>Bordroya aktarım</span></span></Fragment>
   </Panel>
 </AdminLayout>

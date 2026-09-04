@@ -3,14 +3,12 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
-import Badge from "../../components/Badge.astro";
-import Avatar from "../../components/Avatar.astro";
 import AiHint from "../../islands/AiHint";
-import { employee, tl } from "../../data/hr";
-import { VARIABLE_PAYMENTS } from "../../data/hr2";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
+import { tl } from "../../data/hr";
 import { Plus, Sparkle, UploadSimple } from "@phosphor-icons/react";
 
-const tone = { "Onay bekliyor": "warning", "Onaylandı": "good", "Hesaplandı": "info", Beklemede: "neutral" } as const;
 ---
 
 <AdminLayout pageId="degisken-odemeler" description="Prim, bonus, komisyon, nöbet primi: bordronun değişken girdileri. Kaynağı CRM, performans veya puantaj olabilir; dönem kapanmadan onaylanmalı.">
@@ -30,26 +28,14 @@ const tone = { "Onay bekliyor": "warning", "Onaylandı": "good", "Hesaplandı": 
   />
 
   <div class="grid grid-4">
-    <Kpi label="Dönem toplamı" value="31.600 ₺" delta="4 kalem" dir="flat" />
+    <Kpi label="Dönem toplamı" value={tl(GEN.variablePayments.reduce((s, v) => s + v.amount, 0))} delta={`${GEN.variablePayments.length} kalem`} dir="flat" />
     <Kpi label="Onay bekleyen" value="6.400 ₺" delta="1 kalem" dir="flat" />
     <Kpi label="Kaynak eşleşmesi" value="%100" delta="CRM · OKR · Puantaj" dir="up" />
     <Kpi label="Geçen dönem" value="27.900 ₺" delta="+%13" dir="up" />
   </div>
 
-  <Panel title="Değişken ödemeler · Eylül 2026" sub="Kaynak sistem, tutar, durum" flush>
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr><th scope="col">Çalışan</th><th scope="col">Tür</th><th scope="col" class="num">Tutar</th><th scope="col">Kaynak</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
-        <tbody>
-          {VARIABLE_PAYMENTS.map((v) => {
-            const e = employee(v.employeeId);
-            return (
-              <tr><td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td><td class="strong">{v.kind}</td><td class="num strong">{tl(v.amount)}</td><td class="muted">{v.source}</td><td><Badge tone={tone[v.state]}>{v.state}</Badge></td><td class="cell-ai"><AiHint client:visible title={`${v.kind} · AI notu`} answer={v.aiNote + "."} actions={v.state === "Onay bekliyor" ? ["Onayla", "Reddet"] : v.state === "Beklemede" ? ["12 Eylül'e ertele"] : []} mode="popover" /></td></tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+  <Panel title="Değişken ödemeler · Eylül 2026" sub="Kaynak sistem, tutar, durum · politika kontrolü AI ile" flush>
+    <div class="panel-body"><DataTable client:load preset="variablePayments" title="Değişken ödemeler" rows={GEN.variablePayments} pageSize={10} /></div>
     <Fragment slot="foot">Onaylanan kalemler bordro çalıştırmasında "Değişken girdi" olarak görünür; retro düzeltmeler ayrı işaretlenir</Fragment>
   </Panel>
 </AdminLayout>

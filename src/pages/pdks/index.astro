@@ -7,12 +7,13 @@ import Badge from "../../components/Badge.astro";
 import Avatar from "../../components/Avatar.astro";
 import Pipeline from "../../components/Pipeline.astro";
 import AiHint from "../../islands/AiHint";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
 import { employee } from "../../data/hr";
-import { ATTENDANCE_RULES, CORRECTIONS, DEVICES, EXCEPTIONS, RAW_EVENTS } from "../../data/hr2";
+import { ATTENDANCE_RULES, CORRECTIONS, DEVICES, RAW_EVENTS } from "../../data/hr2";
 import { ArrowsClockwise, Check, DeviceMobile, ShieldCheck, Sparkle, X } from "@phosphor-icons/react";
 
 const devTone = { "Çevrimiçi": "good", "Senkron gecikmesi": "warning", "Çevrimdışı": "critical" } as const;
-const stateTone = { Normal: "neutral", "İstisna": "warning", "İnceleme": "info", "Onaylandı": "good", Reddedildi: "critical" } as const;
 ---
 
 <AdminLayout pageId="pdks" description="PDKS ham zaman olaylarını toplar; puantaj değildir. Ham kayıt değişmez, düzeltmeler ayrı tutulur. Kart, PIN, RFID/NFC ve mobil; biyometri varsayılan değildir.">
@@ -38,32 +39,13 @@ const stateTone = { Normal: "neutral", "İstisna": "warning", "İnceleme": "info
   <div class="grid grid-4">
     <Kpi label="Bugün içeride" value="94" delta="%78 kadro" dir="flat" />
     <Kpi label="Ham hareket (24 sa)" value="1.011" delta="6 cihaz" dir="flat" />
-    <Kpi label="Açık istisna" value="4" delta="3 AI önerili" dir="down" ai="HR tek tek incelemez; yalnızca istisnalar" />
+    <Kpi label="Açık istisna" value={String(GEN.exceptions.filter((x) => x.state === "İstisna").length)} delta={`${GEN.exceptions.filter((x) => x.state === "İnceleme").length} incelemede`} dir="down" ai="HR tek tek incelemez; yalnızca istisnalar" />
     <Kpi label="Düzeltme talebi" value="2" delta="onay bekliyor" dir="flat" />
   </div>
 
   <div class="grid grid-main">
-    <Panel title="İstisna yönetimi" sub="Normal › İstisna › İnceleme › Onaylandı / Reddedildi" flush>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th scope="col">Çalışan</th><th scope="col">Tarih</th><th scope="col">Tür</th><th scope="col">Detay</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
-          <tbody>
-            {EXCEPTIONS.map((x) => {
-              const e = employee(x.employeeId);
-              return (
-                <tr>
-                  <td><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></td>
-                  <td class="muted">{x.date}</td>
-                  <td class="strong">{x.kind}</td>
-                  <td class="muted" style="white-space:normal;min-inline-size:220px">{x.detail}</td>
-                  <td><Badge tone={stateTone[x.state]}>{x.state}</Badge></td>
-                  <td class="cell-ai"><AiHint client:visible title={`${x.kind} · AI önerisi`} answer={x.aiSuggestion + "."} actions={x.state === "İstisna" || x.state === "İnceleme" ? ["Öneriyi uygula", "Yöneticiye sor", "Reddet"] : []} mode="popover" /></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+    <Panel title="İstisna yönetimi" sub="Normal › İstisna › İnceleme › Onaylandı / Reddedildi · AI önerisi her satırda" flush>
+      <div class="panel-body"><DataTable client:load preset="exceptions" title="PDKS istisnaları" rows={GEN.exceptions} pageSize={10} /></div>
       <Fragment slot="foot">Ham hareketler değiştirilmez; her düzeltme ayrı kayıt ve denetim izi taşır</Fragment>
     </Panel>
 

@@ -3,13 +3,11 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
-import Badge from "../../components/Badge.astro";
 import AiHint from "../../islands/AiHint";
-import { AUTOMATIONS } from "../../data/hr";
-import { ArrowsClockwise, Play, Plus, Sparkle, Timer } from "@phosphor-icons/react";
+import { GEN } from "../../data/generate";
+import DataTable from "../../islands/DataTable";
+import { Play, Plus } from "@phosphor-icons/react";
 
-const statusTone = { Aktif: "good", "Duraklatıldı": "neutral", "Hatalı": "critical" } as const;
-const kindTone = { Rapor: "info", "Hatırlatma": "ai", "Onay akışı": "warning", "AI kuralı": "ai", Entegrasyon: "neutral" } as const;
 ---
 
 <AdminLayout pageId="otomasyonlar" description="Zamanlanmış görevler ve AI kuralları. Kuralı düz Türkçe yazın; CronHR zamanlamayı, alıcıları ve şablonu çıkarır.">
@@ -45,30 +43,7 @@ const kindTone = { Rapor: "info", "Hatırlatma": "ai", "Onay akışı": "warning
     </div>
   </Panel>
 
-  <Panel title="Otomasyonlar" sub="Zamanlama, son ve sonraki çalıştırma" flush>
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr><th scope="col">Otomasyon</th><th scope="col">Tür</th><th scope="col">Zamanlama</th><th scope="col">Son</th><th scope="col">Sonraki</th><th scope="col" class="num">Çalıştırma</th><th scope="col">Durum</th><th scope="col" class="cell-ai">AI</th></tr></thead>
-        <tbody>
-          {AUTOMATIONS.map((a) => (
-            <tr>
-              <td class="strong"><span class="row" style="gap:8px"><span class="list-icon" data-tone={a.status === "Hatalı" ? "critical" : "ai"} style="inline-size:28px;block-size:28px"><Timer size={14} /></span>{a.name}</span></td>
-              <td><Badge tone={kindTone[a.kind]} plain>{a.kind}</Badge></td>
-              <td><div>{a.schedule}</div><div class="mono faint">{a.cron}</div></td>
-              <td class="muted">{a.lastRun}</td>
-              <td class="muted">{a.nextRun}</td>
-              <td class="num">{new Intl.NumberFormat("tr-TR").format(a.runs)}</td>
-              <td><Badge tone={statusTone[a.status]}>{a.status}</Badge></td>
-              <td class="cell-ai">
-                <span class="row" style="gap:2px;justify-content:flex-end">
-                  {a.status === "Hatalı" ? <button type="button" class="icon-btn" aria-label="Yeniden bağla" style="inline-size:28px;block-size:28px"><ArrowsClockwise size={13} /></button> : null}
-                  <AiHint client:visible title={`${a.name} · AI notu`} answer={a.aiNote + "."} actions={a.status === "Hatalı" ? ["Yeniden bağla"] : a.status === "Duraklatıldı" ? ["Yeniden başlat"] : ["Günlüğü aç"]} mode="popover" />
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+  <Panel title="Otomasyonlar" sub="Zamanlama, son ve sonraki çalıştırma · AI notu her satırda" flush>
+    <div class="panel-body"><DataTable client:load preset="automations" title="Otomasyonlar" rows={GEN.automations} pageSize={10} /></div>
   </Panel>
 </AdminLayout>

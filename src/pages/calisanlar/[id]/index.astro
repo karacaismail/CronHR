@@ -4,16 +4,17 @@ import AiBrief from "../../../components/AiBrief.astro";
 import Panel from "../../../components/Panel.astro";
 import Badge from "../../../components/Badge.astro";
 import AiHint from "../../../islands/AiHint";
-import { EMPLOYEES, employee, formatDate, initials, riskLabel, riskTone, tl } from "../../../data/hr";
+import { formatDate, initials, riskLabel, riskTone, tl } from "../../../data/hr";
+import { GEN, employeeById } from "../../../data/generate";
 import { dossier } from "../../../data/hr2";
 import { FileText, LockKey, Package, Sparkle } from "@phosphor-icons/react";
 
 export function getStaticPaths() {
-  return EMPLOYEES.map((e) => ({ params: { id: e.id } }));
+  return GEN.employees.map((e) => ({ params: { id: e.id } }));
 }
 
 const { id } = Astro.params;
-const e = employee(id!);
+const e = employeeById(id!);
 const d = dossier(e.id);
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const SECTIONS = ["Genel", "Kimlik", "İletişim", "İş", "Sözleşmeler", "SGK", "Ücret", "Eğitim", "Belgeler", "Zimmet", "Yaşam döngüsü", "Geçmiş"];

@@ -87,11 +87,6 @@ html {
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  /* 320px tabanı hiçbir zaman yatay kaymaz: tek bir bileşen taşsa bile
-     (uzun kelime, esnemeyen flex satırı) belge genişliği viewport'u aşamaz.
-     position:fixed öğeler (sidebar, bottom-nav, drawer-backdrop) viewport'a
-     göre konumlandığı için bundan etkilenmez. */
-  overflow-x: hidden;
 }
 
 body {
@@ -102,7 +97,6 @@ body {
   color: var(--ink);
   background: var(--bg);
   min-height: 100dvh;
-  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, p, ul, ol, figure {
@@ -162,9 +156,20 @@ svg {
 
 .brand {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 8px;
+}
+
+/* Sabit birinci satır: logo + ad. Alttaki dönen motto ne kadar satıra
+   sararsa sarsın bu satırın yüksekliği/hizası asla değişmez (regresyon:
+   önceden ikisi aynı flex satırında dikey ortalanıyordu, motto 2 satıra
+   sarınca logo yukarı/aşağı kayıyordu). */
+.brand-row {
+  display: flex;
   align-items: center;
   gap: 10px;
-  padding: 4px 8px;
+  flex: none;
 }
 
 .brand-mark {
@@ -172,6 +177,7 @@ svg {
   place-items: center;
   inline-size: 34px;
   block-size: 34px;
+  flex: none;
   border-radius: var(--radius);
   background: var(--accent-bg);
   color: var(--on-accent);
@@ -191,6 +197,7 @@ svg {
   color: var(--ink-faint);
   letter-spacing: 0.02em;
   text-transform: uppercase;
+  line-height: 1.35;
 }
 
 .nav {
@@ -276,6 +283,26 @@ svg {
   gap: 8px;
   font-size: 12px;
   font-weight: 700;
+}
+
+.ai-status-trigger {
+  inline-size: 100%;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 4px 2px;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ai-status-trigger:hover {
+  background: var(--surface);
+}
+
+.ai-status-trigger[aria-expanded="true"] {
+  background: var(--surface);
 }
 
 .ai-dot {
@@ -1772,6 +1799,120 @@ svg {
 .anchor-tabs a:hover {
   border-color: var(--accent);
   color: var(--accent-ink);
+}
+
+/* ---------------------------------------------- ayarlar: rail + accordion */
+
+.settings-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.settings-rail {
+  display: none;
+}
+
+.settings-panels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.settings-section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.settings-section summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.settings-section summary::-webkit-details-marker { display: none; }
+
+.settings-section summary svg { color: var(--accent); flex: 0 0 auto; }
+
+.settings-section summary::after {
+  content: "";
+  inline-size: 8px;
+  block-size: 8px;
+  margin-inline-start: auto;
+  border-inline-end: 2px solid var(--ink-faint);
+  border-block-end: 2px solid var(--ink-faint);
+  rotate: 45deg;
+  transition: rotate 160ms ease;
+}
+
+.settings-section[open] summary::after { rotate: 225deg; }
+
+.settings-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0 14px 14px;
+}
+
+@media (min-width: 64em) {
+  .settings-shell {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-5);
+  }
+
+  .settings-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: sticky;
+    top: calc(var(--space-4));
+    border-inline-end: 1px solid var(--border);
+    padding-inline-end: var(--space-3);
+  }
+
+  .settings-rail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    text-align: start;
+    cursor: pointer;
+    border-inline-start: 2px solid transparent;
+  }
+
+  .settings-rail-item:hover {
+    background: var(--surface-muted);
+    color: var(--ink);
+  }
+
+  .settings-rail-item svg { flex: 0 0 auto; }
+
+  .settings-rail-item[aria-current="true"] {
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    border-inline-start-color: var(--accent);
+  }
+
+  .settings-section { border: none; background: transparent; }
+  .settings-section summary { display: none; }
+  .settings-section:not([open]) { display: none; }
+  .settings-section-body { padding: 0; }
 }
 
 .stat-strip {

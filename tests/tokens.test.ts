@@ -115,10 +115,13 @@ describe("Flat 2.0 sözleşmesi", () => {
 
   it("masaüstünde kenar çubuğu yapışkandır: top:0 bir inset kısayoluyla ezilmez", () => {
     const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
-    const desktopBlockMatch = css.match(/@media \(min-width: 64em\) \{([\s\S]*?)\n\}/);
-    expect(desktopBlockMatch, "64em kırılım bloğu bulunamadı").not.toBeNull();
-    const desktopBlock = desktopBlockMatch![1];
-    const sidebarRuleMatch = desktopBlock.match(/\.sidebar\s*\{([^}]*)\}/);
+    // Birden çok `@media (min-width: 64em)` bloğu olabilir; .sidebar kuralını
+    // barındıranı bul (ilkini varsaymak kırılgan — bkz. regresyon).
+    const desktopBlocks = [...css.matchAll(/@media \(min-width: 64em\) \{([\s\S]*?)\n\}/g)];
+    expect(desktopBlocks.length, "64em kırılım bloğu bulunamadı").toBeGreaterThan(0);
+    const desktopBlock = desktopBlocks.map((m) => m[1]).find((b) => /\.sidebar\s*\{/.test(b));
+    expect(desktopBlock, ".sidebar kuralını içeren 64em bloğu bulunamadı").toBeTruthy();
+    const sidebarRuleMatch = desktopBlock!.match(/\.sidebar\s*\{([^}]*)\}/);
     expect(sidebarRuleMatch, ".sidebar kuralı 64em bloğunda bulunamadı").not.toBeNull();
     const rule = sidebarRuleMatch![1];
     expect(rule).toMatch(/position:\s*sticky/);
@@ -145,14 +148,20 @@ describe("Flat 2.0 sözleşmesi", () => {
     expect(parallaxTargets![1]).toMatch(/orb, head/);
   });
 
-  it("belge asla yatay kaymaz: html ve body'de overflow-x: hidden (320px tabanının kırılmaz güvenlik payı)", () => {
+  it("html/body'de overflow-x:hidden YOKTUR (regresyon: bu, sticky header/sidebar'ı ve pencere kaydırmasını kırar)", () => {
+    // CSS'in "interlocking" kuralı: bir eksende overflow visible değilse
+    // diğer eksen de otomatik olarak "auto" sayılır. html/body'ye
+    // overflow-x:hidden koymak overflow-y:auto'yu da tetikler; bu da
+    // window.scrollY'nin hiç ilerlememesine ve .topbar/.sidebar'daki
+    // position:sticky'nin bozulmasına yol açtı (gerçek regresyon, ölçüldü).
+    // Yatay taşma varsa kaynağında (ör. .row-between gibi) düzeltilmeli.
     const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
     const htmlRule = css.match(/(?<!\.)\bhtml\s*\{([^}]*)\}/);
     const bodyRule = css.match(/(?<!\.)\bbody\s*\{([^}]*)\}/);
     expect(htmlRule, "html kuralı bulunamadı").not.toBeNull();
     expect(bodyRule, "body kuralı bulunamadı").not.toBeNull();
-    expect(htmlRule![1]).toMatch(/overflow-x:\s*hidden/);
-    expect(bodyRule![1]).toMatch(/overflow-x:\s*hidden/);
+    expect(htmlRule![1]).not.toMatch(/overflow-x/);
+    expect(bodyRule![1]).not.toMatch(/overflow-x/);
   });
 
   it("row-between esnemeyen bir satır yerine gerekirse sarar (dar/uzun içerik taşırmaz)", () => {

@@ -1,12 +1,28 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
+import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
 import Badge from "../../components/Badge.astro";
 import AiHint from "../../islands/AiHint";
 import Select from "../../islands/Select";
-import { Buildings, CreditCard, Code, Globe, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react";
-const SECTIONS = ["Genel", "Organizasyon", "Kullanıcılar ve Roller", "Yerelleştirme", "Bildirimler", "Entegrasyonlar", "Güvenlik", "Veri", "Faturalama", "Geliştirici", "AI"];
+import DataTable from "../../islands/DataTable";
+import { API_KEYS, INTEGRATIONS, WEBHOOKS } from "../../data/hr2";
+import { GEN } from "../../data/generate";
+import { ArrowsClockwise, Buildings, CreditCard, Code, Database, Globe, Key, Lightning, Play, Plugs, Plus, Robot, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react";
+
+const SECTIONS = [
+  { id: "genel", label: "Genel", icon: Buildings },
+  { id: "kullanicilar", label: "Kullanıcılar ve Roller", icon: UsersThree },
+  { id: "yerellestirme", label: "Yerelleştirme", icon: Globe },
+  { id: "entegrasyonlar", label: "Entegrasyonlar", icon: Plugs },
+  { id: "otomasyonlar", label: "Otomasyonlar", icon: Robot },
+  { id: "guvenlik", label: "Güvenlik", icon: ShieldCheck },
+  { id: "veri", label: "Veri", icon: Database },
+  { id: "faturalama", label: "Faturalama", icon: CreditCard },
+  { id: "gelistirici", label: "Geliştirici", icon: Code },
+  { id: "ai", label: "AI", icon: Sparkle },
+] as const;
 
 const ROLES = [
   { name: "Yönetici", people: 2, scope: "Tüm modüller, AI ayarları, bordro" },
@@ -23,15 +39,15 @@ const AI_DATA = [
   { field: "Ücret ve bordro kalemleri", on: false, note: "Yalnızca anomali kontrolü; maskeli" },
   { field: "Sağlık raporları", on: false, note: "Asla AI'ya gönderilmez" },
 ];
+
+const integrationTone = { "Bağlı": "good", "Hatalı": "critical", "Duraklatıldı": "neutral" } as const;
 ---
 
-<AdminLayout pageId="ayarlar" description="Şirket, roller, onay akışları ve AI tercihleri. AI'nın neyi görebildiği ve neyi yapamayacağı burada belirlenir.">
+<AdminLayout pageId="ayarlar" description="Şirket, roller, onay akışları, entegrasyonlar, otomasyonlar ve AI tercihleri. AI'nın neyi görebildiği ve neyi yapamayacağı burada belirlenir.">
   <Fragment slot="actions">
     <button type="button" class="btn">Vazgeç</button>
     <button type="button" class="btn btn-primary">Kaydet</button>
   </Fragment>
-
-  <div class="anchor-tabs">{SECTIONS.map((s) => <a href={`#${s.toLowerCase().replace(/[^a-z0-9ğüşöçı]/g, "-")}`}>{s}</a>)}</div>
 
   <AiBrief
     title="AI güvenlik özeti"
@@ -44,96 +60,253 @@ const AI_DATA = [
     askQuery="AI asistanının izinlerini açıkla"
   />
 
-  <div class="grid grid-2">
-    <Panel title="Şirket" sub="Temel bilgiler"><Fragment slot="icon"><span id="genel"></span></Fragment>
-      <Fragment slot="icon"><Buildings size={15} /></Fragment>
-      <div class="grid grid-2" style="gap:12px">
-        <div class="field"><label class="field-label" for="s-name">Şirket adı</label><input id="s-name" class="input" value="Karaca Teknoloji A.Ş." /></div>
-        <Select client:load id="s-tz" label="Saat dilimi" options={[{ value: "europe-istanbul-utc-3", label: "Europe/Istanbul (UTC+3)" }]} />
-        <Select client:load id="s-week" label="Çalışma haftası" options={[{ value: "pazartesi-cuma", label: "Pazartesi – Cuma" }, { value: "pazartesi-cumartesi", label: "Pazartesi – Cumartesi" }]} />
-        <div class="field"><label class="field-label" for="s-leave">Yıllık izin (varsayılan) <span class="field-ai"><Sparkle size={11} weight="fill" /> AI: kıdeme göre 14/20/26</span></label><input id="s-leave" class="input" value="14 gün" /></div>
-      </div>
-    </Panel>
+  <div class="settings-shell">
+    <div class="settings-rail" aria-label="Ayarlar bölümleri">
+      {SECTIONS.map((s, i) => {
+        const Icon = s.icon;
+        return (
+          <button type="button" class="settings-rail-item" data-settings-tab={s.id} aria-current={i === 0 ? "true" : "false"}>
+            <Icon size={16} />
+            <span>{s.label}</span>
+          </button>
+        );
+      })}
+    </div>
 
-    <Panel title="AI tercihleri" sub="Asistanın davranışı"><Fragment slot="icon"><span id="ai"></span></Fragment>
-      <Fragment slot="icon"><Sparkle size={15} weight="fill" /></Fragment>
-      <ul class="stack" style="gap:10px">
-        <li class="row-between"><span><div class="strong">Sayfa açılışında AI özeti</div><div class="small muted">Her sayfada üstte otomatik brifing</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="AI özeti"></button></li>
-        <li class="row-between"><span><div class="strong">Satır bazlı AI önerileri</div><div class="small muted">Tablolarda ve kartlarda AI düğmesi</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Satır önerileri"></button></li>
-        <li class="row-between"><span><div class="strong">Proaktif bildirimler</div><div class="small muted">Risk eşiği aşılınca AI uyarır</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Proaktif bildirim"></button></li>
-        <li class="row-between"><span><div class="strong">Otomatik uygulama</div><div class="small muted">Önerileri onaysız uygula (önerilmez)</div></span><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Otomatik uygulama"></button></li>
-        <li class="row-between"><span><div class="strong">Ton</div><div class="small muted">Yanıt üslubu</div></span><span class="segment"><button type="button">Resmi</button><button type="button" aria-pressed="true">Dengeli</button><button type="button">Samimi</button></span></li>
-      </ul>
-    </Panel>
+    <div class="settings-panels">
+      <details class="settings-section" id="genel" open>
+        <summary><Buildings size={16} /> Genel</summary>
+        <div class="settings-section-body">
+          <Panel title="Şirket" sub="Temel bilgiler">
+            <Fragment slot="icon"><Buildings size={15} /></Fragment>
+            <div class="grid grid-2" style="gap:12px">
+              <div class="field"><label class="field-label" for="s-name">Şirket adı</label><input id="s-name" class="input" value="Karaca Teknoloji A.Ş." /></div>
+              <Select client:load id="s-tz" label="Saat dilimi" options={[{ value: "europe-istanbul-utc-3", label: "Europe/Istanbul (UTC+3)" }]} />
+              <Select client:load id="s-week" label="Çalışma haftası" options={[{ value: "pazartesi-cuma", label: "Pazartesi – Cuma" }, { value: "pazartesi-cumartesi", label: "Pazartesi – Cumartesi" }]} />
+              <div class="field"><label class="field-label" for="s-leave">Yıllık izin (varsayılan) <span class="field-ai"><Sparkle size={11} weight="fill" /> AI: kıdeme göre 14/20/26</span></label><input id="s-leave" class="input" value="14 gün" /></div>
+            </div>
+          </Panel>
+        </div>
+      </details>
 
-    <Panel title="AI ile paylaşılan veri" sub="Alan bazında kontrol · varsayılan en kısıtlı">
-      <Fragment slot="icon"><ShieldCheck size={15} /></Fragment>
-      <ul class="stack" style="gap:10px">
-        {AI_DATA.map((d) => (
-          <li class="row-between"><span><div class="strong">{d.field}</div><div class="small muted">{d.note}</div></span><button type="button" class="switch" role="switch" aria-checked={d.on ? "true" : "false"} aria-label={d.field}></button></li>
-        ))}
-      </ul>
-      <AiHint client:visible label="Bu ayarlar ne anlama geliyor?" variant="chip" title="Veri paylaşımı" answer="Açık alanlar AI bağlamına girer ve yalnızca sizin rolünüzün görebildiği kayıtlarla sınırlıdır. Kapalı alanlar hiçbir sorguda kullanılmaz; bordro anomali kontrolü maskelenmiş tutarlarla çalışır. Her değişiklik denetim günlüğüne yazılır ve yöneticilere bildirilir." />
-    </Panel>
+      <details class="settings-section" id="kullanicilar">
+        <summary><UsersThree size={16} /> Kullanıcılar ve Roller</summary>
+        <div class="settings-section-body">
+          <Panel title="Roller ve erişim" sub="Kim neyi görür · SSO, SCIM, oturumlar" flush>
+            <Fragment slot="icon"><UsersThree size={15} /></Fragment>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th scope="col">Rol</th><th scope="col" class="num">Kişi</th><th scope="col">Kapsam</th><th scope="col" class="cell-ai">AI</th></tr></thead>
+                <tbody>
+                  {ROLES.map((r) => (
+                    <tr>
+                      <td class="strong">{r.name}</td>
+                      <td class="num">{r.people}</td>
+                      <td class="muted" style="white-space:normal">{r.scope}</td>
+                      <td class="cell-ai"><AiHint client:visible title={`${r.name} · AI kapsamı`} answer={`${r.name} rolündeki kullanıcılar için AI yalnızca şu kapsamı görür: ${r.scope}. Bu rolün göremediği bir kayıt hakkında soru sorulursa AI "yetkiniz dışında" yanıtı verir ve olay günlüğe yazılır.`} mode="popover" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Fragment slot="foot"><Badge tone="good">SSO açık</Badge><span>Son denetim günlüğü: bugün 08:10</span></Fragment>
+          </Panel>
+        </div>
+      </details>
 
-    <Panel title="Roller ve erişim" sub="Kim neyi görür · SSO, SCIM, oturumlar" flush><Fragment slot="icon"><span id="kullanıcılar-ve-roller"></span></Fragment>
-      <Fragment slot="icon"><UsersThree size={15} /></Fragment>
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th scope="col">Rol</th><th scope="col" class="num">Kişi</th><th scope="col">Kapsam</th><th scope="col" class="cell-ai">AI</th></tr></thead>
-          <tbody>
-            {ROLES.map((r) => (
-              <tr>
-                <td class="strong">{r.name}</td>
-                <td class="num">{r.people}</td>
-                <td class="muted" style="white-space:normal">{r.scope}</td>
-                <td class="cell-ai"><AiHint client:visible title={`${r.name} · AI kapsamı`} answer={`${r.name} rolündeki kullanıcılar için AI yalnızca şu kapsamı görür: ${r.scope}. Bu rolün göremediği bir kayıt hakkında soru sorulursa AI "yetkiniz dışında" yanıtı verir ve olay günlüğe yazılır.`} mode="popover" /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <Fragment slot="foot"><Badge tone="good">SSO açık</Badge><span>Son denetim günlüğü: bugün 08:10</span></Fragment>
-    </Panel>
+      <details class="settings-section" id="yerellestirme">
+        <summary><Globe size={16} /> Yerelleştirme</summary>
+        <div class="settings-section-body">
+          <Panel title="Yerelleştirme" sub="Dil, para birimi, saat dilimi, ülke paketi">
+            <Fragment slot="icon"><Globe size={15} /></Fragment>
+            <dl class="dossier-grid">
+              <div class="dl"><dt>Dil</dt><dd>Türkçe (tr-TR)</dd></div>
+              <div class="dl"><dt>Para birimi</dt><dd>TRY · ₺</dd></div>
+              <div class="dl"><dt>Saat dilimi</dt><dd>Europe/Istanbul</dd></div>
+              <div class="dl"><dt>Ülke paketi</dt><dd>Türkiye · SGK/GİB v2026-04</dd></div>
+            </dl>
+          </Panel>
+        </div>
+      </details>
+
+      <details class="settings-section" id="entegrasyonlar">
+        <summary><Plugs size={16} /> Entegrasyonlar</summary>
+        <div class="settings-section-body">
+          <div class="grid grid-4">
+            <Kpi label="Bağlı uygulama" value="6 / 8" delta="1 hatalı" dir="down" />
+            <Kpi label="SSO · SCIM" value="Aktif" delta="Entra ID" dir="up" />
+            <Kpi label="API çağrısı (30 gün)" value="61.560" delta="%99,9 başarı" dir="up" />
+            <Kpi label="Webhook hatası (24 sa)" value="1" delta="401 · Slack" dir="down" />
+          </div>
+          <div class="grid grid-main">
+            <Panel title="Bağlı uygulamalar" sub="Bağlayıcı, kapsam, son olay" flush>
+              <ul>
+                {INTEGRATIONS.map((i) => (
+                  <li class="list-item"><span class="list-icon" data-tone={i.status === "Bağlı" ? "good" : i.status === "Hatalı" ? "critical" : undefined}><Plugs size={16} /></span><span class="list-main"><div class="list-title">{i.name}</div><div class="list-sub">{i.kind} · son {i.last}</div></span><Badge tone={integrationTone[i.status]}>{i.status}</Badge>{i.status === "Hatalı" ? <button type="button" class="icon-btn" aria-label="Yeniden bağla" style="inline-size:28px;block-size:28px"><ArrowsClockwise size={13} /></button> : null}<AiHint client:visible title={`${i.name} · durum`} answer={i.aiNote + "."} actions={i.status === "Hatalı" ? ["Yeniden bağla"] : i.status === "Duraklatıldı" ? ["Yeniden başlat"] : ["Günlüğü aç"]} mode="popover" /></li>
+                ))}
+              </ul>
+            </Panel>
+            <div class="stack" style="gap:16px">
+              <Panel title="Webhook'lar" sub="Olay › hedef · son yanıt" flush>
+                <Fragment slot="icon"><Lightning size={15} /></Fragment>
+                <div class="table-wrap">
+                  <table class="table">
+                    <thead><tr><th scope="col">Olay</th><th scope="col">Son</th><th scope="col">Yanıt</th></tr></thead>
+                    <tbody>
+                      {WEBHOOKS.map((w) => <tr><td><div class="mono">{w.event}</div><div class="small faint" style="max-inline-size:220px;overflow:hidden;text-overflow:ellipsis">{w.url}</div></td><td class="muted">{w.last}</td><td><Badge tone={w.status === "200" ? "good" : w.status === "—" ? "neutral" : "critical"} plain>{w.status}</Badge></td></tr>)}
+                    </tbody>
+                  </table>
+                </div>
+              </Panel>
+              <Panel title="API anahtarları" sub="Kapsam ve kullanım" flush>
+                <Fragment slot="icon"><Key size={15} /></Fragment>
+                <ul>
+                  {API_KEYS.map((k) => <li class="list-item"><span class="list-main"><div class="list-title">{k.name}</div><div class="list-sub mono">{k.scope}</div></span><span class="small muted" style="text-align:end">{new Intl.NumberFormat("tr-TR").format(k.calls30d)} çağrı<br />son {k.lastUsed}</span></li>)}
+                </ul>
+              </Panel>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="settings-section" id="otomasyonlar">
+        <summary><Robot size={16} /> Otomasyonlar</summary>
+        <div class="settings-section-body">
+          <div class="row" style="gap:8px;justify-content:flex-end">
+            <button type="button" class="btn btn-sm"><Play size={14} /> Test çalıştır</button>
+            <button type="button" class="btn btn-primary btn-sm"><Plus size={14} weight="bold" /> Yeni otomasyon</button>
+          </div>
+          <div class="grid grid-4">
+            <Kpi label="Aktif otomasyon" value="5" delta="7 toplam" dir="flat" />
+            <Kpi label="Bugün çalışacak" value="4" delta="sonraki 08:30" dir="flat" />
+            <Kpi label="Bu ay çalıştırma" value="1.212" delta="%99,6 başarı" dir="up" />
+            <Kpi label="Kazanılan süre" value="38 sa" delta="bu ay" dir="up" ai="En çok: doğum günü mesajları ve haftalık rapor." />
+          </div>
+          <Panel title="Doğal dille otomasyon kur" sub="Ne olmasını istediğinizi yazın; AI tetikleyici, zamanlama ve aksiyonu çıkarır">
+            <div class="row" style="gap:8px;align-items:stretch">
+              <input class="input" aria-label="Otomasyon kuralı" value="Her pazartesi 09:00'da, geçen haftanın devamsızlık özetini ekip liderlerine gönder ve %5'i aşan ekipleri işaretle" style="flex:1 1 auto" />
+              <AiHint client:visible label="Kuralı çıkar" variant="chip" title="Anlaşılan kural" answer="Tetikleyici: zamanlama, her pazartesi 09:00 (cron 0 9 * * 1). Kapsam: önceki hafta, tüm ekipler. Aksiyon: devamsızlık özet raporu, alıcılar 7 ekip lideri, kanal e-posta + Slack. Koşul: devamsızlık > %5 olan ekipler kırmızı işaretlenir ve İK'ya kopya gider. Tahmini çalışma süresi 12 saniye." actions={["Otomasyonu oluştur", "Düzenle"]} />
+            </div>
+            <div class="token-row">
+              <span class="token">Tetikleyici: zamanlama</span><span class="token mono">0 9 * * 1</span><span class="token">Alıcı: ekip liderleri</span><span class="token">Koşul: devamsızlık &gt; %5</span><span class="token">Kanal: e-posta + Slack</span>
+            </div>
+          </Panel>
+          <Panel title="Otomasyonlar" sub="Zamanlama, son ve sonraki çalıştırma · AI notu her satırda" flush>
+            <div class="panel-body"><DataTable client:load preset="automations" title="Otomasyonlar" rows={GEN.automations} pageSize={10} /></div>
+          </Panel>
+        </div>
+      </details>
+
+      <details class="settings-section" id="guvenlik">
+        <summary><ShieldCheck size={16} /> Güvenlik</summary>
+        <div class="settings-section-body">
+          <Panel title="Güvenlik" sub="Kimlik doğrulama, oturum, maskeleme">
+            <Fragment slot="icon"><ShieldCheck size={15} /></Fragment>
+            <ul class="stack" style="gap:10px">
+              <li class="row-between"><span><div class="strong">SSO zorunlu (Entra ID)</div><div class="small muted">Parola ile giriş kapalı</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="SSO"></button></li>
+              <li class="row-between"><span><div class="strong">MFA</div><div class="small muted">Tüm yönetici ve İK rolleri</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="MFA"></button></li>
+              <li class="row-between"><span><div class="strong">Alan bazlı maskeleme</div><div class="small muted">TCKN, IBAN, ücret · rol dışı görünmez</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Maskeleme"></button></li>
+              <li class="row-between"><span><div class="strong">Oturum süresi</div><div class="small muted">8 saat · 3 cihaz</div></span><Badge tone="neutral" plain>Aktif oturum: 41</Badge></li>
+            </ul>
+          </Panel>
+        </div>
+      </details>
+
+      <details class="settings-section" id="veri">
+        <summary><Database size={16} /> Veri</summary>
+        <div class="settings-section-body">
+          <Panel title="Veri" sub="Saklama, imha, dışa aktarma">
+            <Fragment slot="icon"><Database size={15} /></Fragment>
+            <ul class="stack" style="gap:10px">
+              <li class="row-between"><span><div class="strong">Özlük saklama</div><div class="small muted">Ayrılıştan sonra 10 yıl (yasal)</div></span><Badge tone="info" plain>Politika</Badge></li>
+              <li class="row-between"><span><div class="strong">PDKS ham hareket</div><div class="small muted">Değiştirilemez · 2 yıl</div></span><Badge tone="info" plain>Immutable</Badge></li>
+              <li class="row-between"><span><div class="strong">Aday verisi</div><div class="small muted">Süreç sonrası 6 ay, sonra imha</div></span><Badge tone="info" plain>KVKK</Badge></li>
+              <li class="row-between"><span><div class="strong">Tam dışa aktarma</div><div class="small muted">Excel/CSV/API · tenant bazında</div></span><button type="button" class="btn btn-sm">İste</button></li>
+            </ul>
+          </Panel>
+        </div>
+      </details>
+
+      <details class="settings-section" id="faturalama">
+        <summary><CreditCard size={16} /> Faturalama</summary>
+        <div class="settings-section-body">
+          <Panel title="Faturalama" sub="Plan, kullanım, faturalar">
+            <Fragment slot="icon"><CreditCard size={15} /></Fragment>
+            <div class="stat-strip">
+              <div class="stat"><b>Business</b><span>plan</span></div>
+              <div class="stat"><b>120 / 150</b><span>çalışan kotası</span></div>
+              <div class="stat"><b>9 / 12</b><span>aktif modül</span></div>
+              <div class="stat"><b>1 Eki</b><span>sonraki fatura</span></div>
+            </div>
+            <div class="row" style="gap:6px"><button type="button" class="btn btn-sm">Faturalar</button><button type="button" class="btn btn-sm">Ödeme yöntemi</button><button type="button" class="btn btn-primary btn-sm">Planı yükselt</button></div>
+          </Panel>
+        </div>
+      </details>
+
+      <details class="settings-section" id="gelistirici">
+        <summary><Code size={16} /> Geliştirici</summary>
+        <div class="settings-section-body">
+          <Panel title="Geliştirici" sub="API, webhook, özel alanlar, özellik bayrakları">
+            <Fragment slot="icon"><Code size={15} /></Fragment>
+            <div class="token-row"><span class="token">REST API v1</span><span class="token">3 API anahtarı</span><span class="token">4 webhook</span><span class="token">12 özel alan</span><span class="token">2 özel form</span><span class="token">Feature flag: puantaj-v2 (açık)</span><span class="token">Feature flag: biyometri (kapalı · KVKK)</span></div>
+            <p class="small muted">Tenant/company/module ayarları katmanlıdır: modül ayarı şirketi, şirket ayarı tenant'ı geçersiz kılar; her değişiklik denetim günlüğüne yazılır.</p>
+          </Panel>
+        </div>
+      </details>
+
+      <details class="settings-section" id="ai">
+        <summary><Sparkle size={16} weight="fill" /> AI</summary>
+        <div class="settings-section-body">
+          <div class="grid grid-2">
+            <Panel title="AI tercihleri" sub="Asistanın davranışı">
+              <Fragment slot="icon"><Sparkle size={15} weight="fill" /></Fragment>
+              <ul class="stack" style="gap:10px">
+                <li class="row-between"><span><div class="strong">Sayfa açılışında AI özeti</div><div class="small muted">Her sayfada üstte otomatik brifing</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="AI özeti"></button></li>
+                <li class="row-between"><span><div class="strong">Satır bazlı AI önerileri</div><div class="small muted">Tablolarda ve kartlarda AI düğmesi</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Satır önerileri"></button></li>
+                <li class="row-between"><span><div class="strong">Proaktif bildirimler</div><div class="small muted">Risk eşiği aşılınca AI uyarır</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Proaktif bildirim"></button></li>
+                <li class="row-between"><span><div class="strong">Otomatik uygulama</div><div class="small muted">Önerileri onaysız uygula (önerilmez)</div></span><button type="button" class="switch" role="switch" aria-checked="false" aria-label="Otomatik uygulama"></button></li>
+                <li class="row-between"><span><div class="strong">Ton</div><div class="small muted">Yanıt üslubu</div></span><span class="segment"><button type="button">Resmi</button><button type="button" aria-pressed="true">Dengeli</button><button type="button">Samimi</button></span></li>
+              </ul>
+            </Panel>
+            <Panel title="AI ile paylaşılan veri" sub="Alan bazında kontrol · varsayılan en kısıtlı">
+              <Fragment slot="icon"><ShieldCheck size={15} /></Fragment>
+              <ul class="stack" style="gap:10px">
+                {AI_DATA.map((d) => (
+                  <li class="row-between"><span><div class="strong">{d.field}</div><div class="small muted">{d.note}</div></span><button type="button" class="switch" role="switch" aria-checked={d.on ? "true" : "false"} aria-label={d.field}></button></li>
+                ))}
+              </ul>
+              <AiHint client:visible label="Bu ayarlar ne anlama geliyor?" variant="chip" title="Veri paylaşımı" answer="Açık alanlar AI bağlamına girer ve yalnızca sizin rolünüzün görebildiği kayıtlarla sınırlıdır. Kapalı alanlar hiçbir sorguda kullanılmaz; bordro anomali kontrolü maskelenmiş tutarlarla çalışır. Her değişiklik denetim günlüğüne yazılır ve yöneticilere bildirilir." />
+            </Panel>
+          </div>
+        </div>
+      </details>
+    </div>
   </div>
 
-  <div class="grid grid-2">
-    <Panel title="Yerelleştirme" sub="Dil, para birimi, saat dilimi, ülke paketi"><Fragment slot="icon"><span id="yerelleştirme"></span><Globe size={15} /></Fragment>
-      <dl class="dossier-grid">
-        <div class="dl"><dt>Dil</dt><dd>Türkçe (tr-TR)</dd></div>
-        <div class="dl"><dt>Para birimi</dt><dd>TRY · ₺</dd></div>
-        <div class="dl"><dt>Saat dilimi</dt><dd>Europe/Istanbul</dd></div>
-        <div class="dl"><dt>Ülke paketi</dt><dd>Türkiye · SGK/GİB v2026-04</dd></div>
-      </dl>
-    </Panel>
-    <Panel title="Güvenlik" sub="Kimlik doğrulama, oturum, maskeleme"><Fragment slot="icon"><span id="güvenlik"></span><ShieldCheck size={15} /></Fragment>
-      <ul class="stack" style="gap:10px">
-        <li class="row-between"><span><div class="strong">SSO zorunlu (Entra ID)</div><div class="small muted">Parola ile giriş kapalı</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="SSO"></button></li>
-        <li class="row-between"><span><div class="strong">MFA</div><div class="small muted">Tüm yönetici ve İK rolleri</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="MFA"></button></li>
-        <li class="row-between"><span><div class="strong">Alan bazlı maskeleme</div><div class="small muted">TCKN, IBAN, ücret · rol dışı görünmez</div></span><button type="button" class="switch" role="switch" aria-checked="true" aria-label="Maskeleme"></button></li>
-        <li class="row-between"><span><div class="strong">Oturum süresi</div><div class="small muted">8 saat · 3 cihaz</div></span><Badge tone="neutral" plain>Aktif oturum: 41</Badge></li>
-      </ul>
-    </Panel>
-    <Panel title="Veri" sub="Saklama, imha, dışa aktarma"><Fragment slot="icon"><span id="veri"></span></Fragment>
-      <ul class="stack" style="gap:10px">
-        <li class="row-between"><span><div class="strong">Özlük saklama</div><div class="small muted">Ayrılıştan sonra 10 yıl (yasal)</div></span><Badge tone="info" plain>Politika</Badge></li>
-        <li class="row-between"><span><div class="strong">PDKS ham hareket</div><div class="small muted">Değiştirilemez · 2 yıl</div></span><Badge tone="info" plain>Immutable</Badge></li>
-        <li class="row-between"><span><div class="strong">Aday verisi</div><div class="small muted">Süreç sonrası 6 ay, sonra imha</div></span><Badge tone="info" plain>KVKK</Badge></li>
-        <li class="row-between"><span><div class="strong">Tam dışa aktarma</div><div class="small muted">Excel/CSV/API · tenant bazında</div></span><button type="button" class="btn btn-sm">İste</button></li>
-      </ul>
-    </Panel>
-    <Panel title="Faturalama" sub="Plan, kullanım, faturalar"><Fragment slot="icon"><span id="faturalama"></span><CreditCard size={15} /></Fragment>
-      <div class="stat-strip">
-        <div class="stat"><b>Business</b><span>plan</span></div>
-        <div class="stat"><b>120 / 150</b><span>çalışan kotası</span></div>
-        <div class="stat"><b>9 / 12</b><span>aktif modül</span></div>
-        <div class="stat"><b>1 Eki</b><span>sonraki fatura</span></div>
-      </div>
-      <div class="row" style="gap:6px"><button type="button" class="btn btn-sm">Faturalar</button><button type="button" class="btn btn-sm">Ödeme yöntemi</button><button type="button" class="btn btn-primary btn-sm">Planı yükselt</button></div>
-    </Panel>
-    <Panel title="Geliştirici" sub="API, webhook, özel alanlar, özellik bayrakları" class="span-2"><Fragment slot="icon"><span id="geliştirici"></span><Code size={15} /></Fragment>
-      <div class="token-row"><span class="token">REST API v1</span><span class="token">3 API anahtarı</span><span class="token">4 webhook</span><span class="token">12 özel alan</span><span class="token">2 özel form</span><span class="token">Feature flag: puantaj-v2 (açık)</span><span class="token">Feature flag: biyometri (kapalı · KVKK)</span></div>
-      <p class="small muted">Tenant/company/module ayarları katmanlıdır: modül ayarı şirketi, şirket ayarı tenant'ı geçersiz kılar; her değişiklik denetim günlüğüne yazılır.</p>
-    </Panel>
-  </div>
+  <script>
+    function isDesktop() {
+      return window.matchMedia("(min-width: 64em)").matches;
+    }
+
+    const sections = Array.from(document.querySelectorAll<HTMLDetailsElement>(".settings-section"));
+    const railBtns = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-settings-tab]"));
+
+    function activate(id: string, opts: { updateHash?: boolean } = {}) {
+      for (const d of sections) d.open = d.id === id;
+      for (const b of railBtns) b.setAttribute("aria-current", b.dataset.settingsTab === id ? "true" : "false");
+      if (opts.updateHash !== false) history.replaceState(null, "", `#${id}`);
+    }
+
+    for (const b of railBtns) {
+      b.addEventListener("click", () => activate(b.dataset.settingsTab!));
+    }
+
+    const requested = sections.find((d) => d.id === location.hash.slice(1));
+    if (isDesktop()) {
+      activate(requested ? requested.id : sections[0].id, { updateHash: false });
+    } else if (requested) {
+      requested.open = true;
+      requested.scrollIntoView({ block: "start" });
+    }
+  </script>
 </AdminLayout>

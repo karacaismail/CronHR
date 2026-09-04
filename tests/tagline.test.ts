@@ -91,3 +91,28 @@ describe("Sidebar bağlantısı: motto yalnızca hareket açıkken döner", () =
     expect(sidebar).not.toMatch(/İşgücü işletim sistemi/);
   });
 });
+
+describe("Marka satırı: logo/ad, mottodan bağımsız sabit bir satırdır (regresyon)", () => {
+  it("Sidebar.astro logoyu ve adı ayrı bir .brand-row içine koyar, motto ayrı satırdadır", () => {
+    const sidebar = read("src/components/Sidebar.astro");
+    expect(sidebar).toMatch(/<span class="brand-row">/);
+    const rowMatch = sidebar.match(/<span class="brand-row">([\s\S]*?)<\/span>\s*<span class="brand-tag"/);
+    expect(rowMatch, "brand-row, brand-tag'den önce kapanmalı").not.toBeNull();
+    expect(rowMatch![1]).toMatch(/brand-mark/);
+    expect(rowMatch![1]).toMatch(/brand-name/);
+  });
+
+  it("global.css: .brand dikey (column) yerleşimlidir; .brand-row motto yüksekliğinden etkilenmeyecek şekilde sabittir", () => {
+    const css = read("src/styles/global.css");
+    const brandRule = css.match(/\.brand\s*\{([^}]*)\}/);
+    expect(brandRule, ".brand kuralı bulunamadı").not.toBeNull();
+    expect(brandRule![1]).toMatch(/flex-direction:\s*column/);
+
+    const rowRule = css.match(/\.brand-row\s*\{([^}]*)\}/);
+    expect(rowRule, ".brand-row kuralı bulunamadı").not.toBeNull();
+    expect(rowRule![1]).toMatch(/flex:\s*none/);
+
+    const markRule = css.match(/\.brand-mark\s*\{([^}]*)\}/);
+    expect(markRule![1]).toMatch(/flex:\s*none/);
+  });
+});

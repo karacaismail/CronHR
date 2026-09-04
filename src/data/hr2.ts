@@ -394,7 +394,7 @@ export const TASKS = [
   { id: "t1", kind: "Onay", title: "İzin talebi · Burak Şahin · 14–18 Eyl", due: "Bugün", tone: "info" as Tone, page: "/izin-devam/", aiVerdict: "Onaya hazır" },
   { id: "t2", kind: "Onay", title: "Fazla mesai · Emre Doğan · 8 saat", due: "Bugün", tone: "warning" as Tone, page: "/fazla-mesai/", aiVerdict: "Dikkat: sınıra 2 saat" },
   { id: "t3", kind: "Onay", title: "Puantaj · 4 çalışan · Eylül", due: "25 Eyl", tone: "warning" as Tone, page: "/puantaj/", aiVerdict: "2'si düzeltme bekliyor" },
-  { id: "t4", kind: "Hata", title: "Slack izin senkronu yetki hatası", due: "Gecikmiş", tone: "critical" as Tone, page: "/entegrasyonlar/", aiVerdict: "Yeniden bağlantı 1 dk" },
+  { id: "t4", kind: "Hata", title: "Slack izin senkronu yetki hatası", due: "Gecikmiş", tone: "critical" as Tone, page: "/ayarlar/#entegrasyonlar", aiVerdict: "Yeniden bağlantı 1 dk" },
   { id: "t5", kind: "Talep", title: "Düzeltme talebi · Ayşe Aydın · eksik IN", due: "Yarın", tone: "info" as Tone, page: "/pdks/", aiVerdict: "Onaya hazır" },
   { id: "t6", kind: "Görev", title: "Mert Kaya ilk değerlendirme formu", due: "16 Eyl", tone: "warning" as Tone, page: "/ozluk/", aiVerdict: "Deneme süresi bitiyor" },
   { id: "t7", kind: "Onay", title: "Transfer · Selin Çelik › Ürün", due: "20 Eyl", tone: "info" as Tone, page: "/transferler/", aiVerdict: "Bütçe uyumlu" },

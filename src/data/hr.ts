@@ -260,7 +260,7 @@ export interface Notification {
 
 export const NOTIFICATIONS: readonly Notification[] = [
   { id: "n1", title: "Ayrılma riski yükseldi: Ahmet Yıldız", body: "Risk skoru 61'den 78'e çıktı. Fazla mesai ve ünvan durağanlığı ana etkenler.", time: "14 dk önce", tone: "critical", priority: "Yüksek", page: "calisanlar" },
-  { id: "n2", title: "Slack entegrasyonu hatalı", body: "İzin talebi senkronu 2 gündür başarısız. 3 talep manuel girilmiş olabilir.", time: "1 sa önce", tone: "warning", priority: "Yüksek", page: "otomasyonlar" },
+  { id: "n2", title: "Slack entegrasyonu hatalı", body: "İzin talebi senkronu 2 gündür başarısız. 3 talep manuel girilmiş olabilir.", time: "1 sa önce", tone: "warning", priority: "Yüksek", page: "ayarlar" },
   { id: "n3", title: "5 izin talebi onay bekliyor", body: "AI 3'ünü onaya hazır, 2'sini dikkat gerektirir olarak işaretledi.", time: "2 sa önce", tone: "info", priority: "Orta", page: "izin-devam" },
   { id: "n4", title: "Bordro taslağında 4 anomali", body: "Toplam etki 99.050 ₺. En kritik: Emre Doğan fazla mesai sınırı.", time: "Bugün 08:10", tone: "serious", priority: "Orta", page: "bordro" },
   { id: "n5", title: "Gizem Ak için 2. tur önerildi", body: "AI puanı 91. Teknik mülakat için Ahmet Yıldız uygun görünüyor.", time: "Dün", tone: "ai", priority: "Düşük", page: "ise-alim" },

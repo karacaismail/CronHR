@@ -8,7 +8,6 @@ import {
   GraduationCap,
   IdentificationBadge,
   Money,
-  Plugs,
   Scales,
   SquaresFour,
   Target,
@@ -271,22 +270,10 @@ export const NAV_TREE: readonly NavGroup[] = [
     ],
   },
   {
-    id: "sistem",
-    label: "Sistem",
-    icon: Plugs,
-    description: "Entegrasyonlar ve otomasyonlar",
-    inCommandCard: false,
-    suggestions: ["Hatalı entegrasyonları göster", "Son 24 saatteki webhook hatalarını listele", "Başarısız olan görevleri listele", "Bu sayfayı açıkla", "API anahtarı kullanımını özetle", "Muhasebe aktarımının durumunu göster"],
-    children: [
-      { id: "entegrasyonlar", label: "Entegrasyonlar", href: "/entegrasyonlar/", description: "Bağlı uygulamalar, SSO/SCIM, API, webhook" },
-      { id: "otomasyonlar", label: "Otomasyonlar", href: "/otomasyonlar/", description: "Zamanlanmış görevler ve AI kuralları", suggestions: ["Her pazartesi 09:00'da devamsızlık raporu gönder", "Deneme süresi bitmeden 7 gün önce yöneticiyi uyar", "Başarısız olan görevleri listele", "Bugün çalışacak otomasyonları göster", "Bu sayfayı açıkla", "Doğum günü kutlama mesajı otomasyonu kur"] },
-    ],
-  },
-  {
     id: "ayarlar",
     label: "Ayarlar",
     icon: Gear,
-    description: "Şirket, roller, güvenlik, AI, faturalama",
+    description: "Şirket, roller, güvenlik, entegrasyonlar, otomasyonlar, AI, faturalama",
     href: "/ayarlar/",
     inCommandCard: true,
     suggestions: [
@@ -295,7 +282,8 @@ export const NAV_TREE: readonly NavGroup[] = [
       "Onay akışlarını özetle",
       "Bu sayfayı açıkla",
       "Rol bazlı erişimleri listele",
-      "Bildirim tercihlerimi öner",
+      "Hatalı entegrasyonları göster",
+      "Başarısız olan görevleri listele",
     ],
   },
 ];

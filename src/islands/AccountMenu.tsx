@@ -6,6 +6,17 @@ export interface AccountMenuProps {
   base: string;
 }
 
+// Menü öğesi <a> ise tarayıcı stili sorun çıkarmaz; <button> ise tarayıcının
+// varsayılan gövde/kenarlığını (Profilim, Hesabım) burada sıfırlıyoruz.
+const BUTTON_RESET: React.CSSProperties = {
+  inlineSize: "100%",
+  border: "none",
+  background: "transparent",
+  font: "inherit",
+  textAlign: "start",
+  cursor: "pointer",
+};
+
 /**
  * Sol alt "options" alanı — kenar çubuğunun en altında, gerçek bir dropdown.
  * Yukarı açılır (aşağıda yer yok): yardım/mimari, ayarlar, profil, hesap.
@@ -68,12 +79,12 @@ export function AccountMenu({ base }: AccountMenuProps) {
             </a>
           </li>
           <li role="none">
-            <button role="menuitem" type="button" className={selectStyles.option} style={{ inlineSize: "100%" }} onClick={() => close()}>
+            <button role="menuitem" type="button" className={selectStyles.option} style={BUTTON_RESET} onClick={() => close()}>
               <User size={15} aria-hidden="true" /> <span className={selectStyles.optionLabel}>Profilim</span>
             </button>
           </li>
           <li role="none">
-            <button role="menuitem" type="button" className={selectStyles.option} style={{ inlineSize: "100%" }} onClick={() => close()}>
+            <button role="menuitem" type="button" className={selectStyles.option} style={BUTTON_RESET} onClick={() => close()}>
               <UserCircle size={15} aria-hidden="true" /> <span className={selectStyles.optionLabel}>Hesabım</span>
             </button>
           </li>

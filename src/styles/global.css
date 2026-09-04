@@ -2126,8 +2126,8 @@ body,
 
 /* Modal perdesi — tek kaynak: herhangi bir modal aktifken arkada kalan
  * içerik blur(2px) + soğuk gri (slate) %30 opaklıkla kaplanır. Her modal
- * kendi position/inset/z-index'ini taşır (bkz. drawer-backdrop, Copilot
- * .backdrop, DataTable filtre modalı); bu sınıf yalnızca görseli verir. */
+ * kendi position/inset/z-index'ini taşır (bkz. drawer-backdrop, DataTable
+ * filtre modalı); bu sınıf yalnızca görseli verir. */
 .overlay-scrim {
   background: rgba(100, 116, 139, 0.3);
   backdrop-filter: blur(2px);
@@ -2153,7 +2153,7 @@ body,
   inset-block-end: 0;
   z-index: 70;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   block-size: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom, 0px));
   padding-block-end: env(safe-area-inset-bottom, 0px);
   background: var(--surface);
@@ -2179,22 +2179,6 @@ body,
 
 .bottom-nav a[aria-current="page"],
 .bottom-nav a[aria-current="page"] svg { color: var(--accent); }
-
-.bottom-nav .bn-ai {
-  color: var(--on-accent);
-}
-
-.bottom-nav .bn-ai span:first-child {
-  display: grid;
-  place-items: center;
-  inline-size: 40px;
-  block-size: 40px;
-  border-radius: 100%;
-  background: var(--accent-bg);
-  margin-block-start: -18px;
-}
-
-.bottom-nav .bn-ai span:last-child { color: var(--ink-muted); }
 
 .topbar-left .context-text { display: none; }
 .topbar-left .context-switch { padding-inline: 10px; }
@@ -2253,10 +2237,4 @@ body,
 
 @media (min-width: 64em) {
   .toast { inset-inline: auto 24px; inset-block-end: 24px; max-inline-size: 420px; }
-}
-
-.copilot-desktop-btn { display: none; }
-@media (min-width: 64em) {
-  .copilot-desktop-btn { display: inline-grid; color: var(--accent-ink); border-color: var(--accent-soft-2); }
-  .copilot-desktop-btn:hover { background: var(--accent-soft); }
 }

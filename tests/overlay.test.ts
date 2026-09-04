@@ -29,11 +29,6 @@ describe("Modal arka plan perdesi (.overlay-scrim)", () => {
     expect(layout).toMatch(/class="drawer-backdrop[^"]*overlay-scrim[^"]*"|class="[^"]*overlay-scrim[^"]*drawer-backdrop[^"]*"/);
   });
 
-  it("Copilot sohbet perdesi bu sınıfı kullanır", () => {
-    const copilot = read("src/islands/Copilot.tsx");
-    expect(copilot).toMatch(/overlay-scrim/);
-  });
-
   it("DataTable filtre modalı bu sınıfı kullanır", () => {
     const table = read("src/islands/DataTable.tsx");
     expect(table).toMatch(/overlay-scrim/);

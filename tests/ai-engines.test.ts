@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { replyTo } from "../src/ai/copilot";
 import { rankInsights, INSIGHTS } from "../src/ai/insights";
 import { parseEmployeeText } from "../src/ai/quickCreate";
 import { simulatePayroll } from "../src/ai/whatIf";
@@ -7,37 +6,6 @@ import { findAnomalies } from "../src/ai/anomaly";
 import { rewrite } from "../src/ai/composer";
 import { bulkVerdicts } from "../src/ai/bulk";
 import { GEN } from "../src/data/generate";
-
-describe("Copilot motoru", () => {
-  it("sayfa bağlamını bilir ve sayısal gerçeklerle yanıtlar", () => {
-    const r = replyTo("bugün kaç kişi izinli?", { pageId: "izinler", history: [] });
-    expect(r.text).toMatch(/\d+/);
-    expect(r.confidence).toBeGreaterThan(0.5);
-    expect(r.sources.length).toBeGreaterThan(0);
-    expect(r.followUps.length).toBeGreaterThanOrEqual(2);
-  });
-
-  it("aksiyon niyetini aksiyona çevirir (git / uygula)", () => {
-    const r = replyTo("riskli çalışanları göster", { pageId: "panel", history: [] });
-    expect(r.actions.some((a) => a.kind === "navigate" && a.href.includes("/calisanlar/"))).toBe(true);
-    const s = replyTo("slack bağlantısını yenile", { pageId: "panel", history: [] });
-    expect(s.actions.some((a) => a.kind === "apply")).toBe(true);
-    expect(s.undoable).toBe(true);
-  });
-
-  it("çok turlu: 'onlar' önceki konuya bağlanır", () => {
-    const first = replyTo("fazla mesai sınırına yaklaşanlar kim?", { pageId: "puantaj", history: [] });
-    const second = replyTo("onlara ne önerirsin?", { pageId: "puantaj", history: [{ role: "user", text: "fazla mesai sınırına yaklaşanlar kim?" }, { role: "ai", text: first.text, topic: first.topic }] });
-    expect(second.topic).toBe(first.topic);
-    expect(second.text).toMatch(/devret|rotasyon|telafi/i);
-  });
-
-  it("bilmediğinde dürüsttür ve düşük güven verir", () => {
-    const r = replyTo("hava durumu nasıl?", { pageId: "panel", history: [] });
-    expect(r.confidence).toBeLessThan(0.5);
-    expect(r.text).toMatch(/kapsam|bilmiyorum|yardımcı olamam/i);
-  });
-});
 
 describe("İçgörü akışı", () => {
   it("içgörüler veriden hesaplanır ve sayfaya göre sıralanır", () => {

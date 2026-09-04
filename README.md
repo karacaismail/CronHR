@@ -40,7 +40,7 @@ Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - Herhangi bir modal aktifken arkada kalan içerik `blur(2px)` + soğuk gri (slate)
   `%30` opaklıkla kaplanır: tek kaynak `.overlay-scrim` (`src/styles/global.css`), Flat 2.0'ın
   gradient/blur yasağının kasıtlı tek istisnası (`tests/tokens.test.ts` bu istisnayı tanır).
-  Kullanan modallar: mobil çekmece menüsü, CronHR Copilot sohbeti, `DataTable` filtre modalı.
+  Kullanan modallar: mobil çekmece menüsü, `DataTable` filtre modalı.
   Her modal Escape ile kapanır, arka plana tıklamak kapatır, odak tetikleyiciye döner.
   Komuta kartının kendi genişleme perdesi (`AiCommandCard`) kasıtlı olarak hariç: o bir modal
   değil, kartın "tek yüzey" sözleşmesinin parçası (bkz. `tests/overlay.test.ts`).
@@ -50,11 +50,9 @@ Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## AI etkileşim örnekleri (yeni)
 
-- **CronHR Copilot** (`src/islands/Copilot.tsx`, motor `src/ai/copilot.ts`): sayfa genelinde
-  sohbet çekmecesi. Çok turlu ("onlara ne önerirsin?" önceki konuya bağlanır), aksiyon üretir
-  (git / uygula — geri alınabilir), güven yüzdesi ve kaynak gösterir, kapsam dışı sorularda
-  dürüstçe "yardımcı olamam" der, beğen/beğenme geri bildirimi alır. Üst çubukta masaüstü
-  düğmesi, alt gezinmede mobil "AI" düğmesi.
+- AI'ya doğal dille erişim tek bir yerden yapılır: her sayfanın üstündeki arama/komuta yüzeyi
+  (`AiCommandCard`, `src/islands/CommandBar.tsx`). Ayrı bir sohbet çekmecesi yoktur; kaldırılan
+  "Copilot" denemesi buna yol açtığı için çıkarıldı (bkz. `tests/dead-code.test.ts`).
 - **Proaktif AI içgörü akışı** (`src/ai/insights.ts`, `AiInsightFeed.tsx`): veriden hesaplanan
   kartlar (kritik/uyarı/bilgi/iyi), her biri Uygula / Ertele / Kapat alır; durum kalıcıdır.
   Dashboard'da görünür.

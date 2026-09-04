@@ -5,9 +5,8 @@ import ThemeSwitcher from "../components/ThemeSwitcher.astro";
 import Sidebar from "../components/Sidebar.astro";
 import SubNav from "../components/SubNav.astro";
 import CommandBar from "../islands/CommandBar";
-import Copilot from "../islands/Copilot";
 import { resolvePage } from "../data/nav";
-import { Buildings, CaretUpDown, List, Plus, Question, SquaresFour, Sparkle, Tray, Users } from "@phosphor-icons/react";
+import { Buildings, CaretUpDown, List, Plus, Question, SquaresFour, Tray, Users } from "@phosphor-icons/react";
 
 interface Props {
   pageId: string;
@@ -65,7 +64,6 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
           </div>
           <CommandBar client:load currentPageId={pageId} section={section} base={base} />
           <div class="topbar-side topbar-right">
-            <button type="button" class="icon-btn copilot-desktop-btn" title="CronHR Copilot" aria-label="CronHR Copilot'u aç" onclick="window.dispatchEvent(new CustomEvent('cronhr:copilot'))"><Sparkle size={15} weight="fill" /></button>
             <button type="button" class="btn btn-primary btn-sm" title="Yeni kayıt oluştur"><Plus size={13} weight="bold" /> Oluştur</button>
             <ThemeSwitcher />
             <a class="icon-btn" href={`${base}mimari/`} title="Yardım ve mimari" aria-label="Yardım ve mimari"><Question size={15} /></a>
@@ -88,12 +86,10 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
         <nav class="bottom-nav" aria-label="Hızlı gezinme">
           <a href={`${base}`} aria-current={pageId === "panel" ? "page" : undefined}><SquaresFour size={20} /><span>Panel</span></a>
           <a href={`${base}gorevler/`} aria-current={pageId === "gorevler" ? "page" : undefined}><Tray size={20} /><span>Görevler</span></a>
-          <button type="button" class="bn-ai" aria-label="Copilot'u aç" onclick="window.dispatchEvent(new CustomEvent('cronhr:copilot'))"><span><Sparkle size={20} weight="fill" /></span><span>AI</span></button>
           <a href={`${base}calisanlar/`} aria-current={pageId === "calisanlar" ? "page" : undefined}><Users size={20} /><span>İnsanlar</span></a>
           <button type="button" data-drawer-toggle aria-label="Menü"><List size={20} /><span>Menü</span></button>
         </nav>
         <div class="toast" role="status" aria-live="polite" data-toast hidden></div>
-        <Copilot client:load pageId={pageId} base={base} />
       </div>
     </div>
     <script>

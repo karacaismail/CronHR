@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowsDownUp, CaretLeft, CaretRight, Export, Funnel, MagnifyingGlass, Sparkle, X } from "@phosphor-icons/react";
 import { bulkVerdicts, type BulkResult } from "../ai/bulk";
 import { employeeById } from "../data/generate";
@@ -72,6 +72,8 @@ export function DataTable(props: DataTableProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulk, setBulk] = useState<BulkResult | null>(null);
   const [bulkThinking, setBulkThinking] = useState(false);
+  const filtersTriggerRef = useRef<HTMLButtonElement>(null);
+  const filtersDialogRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
     const rows = (props.rows as readonly Row[]).filter((r) => matchesFilters(r, columns, filters) && matchesSearch(r, columns, search));
@@ -185,6 +187,18 @@ export function DataTable(props: DataTableProps) {
   const filterableCols = columns.filter((c) => c.filter);
   const primaryCol = columns.find((c) => c.primary) ?? columns[0];
 
+  const closeFilters = () => { setShowFilters(false); filtersTriggerRef.current?.focus(); };
+  const clearFiltersOnly = () => { setFilters({}); setPage(0); };
+
+  useEffect(() => {
+    if (!showFilters) return;
+    filtersDialogRef.current?.querySelector<HTMLElement>("input, button")?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") closeFilters(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showFilters]);
+
   return (
     <section className={styles.root} data-slot="data-table" aria-label={props.title ?? "Tablo"}>
       <div className={styles.toolbar}>
@@ -194,7 +208,7 @@ export function DataTable(props: DataTableProps) {
         </label>
         <div className={styles.toolbarActions}>
           {filterableCols.length ? (
-            <button type="button" className={styles.btn} aria-expanded={showFilters} aria-controls={`${uid}-filters`} onClick={() => setShowFilters((v) => !v)}>
+            <button ref={filtersTriggerRef} type="button" className={styles.btn} aria-haspopup="dialog" aria-expanded={showFilters} aria-controls={`${uid}-filters`} onClick={() => setShowFilters((v) => !v)}>
               <Funnel size={14} aria-hidden="true" /> Filtreler{activeFilterLabels.length ? <span className={styles.count}>{activeFilterLabels.length}</span> : null}
             </button>
           ) : null}
@@ -239,31 +253,51 @@ export function DataTable(props: DataTableProps) {
       ) : null}
 
       {showFilters && filterableCols.length ? (
-        <div id={`${uid}-filters`} className={styles.filters}>
-          {filterableCols.map((col) => (
-            <fieldset key={col.key} className={styles.filterGroup}>
-              <legend>{col.label}</legend>
-              {col.type === "enum" && col.options ? (
-                <div className={styles.checks}>
-                  {col.options.map((opt) => {
-                    const checked = ((filters[col.key] as string[] | undefined) ?? []).includes(opt);
-                    return (
-                      <label key={opt} className={styles.check}>
-                        <input type="checkbox" checked={checked} onChange={() => toggleEnum(col.key, opt)} aria-label={opt} />
-                        <span>{opt}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className={styles.range}>
-                  <input type="number" inputMode="numeric" aria-label={`${col.label} en az`} placeholder="en az" value={(filters[col.key] as NumberRange | undefined)?.min ?? ""} onChange={(e) => setRange(col.key, "min", e.target.value)} />
-                  <span aria-hidden="true">–</span>
-                  <input type="number" inputMode="numeric" aria-label={`${col.label} en çok`} placeholder="en çok" value={(filters[col.key] as NumberRange | undefined)?.max ?? ""} onChange={(e) => setRange(col.key, "max", e.target.value)} />
-                </div>
-              )}
-            </fieldset>
-          ))}
+        <div className={`${styles.filtersBackdrop} overlay-scrim`} onClick={closeFilters}>
+          <div
+            ref={filtersDialogRef}
+            id={`${uid}-filters`}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Filtreler"
+            className={styles.filtersModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.filtersHead}>
+              <h3>Filtreler</h3>
+              <button type="button" className={styles.iconBtn} aria-label="Kapat" onClick={closeFilters}><X size={14} /></button>
+            </div>
+            <div className={styles.filters}>
+              {filterableCols.map((col) => (
+                <fieldset key={col.key} className={styles.filterGroup}>
+                  <legend>{col.label}</legend>
+                  {col.type === "enum" && col.options ? (
+                    <div className={styles.checks}>
+                      {col.options.map((opt) => {
+                        const checked = ((filters[col.key] as string[] | undefined) ?? []).includes(opt);
+                        return (
+                          <label key={opt} className={styles.check}>
+                            <input type="checkbox" checked={checked} onChange={() => toggleEnum(col.key, opt)} aria-label={opt} />
+                            <span>{opt}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className={styles.range}>
+                      <input type="number" inputMode="numeric" aria-label={`${col.label} en az`} placeholder="en az" value={(filters[col.key] as NumberRange | undefined)?.min ?? ""} onChange={(e) => setRange(col.key, "min", e.target.value)} />
+                      <span aria-hidden="true">–</span>
+                      <input type="number" inputMode="numeric" aria-label={`${col.label} en çok`} placeholder="en çok" value={(filters[col.key] as NumberRange | undefined)?.max ?? ""} onChange={(e) => setRange(col.key, "max", e.target.value)} />
+                    </div>
+                  )}
+                </fieldset>
+              ))}
+            </div>
+            <div className={styles.filtersFoot}>
+              <button type="button" className={`${styles.btn} ${styles.ghost}`} onClick={clearFiltersOnly}>Filtreleri temizle</button>
+              <button type="button" className={styles.aiBtn} onClick={closeFilters}>Kapat</button>
+            </div>
+          </div>
         </div>
       ) : null}
 

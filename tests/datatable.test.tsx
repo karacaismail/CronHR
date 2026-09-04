@@ -109,4 +109,52 @@ describe("DataTable", () => {
     await user.click(screen.getByRole("button", { name: /Temizle/ }));
     expect(screen.getByText(/1–10 \/ 23/)).toBeInTheDocument();
   });
+
+  it("Filtreler bir modal açar (role=dialog), arka planı işaretler ve odağı içine alır", async () => {
+    const user = userEvent.setup();
+    setup();
+    const trigger = screen.getByRole("button", { name: /Filtreler/ });
+    expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
+    await user.click(trigger);
+    const dialog = screen.getByRole("dialog", { name: /Filtreler/ });
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    expect(within(dialog).getByRole("checkbox", { name: "Satış" })).toBeInTheDocument();
+  });
+
+  it("Escape modalı kapatır ve odağı Filtreler düğmesine geri verir", async () => {
+    const user = userEvent.setup();
+    setup();
+    const trigger = screen.getByRole("button", { name: /Filtreler/ });
+    await user.click(trigger);
+    expect(screen.getByRole("dialog", { name: /Filtreler/ })).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: /Filtreler/ })).toBeNull();
+    expect(trigger).toHaveFocus();
+  });
+
+  it("arka plana tıklamak modalı kapatır, filtreye tıklamak kapatmaz", async () => {
+    const user = userEvent.setup();
+    const { container } = setup();
+    await user.click(screen.getByRole("button", { name: /Filtreler/ }));
+    await user.click(screen.getByRole("checkbox", { name: "Satış" }));
+    expect(screen.getByRole("dialog", { name: /Filtreler/ })).toBeInTheDocument();
+    const backdrop = container.querySelector(".overlay-scrim") as HTMLElement;
+    expect(backdrop).toBeTruthy();
+    await user.click(backdrop);
+    expect(screen.queryByRole("dialog", { name: /Filtreler/ })).toBeNull();
+    // Kapanmadan önce uygulanan filtre kalıcıdır (canlı filtreleme).
+    expect(screen.getByText(/Departman: Satış/)).toBeInTheDocument();
+  });
+
+  it("modal içindeki 'Filtreleri temizle' yalnızca filtreleri temizler, aramayı korur", async () => {
+    const user = userEvent.setup();
+    setup();
+    await user.type(screen.getByRole("searchbox", { name: /ara/i }), "Kişi 1");
+    await user.click(screen.getByRole("button", { name: /Filtreler/ }));
+    await user.click(screen.getByRole("checkbox", { name: "Satış" }));
+    const dialog = screen.getByRole("dialog", { name: /Filtreler/ });
+    await user.click(within(dialog).getByRole("button", { name: /Filtreleri temizle/ }));
+    expect(screen.getByRole("searchbox", { name: /ara/i })).toHaveValue("Kişi 1");
+    expect(screen.queryByText(/Departman: Satış/)).toBeNull();
+  });
 });

@@ -111,7 +111,7 @@ export function Copilot({ pageId, base }: Props) {
         <span className={styles.srOnly}>CronHR Copilot'u aç</span>
       </button>
       {open ? (
-        <div className={styles.backdrop} onClick={() => setOpen(false)}>
+        <div className={`${styles.backdrop} overlay-scrim`} onClick={() => setOpen(false)}>
           <section id={`${uid}-panel`} role="dialog" aria-modal="true" aria-label="CronHR Copilot" className={styles.panel} onClick={(e) => e.stopPropagation()}>
             <header className={styles.head}>
               <span className={styles.orb} aria-hidden="true"><Sparkle size={14} weight="fill" /></span>

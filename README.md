@@ -35,6 +35,19 @@ npm run preview # dist/ önizleme
 Mimari omurga: **Vardiya planlar → PDKS ölçer → İzin açıklar → Puantaj hesaplar → Bordro paraya çevirir.**
 Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Modal perdesi (tek kaynak)
+
+- Herhangi bir modal aktifken arkada kalan içerik `blur(2px)` + soğuk gri (slate)
+  `%30` opaklıkla kaplanır: tek kaynak `.overlay-scrim` (`src/styles/global.css`), Flat 2.0'ın
+  gradient/blur yasağının kasıtlı tek istisnası (`tests/tokens.test.ts` bu istisnayı tanır).
+  Kullanan modallar: mobil çekmece menüsü, CronHR Copilot sohbeti, `DataTable` filtre modalı.
+  Her modal Escape ile kapanır, arka plana tıklamak kapatır, odak tetikleyiciye döner.
+  Komuta kartının kendi genişleme perdesi (`AiCommandCard`) kasıtlı olarak hariç: o bir modal
+  değil, kartın "tek yüzey" sözleşmesinin parçası (bkz. `tests/overlay.test.ts`).
+- **DataTable filtreleri artık modal**: "Filtreler" düğmesi `role="dialog"` bir pencere açar;
+  filtreleme yine canlıdır (kapatma uygulanan filtreleri geri almaz), "Filtreleri temizle"
+  yalnızca filtreleri sıfırlar, arama/sıralama korunur.
+
 ## AI etkileşim örnekleri (yeni)
 
 - **CronHR Copilot** (`src/islands/Copilot.tsx`, motor `src/ai/copilot.ts`): sayfa genelinde

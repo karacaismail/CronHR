@@ -180,14 +180,60 @@
 .chip:hover { background: var(--accent-soft, #eef2ff); }
 
 /* --------------------------------------------------------------- filtre */
+/* Filtreler bir modalda açılır: arka plan .overlay-scrim (blur 2px + soğuk
+ * gri %30) ile kaplanır, tıklaması ve Escape kapatır, odak modale girer ve
+ * kapanınca tetikleyici düğmeye döner. Filtreleme her değişiklikte canlıdır;
+ * modalın kapanması uygulanan filtreleri geri almaz. */
+
+.filtersBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.filtersModal {
+  inline-size: 100%;
+  max-block-size: 86dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface, #fff);
+  border-radius: 16px 16px 0 0;
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+
+.filtersHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--border, #e3e6eb);
+}
+
+.filtersHead h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.filtersFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border, #e3e6eb);
+}
 
 .filters {
   display: grid;
-  gap: 10px;
-  padding: 10px;
-  border: 1px solid var(--border, #e3e6eb);
-  border-radius: var(--radius, 8px);
-  background: var(--surface-muted, #f6f7f9);
+  gap: 14px;
+  padding: 14px;
+  overflow-y: auto;
 }
 
 .filterGroup {
@@ -411,3 +457,13 @@
 
 .selectCol { inline-size: 1%; padding-inline-end: 4px !important; }
 .selectCol input { inline-size: 18px; block-size: 18px; }
+
+@media (min-width: 48em) {
+  .filtersBackdrop { align-items: center; padding: 24px; }
+  .filtersModal { inline-size: min(560px, 100%); max-block-size: min(560px, 86dvh); border-radius: var(--radius, 8px); }
+  .filters { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filtersModal { animation: none; }
+}

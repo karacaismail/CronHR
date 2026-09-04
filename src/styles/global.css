@@ -2124,11 +2124,20 @@ body,
 
 .menu-btn { display: inline-grid; }
 
+/* Modal perdesi — tek kaynak: herhangi bir modal aktifken arkada kalan
+ * içerik blur(2px) + soğuk gri (slate) %30 opaklıkla kaplanır. Her modal
+ * kendi position/inset/z-index'ini taşır (bkz. drawer-backdrop, Copilot
+ * .backdrop, DataTable filtre modalı); bu sınıf yalnızca görseli verir. */
+.overlay-scrim {
+  background: rgba(100, 116, 139, 0.3);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
 .drawer-backdrop {
   position: fixed;
   inset: 0;
   z-index: 85;
-  background: rgba(28, 30, 33, 0.4);
   opacity: 0;
   pointer-events: none;
   transition: opacity 200ms ease;

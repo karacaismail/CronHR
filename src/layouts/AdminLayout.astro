@@ -1,7 +1,6 @@
 ---
 import "../styles/global.css";
 import "../styles/themes.css";
-import ThemeSwitcher from "../components/ThemeSwitcher.astro";
 import Sidebar from "../components/Sidebar.astro";
 import SubNav from "../components/SubNav.astro";
 import CommandBar from "../islands/CommandBar";
@@ -65,7 +64,6 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
           <CommandBar client:load currentPageId={pageId} section={section} base={base} />
           <div class="topbar-side topbar-right">
             <button type="button" class="btn btn-primary btn-sm" title="Yeni kayıt oluştur"><Plus size={13} weight="bold" /> Oluştur</button>
-            <ThemeSwitcher />
             <a class="icon-btn" href={`${base}mimari/`} title="Yardım ve mimari" aria-label="Yardım ve mimari"><Question size={15} /></a>
           </div>
         </header>

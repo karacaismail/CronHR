@@ -3,16 +3,13 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
-import Avatar from "../../components/Avatar.astro";
 import Bars from "../../components/Bars.astro";
-import AiHint from "../../islands/AiHint";
-import { SHIFT_ROWS, WEEK_DAYS, employee } from "../../data/hr";
-import { CaretLeft, CaretRight, Sparkle } from "@phosphor-icons/react";
+import ShiftPlanner from "../../islands/ShiftPlanner";
+import { Sparkle } from "@phosphor-icons/react";
 ---
 
-<AdminLayout pageId="vardiya" description="7–13 Eylül haftası. Boş vardiyaları AI önerir, çakışmaları anında işaretler; yayınlamadan önce siz onaylarsınız.">
+<AdminLayout pageId="vardiya" description="Gün, hafta, ay, çeyrek, 6 ay, yıl ya da özel tarih aralığında planlayın. Boş vardiyaları AI önerir, çakışmaları anında işaretler; yayınlamadan önce siz onaylarsınız.">
   <Fragment slot="actions">
-    <span class="segment"><button type="button" aria-pressed="true">Hafta</button><button type="button">Ay</button></span>
     <button type="button" class="btn btn-ai" data-ask-ai="Bu haftaki boş vardiyaları doldur"><Sparkle size={14} weight="fill" /> AI ile doldur</button>
     <button type="button" class="btn btn-primary">Planı yayınla</button>
   </Fragment>
@@ -34,37 +31,8 @@ import { CaretLeft, CaretRight, Sparkle } from "@phosphor-icons/react";
     <Kpi label="Gece yükü dengesi" value="%71" delta="+9 puan" dir="up" ai="En yüksek yük Emre'de (6/7 gece)." />
   </div>
 
-  <Panel title="Haftalık plan" sub="Hücreye tıklayıp AI önerisini uygulayın" flush>
-    <Fragment slot="tools">
-      <button type="button" class="icon-btn" aria-label="Önceki hafta"><CaretLeft size={14} /></button>
-      <span class="small strong">7 – 13 Eylül 2026</span>
-      <button type="button" class="icon-btn" aria-label="Sonraki hafta"><CaretRight size={14} /></button>
-    </Fragment>
-    <div class="table-wrap">
-      <div class="shift-grid">
-        <div class="shift-head">Çalışan</div>
-        {WEEK_DAYS.map((d) => <div class="shift-head">{d}</div>)}
-        {SHIFT_ROWS.map((row) => {
-          const e = employee(row.employeeId);
-          return (
-            <>
-              <div><Avatar name={e.name} sub={e.department} hue={e.hue} size={26} /></div>
-              {row.cells.map((cell, i) => (
-                <div>
-                  {cell.kind === "ai" ? (
-                    <AiHint client:visible label={cell.label} variant="chip" title={`${e.name} · ${WEEK_DAYS[i]}`} answer={`Bu vardiya boş. ${e.name} uygun: izin yok, haftalık saat sınırı içinde ve son 4 haftada aynı vardiyayı 3 kez tercih etmiş. Alternatif: Selin Çelik.`} actions={["Ata", "Alternatifi göster"]} mode="popover" />
-                  ) : cell.kind === "conflict" ? (
-                    <AiHint client:visible label="22–06 · Çakışma" variant="chip" title="Fazla mesai sınırı" answer="Bu nöbetle Emre Doğan'ın aylık fazla mesaisi 70 saate çıkar; yasal sınır 90 saat ama şirket politikası 72. Öneri: nöbeti Burak Şahin'e devret, Emre'ye telafi izni tanımla." actions={["Burak'a devret", "Telafi izni ekle"]} mode="popover" />
-                  ) : (
-                    <span class="shift" data-kind={cell.kind}>{cell.label}</span>
-                  )}
-                </div>
-              ))}
-            </>
-          );
-        })}
-      </div>
-    </div>
+  <Panel title="Plan" sub="Görünüm modunu seçin; hücreye tıklayıp AI önerisini uygulayın" flush>
+    <ShiftPlanner client:load />
     <Fragment slot="foot">
       <span class="state-flow" style="margin-inline-end:12px"><span data-state="current">Draft</span><i></i><span>Published</span><i></i><span>Locked</span></span>
       <span class="shift" data-kind="morning" style="inline-size:auto">Sabah</span>

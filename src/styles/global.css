@@ -1184,6 +1184,56 @@ svg {
 
 /* ------------------------------------------------------------ schedule */
 
+.planner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.planner-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-4) var(--space-4) 0;
+}
+
+.planner-toolbar [data-slot="select"] {
+  inline-size: 132px;
+  flex: 0 0 auto;
+}
+
+.planner-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.planner-label {
+  min-inline-size: 168px;
+  text-align: center;
+}
+
+.planner-custom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.planner-custom .input {
+  inline-size: auto;
+  min-inline-size: 0;
+}
+
+.planner-span {
+  margin-inline-start: auto;
+}
+
+.planner-heat {
+  padding: 0 var(--space-4) var(--space-4);
+}
+
 .shift-grid {
   display: grid;
   grid-template-columns: 160px repeat(7, minmax(88px, 1fr));

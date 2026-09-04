@@ -268,8 +268,10 @@
 }
 
 .theme-switch button[aria-pressed="true"] {
-  background: var(--surface);
-  color: var(--accent);
+  /* .segment ile aynı düzeltme: "background: var(--surface)" seçili
+   * durumu konteynerden neredeyse ayırt edilemez kılıyordu (~1,1:1). */
+  background: var(--accent-bg);
+  color: var(--on-accent);
   box-shadow: var(--shadow-1);
 }
 

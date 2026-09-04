@@ -236,3 +236,54 @@ describe("Primary ölçek ('cold black') ve kategorik gökkuşağı paleti", () 
     }
   });
 });
+
+describe("Seçili/aktif durum sınırları (WCAG 1.4.11) — komşu yüzeyden ayırt edilebilir", () => {
+  // Regresyon: "background: var(--accent-soft)" (ya da salt var(--surface))
+  // seçili durumu, bitiştiği gerçek komşu yüzeyden (sidebar/content zemini,
+  // segment/theme-switch konteyneri) ölçülerek ~1,0-1,3:1 kadar ayırt
+  // ediliyordu — WCAG 1.4.11 ihlali. Artık dolu accent-bg + on-accent
+  // kullanılıyor; üç temada da >=3:1 olduğu burada kilitlenir.
+  const cases: [string, Record<string, string>][] = [
+    ["light", light],
+    ["dark", dark],
+    ["a11y", a11y],
+  ];
+
+  it.each(cases)("%s: .switch açık durumu (--good) yüzeyle >=3:1", (_name, t) => {
+    expect(contrast(t.good, t.surface)).toBeGreaterThanOrEqual(3);
+  });
+
+  it.each(cases)("%s: .nav-item aktif sayfa arka planı (--accent-bg) kenar çubuğu yüzeyiyle >=3:1, metin (--on-accent) >=4.5:1", (_name, t) => {
+    expect(contrast(t["accent-bg"], t.surface)).toBeGreaterThanOrEqual(3);
+    expect(contrast(t["on-accent"], t["accent-bg"])).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(cases)("%s: .segment/.theme-switch seçili arka planı (--accent-bg) konteyner yüzeyiyle (--surface-muted) >=3:1", (_name, t) => {
+    expect(contrast(t["accent-bg"], t["surface-muted"])).toBeGreaterThanOrEqual(3);
+  });
+
+  it.each(cases)("%s: .settings-rail-item aktif arka planı (--accent-bg) sayfa zeminiyle (--bg) >=3:1", (_name, t) => {
+    expect(contrast(t["accent-bg"], t.bg)).toBeGreaterThanOrEqual(3);
+  });
+
+  it("global.css: .switch/.segment/.nav-item/.settings-rail-item artık zayıf accent-soft/salt-surface yerine dolu accent-bg kullanır", () => {
+    const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
+    const switchRule = css.match(/\.switch\[aria-checked="true"\]\s*\{([^}]*)\}/);
+    expect(switchRule![1]).toMatch(/background:\s*var\(--good\)/);
+
+    const segmentRule = css.match(/\.segment > button\[aria-pressed="true"\]\s*\{([^}]*)\}/);
+    expect(segmentRule![1]).toMatch(/background:\s*var\(--accent-bg\)/);
+
+    const navRule = css.match(/\.nav-item\[aria-current="page"\]\s*\{([^}]*)\}/);
+    expect(navRule![1]).toMatch(/background:\s*var\(--accent-bg\)/);
+
+    const railRule = css.match(/\.settings-rail-item\[aria-current="true"\]\s*\{([^}]*)\}/);
+    expect(railRule![1]).toMatch(/background:\s*var\(--accent-bg\)/);
+  });
+
+  it("themes.css: .theme-switch buton aktif durumu dolu accent-bg kullanır", () => {
+    const css = readFileSync(join(ROOT, "src/styles/themes.css"), "utf8");
+    const rule = css.match(/\.theme-switch button\[aria-pressed="true"\]\s*\{([^}]*)\}/);
+    expect(rule![1]).toMatch(/background:\s*var\(--accent-bg\)/);
+  });
+});

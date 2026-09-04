@@ -1,6 +1,7 @@
 ---
 import { CaretDown, Timer } from "@phosphor-icons/react";
 import { NAV_TREE, resolvePage } from "../data/nav";
+import { TAGLINES } from "../data/taglines";
 import ThemeSwitcher from "./ThemeSwitcher.astro";
 
 interface Props {
@@ -17,7 +18,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     <span class="brand-mark"><Timer size={19} weight="fill" /></span>
     <span>
       <span class="brand-name">CronHR</span>
-      <span class="brand-tag">İşgücü işletim sistemi</span>
+      <span class="brand-tag" id="marka-motto">{TAGLINES[0]}</span>
     </span>
   </a>
 
@@ -61,3 +62,26 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     <p class="ai-status-meta">Karaca Teknoloji · 120 çalışan · 2 tüzel kişilik. Öneriler onaysız uygulanmaz.</p>
   </div>
 </aside>
+
+<script>
+  import { TAGLINES } from "../data/taglines";
+  import { readMotionContext, shouldAnimate } from "../scripts/motion-core";
+  import { startTagline, type TaglineController } from "../scripts/tagline";
+
+  let controller: TaglineController | null = null;
+
+  function sync() {
+    const el = document.getElementById("marka-motto");
+    if (!el) return;
+    const ok = shouldAnimate(readMotionContext());
+    if (ok && !controller) {
+      controller = startTagline(el, TAGLINES);
+    } else if (!ok && controller) {
+      controller.stop();
+      controller = null;
+    }
+  }
+
+  sync();
+  window.addEventListener("cronhr:theme", sync);
+</script>

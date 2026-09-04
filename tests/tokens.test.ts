@@ -127,4 +127,21 @@ describe("Flat 2.0 sözleşmesi", () => {
     // (regresyon: sidebar bir daha yapışkanlığını kaybetmesin).
     expect(rule).not.toMatch(/(?<!-)inset:\s*auto/);
   });
+
+  it("mobil alt gezinme viewport'a sabittir: fixed + inset-block-end:0, bir transform/sticky ile yer değiştirmez", () => {
+    const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
+    const ruleMatch = css.match(/\.bottom-nav\s*\{([^}]*)\}/);
+    expect(ruleMatch, ".bottom-nav kuralı bulunamadı").not.toBeNull();
+    const rule = ruleMatch![1];
+    expect(rule).toMatch(/position:\s*fixed/);
+    expect(rule).toMatch(/inset-block-end:\s*0/);
+    expect(rule).toMatch(/inset-inline:\s*0/);
+    expect(rule).not.toMatch(/position:\s*sticky/);
+    // GSAP parallax yalnızca bu iki hedefi kullanır; .app/.content/body'de
+    // transform oluşmaz — oluşsaydı fixed öğenin konum bağlamı bozulurdu.
+    const motion = readFileSync(join(ROOT, "src/scripts/motion.ts"), "utf8");
+    const parallaxTargets = motion.match(/const orb = .*\n.*const head = .*\n.*const targets = \[([^\]]*)\]/);
+    expect(parallaxTargets).not.toBeNull();
+    expect(parallaxTargets![1]).toMatch(/orb, head/);
+  });
 });

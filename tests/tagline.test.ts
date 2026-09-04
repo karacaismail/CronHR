@@ -1,0 +1,93 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { TAGLINES } from "../src/data/taglines";
+import { nextIndex, pickInterval, startTagline } from "../src/scripts/tagline";
+
+const ROOT = join(__dirname, "..");
+const read = (p: string) => readFileSync(join(ROOT, p), "utf8");
+
+describe("Motto verisi (24 duayen tonlu slogan)", () => {
+  it("tam 24 özgün, makul uzunlukta motto içerir", () => {
+    expect(TAGLINES.length).toBe(24);
+    expect(new Set(TAGLINES).size).toBe(24);
+    for (const t of TAGLINES) {
+      expect(t.length).toBeGreaterThan(8);
+      expect(t.length).toBeLessThanOrEqual(48);
+      expect(t.trim()).toBe(t);
+    }
+  });
+
+  it("eski statik etiketi birebir tekrar etmez (gerçek bir rotasyon)", () => {
+    expect(TAGLINES).not.toContain("İşgücü işletim sistemi");
+  });
+});
+
+describe("Rotasyon mantığı (saf, DOM'suz)", () => {
+  it("nextIndex bir öncekini tekrar etmez", () => {
+    expect(nextIndex(0, 5, () => 0)).not.toBe(0);
+    expect(nextIndex(3, 5, () => 0.6)).not.toBe(3);
+  });
+
+  it("tek elemanlı listede her zaman 0 döner", () => {
+    expect(nextIndex(0, 1, () => 0.9)).toBe(0);
+  });
+
+  it("pickInterval her zaman 6000-9000 ms aralığındadır", () => {
+    for (const r of [0, 0.25, 0.5, 0.75, 0.999]) {
+      const v = pickInterval(6000, 9000, () => r);
+      expect(v).toBeGreaterThanOrEqual(6000);
+      expect(v).toBeLessThanOrEqual(9000);
+    }
+  });
+});
+
+describe("startTagline (DOM orkestrasyonu, sahte zamanlayıcı)", () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it("aralık dolunca solar (opacity 0), geçiş süresi sonunda yeni metinle belirir (opacity 1)", () => {
+    const el = document.createElement("span");
+    el.textContent = TAGLINES[0];
+    const seq = [0.999, 0.1, 0.999, 0.1];
+    let i = 0;
+    const random = () => seq[i++ % seq.length];
+    const ctl = startTagline(el, TAGLINES, { minMs: 1000, maxMs: 2000, fadeMs: 100, random });
+
+    expect(el.textContent).toBe(TAGLINES[0]);
+    vi.advanceTimersByTime(2000);
+    expect(el.style.opacity).toBe("0");
+    expect(el.textContent).toBe(TAGLINES[0]);
+    vi.advanceTimersByTime(100);
+    expect(el.style.opacity).toBe("1");
+    expect(el.textContent).not.toBe(TAGLINES[0]);
+    ctl.stop();
+  });
+
+  it("stop() sonrası hiçbir zamanlayıcı metni değiştirmez", () => {
+    const el = document.createElement("span");
+    el.textContent = TAGLINES[0];
+    const ctl = startTagline(el, TAGLINES, { minMs: 500, maxMs: 500, fadeMs: 50 });
+    ctl.stop();
+    vi.advanceTimersByTime(20000);
+    expect(el.textContent).toBe(TAGLINES[0]);
+  });
+
+  it("geçiş için CSS transition (opacity) uygular — ani sıçrama değil", () => {
+    const el = document.createElement("span");
+    const ctl = startTagline(el, TAGLINES, { fadeMs: 400 });
+    expect(el.style.transition).toMatch(/opacity 400ms ease/);
+    ctl.stop();
+  });
+});
+
+describe("Sidebar bağlantısı: motto yalnızca hareket açıkken döner", () => {
+  it("Sidebar.astro TAGLINES ve startTagline'ı içe aktarır, hareket bağlamına göre başlatır/durdurur", () => {
+    const sidebar = read("src/components/Sidebar.astro");
+    expect(sidebar).toMatch(/from ["'].*data\/taglines["']/);
+    expect(sidebar).toMatch(/from ["'].*scripts\/tagline["']/);
+    expect(sidebar).toMatch(/shouldAnimate/);
+    expect(sidebar).toMatch(/readMotionContext/);
+    expect(sidebar).not.toMatch(/İşgücü işletim sistemi/);
+  });
+});

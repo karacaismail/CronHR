@@ -251,12 +251,14 @@ svg {
 }
 
 .nav-item:hover {
-  background: var(--surface-muted);
-  color: var(--ink);
+  /* Nötr gri yerine pastel accent (bilgi mavisi): "bu etkileşimli/hover"
+   * durumu net ve anlaşılır olsun. */
+  background: var(--info-soft);
+  color: var(--info-ink);
 }
 
 .nav-item:hover svg {
-  color: var(--ink-2);
+  color: var(--info);
 }
 
 .nav-item[aria-current="page"] {
@@ -382,8 +384,9 @@ svg {
 }
 
 .btn:hover {
-  background: var(--surface-muted);
-  border-color: var(--border-strong);
+  background: var(--info-soft);
+  border-color: var(--info);
+  color: var(--info-ink);
 }
 
 .btn:active {
@@ -425,9 +428,9 @@ svg {
 }
 
 .btn-ghost:hover {
-  background: var(--surface-muted);
+  background: var(--info-soft);
   border-color: transparent;
-  color: var(--ink);
+  color: var(--info-ink);
 }
 
 .icon-btn {
@@ -444,8 +447,8 @@ svg {
 }
 
 .icon-btn:hover {
-  background: var(--surface-muted);
-  color: var(--ink);
+  background: var(--info-soft);
+  color: var(--info-ink);
 }
 
 /* --------------------------------------------------------------- grid */
@@ -1468,7 +1471,7 @@ svg {
 }
 
 .context-switch:hover {
-  background: var(--surface-muted);
+  background: var(--info-soft);
 }
 
 .context-switch > svg:first-child {
@@ -1594,7 +1597,7 @@ svg {
 }
 
 .subnav-item:hover {
-  color: var(--ink);
+  color: var(--info-ink);
 }
 
 .subnav-item[aria-current="page"] {
@@ -1937,8 +1940,8 @@ svg {
   }
 
   .settings-rail-item:hover {
-    background: var(--surface-muted);
-    color: var(--ink);
+    background: var(--info-soft);
+    color: var(--info-ink);
   }
 
   .settings-rail-item svg { flex: 0 0 auto; }

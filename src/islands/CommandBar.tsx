@@ -3,6 +3,7 @@ import CronHRMark from "../components/CronHRMark";
 import { AiCommandCard, type AiCommandMenuItem } from "../components/AiCommandCard";
 import { COMMAND_CARD_ITEMS, resolvePage } from "../data/nav";
 import { simulateHrQuery } from "./hrReports";
+import NotificationsMenu from "./NotificationsMenu";
 
 interface CommandBarProps {
   /** Aktif sayfa kimliği (nav.tsx: grup ya da yaprak). */
@@ -22,6 +23,8 @@ export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
   const page = resolvePage(currentPageId);
   const [expanded, setExpanded] = useState(false);
   const [reducedByTheme, setReducedByTheme] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifAnchor, setNotifAnchor] = useState<DOMRect | null>(null);
 
   useEffect(() => {
     const onAsk = () => setExpanded(true);
@@ -71,26 +74,38 @@ export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
     [base],
   );
 
+  const toggleNotifications = useCallback(() => {
+    setNotifOpen((wasOpen) => {
+      if (wasOpen) return false;
+      const bell = document.querySelector<HTMLElement>('[data-slot="ai-notification-action"]');
+      setNotifAnchor(bell ? bell.getBoundingClientRect() : null);
+      return true;
+    });
+  }, []);
+
   return (
-    <AiCommandCard
-      expanded={expanded}
-      onExpandedChange={setExpanded}
-      logo={<CronHRMark size={18} />}
-      logoLabel="CronHR"
-      breadcrumbs={breadcrumbs}
-      menuItems={menuItems}
-      querySuggestions={suggestions}
-      notificationCount={4}
-      profile={{ name: "İsmail Karaca", initials: "İK" }}
-      searchPlaceholder={`${section ?? page.label} için AI'ya sor`}
-      submitLabel="Sor"
-      onAiQuerySubmit={simulateHrQuery}
-      onMenuItemSelect={(item) => go(resolvePage(item.id).href)}
-      onNotificationActivate={() => go("/bildirimler/")}
-      onProfileActivate={() => go("/calisan-portali/")}
-      onLogoActivate={() => go("/")}
-      motionPreference={reducedByTheme ? "reduced" : "system"}
-    />
+    <>
+      <AiCommandCard
+        expanded={expanded}
+        onExpandedChange={setExpanded}
+        logo={<CronHRMark size={18} />}
+        logoLabel="CronHR"
+        breadcrumbs={breadcrumbs}
+        menuItems={menuItems}
+        querySuggestions={suggestions}
+        notificationCount={4}
+        profile={{ name: "İsmail Karaca", initials: "İK" }}
+        searchPlaceholder={`${section ?? page.label} için AI'ya sor`}
+        submitLabel="Sor"
+        onAiQuerySubmit={simulateHrQuery}
+        onMenuItemSelect={(item) => go(resolvePage(item.id).href)}
+        onNotificationActivate={toggleNotifications}
+        onProfileActivate={() => go("/calisan-portali/")}
+        onLogoActivate={() => go("/")}
+        motionPreference={reducedByTheme ? "reduced" : "system"}
+      />
+      <NotificationsMenu base={base} open={notifOpen} anchorRect={notifAnchor} onClose={() => setNotifOpen(false)} />
+    </>
   );
 }
 

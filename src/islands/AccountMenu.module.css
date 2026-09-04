@@ -20,7 +20,7 @@
   transition: background 140ms ease;
 }
 
-.trigger:hover { background: var(--surface); }
+.trigger:hover { background: var(--info-soft); }
 .trigger[aria-expanded="true"] { background: var(--surface); }
 
 .trigger:focus-visible {
@@ -88,7 +88,7 @@
 
 .item svg { color: var(--ink-muted); flex: 0 0 auto; }
 
-.item:hover { background: var(--surface-muted); }
+.item:hover { background: var(--info-soft); color: var(--info-ink); }
 
 .item:focus-visible {
   outline: 2px solid var(--focus-ring, #4f46e5);

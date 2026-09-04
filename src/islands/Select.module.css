@@ -66,8 +66,8 @@
 }
 
 .button:hover:not(:disabled) {
-  border-color: var(--ink-faint, #667085);
-  background: var(--surface-muted, #f6f7f9);
+  border-color: var(--info, #2a78d6);
+  background: var(--info-soft, #e7f0fb);
 }
 
 .button:focus-visible {

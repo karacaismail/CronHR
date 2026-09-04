@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { CaretUp, Gear, MapTrifold, User, UserCircle } from "@phosphor-icons/react";
+import { CaretUp, Gear, User, UserCircle } from "@phosphor-icons/react";
 import styles from "./AccountMenu.module.css";
 
 export interface AccountMenuProps {
@@ -60,11 +60,6 @@ export function AccountMenu({ base, name, initials }: AccountMenuProps) {
       </button>
       {open ? (
         <ul ref={menuRef} id={menuId} role="menu" className={styles.menu} aria-label="Hesap seçenekleri">
-          <li role="none">
-            <a role="menuitem" className={styles.item} href={`${base}mimari/`} onClick={() => close(false)}>
-              <MapTrifold size={16} aria-hidden="true" /> Yardım ve mimari
-            </a>
-          </li>
           <li role="none">
             <a role="menuitem" className={styles.item} href={`${base}ayarlar/`} onClick={() => close(false)}>
               <Gear size={16} aria-hidden="true" /> Ayarlar

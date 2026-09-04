@@ -78,11 +78,41 @@ describe("Yardım düğmesi üst çubuktan kaldırıldı — tek kaynak: sol alt
     expect(sidebar).toMatch(/<AccountMenu\b/);
   });
 
-  it("AccountMenu.tsx yardım/mimari, ayarlar, profil ve hesap öğelerini içerir", () => {
+  it("AccountMenu.tsx ayarlar, profil ve hesap öğelerini içerir", () => {
     const menu = readFileSync(join(ROOT, "src/islands/AccountMenu.tsx"), "utf8");
-    expect(menu).toMatch(/Yardım ve mimari/);
     expect(menu).toMatch(/\bAyarlar\b/);
     expect(menu).toMatch(/Profilim/);
     expect(menu).toMatch(/Hesabım/);
+  });
+});
+
+describe("Kaldırılan '/mimari/' sayfası — geliştirici/platform mimarisi son kullanıcı panelinde gösterilmez", () => {
+  it("src/pages/mimari/ yoktur", () => {
+    expect(existsSync(join(ROOT, "src/pages/mimari/index.astro"))).toBe(false);
+  });
+
+  it("hiçbir kaynakta '/mimari/' rotasına referans kalmamıştır", () => {
+    const files = walk(join(ROOT, "src"), [".astro", ".tsx", ".ts"]);
+    const bad = files.filter((f) => /["'`]\$\{base\}mimari\/["'`]|["'`]\/mimari\/["'`]/.test(readFileSync(f, "utf8")));
+    expect(bad.map((f) => f.replace(ROOT, ""))).toEqual([]);
+  });
+
+  it("AccountMenu artık 'mimari' kelimesini içermez", () => {
+    const menu = readFileSync(join(ROOT, "src/islands/AccountMenu.tsx"), "utf8");
+    expect(menu.toLowerCase()).not.toMatch(/mimari/);
+  });
+});
+
+describe("Görünüm (tema) anahtarı yalnızca Ayarlar'da — sol alt kenar çubuğunda değil", () => {
+  it("Sidebar.astro artık ThemeSwitcher render etmez", () => {
+    const sidebar = readFileSync(join(ROOT, "src/components/Sidebar.astro"), "utf8");
+    expect(sidebar).not.toMatch(/ThemeSwitcher/);
+    expect(sidebar).not.toMatch(/>Görünüm</);
+  });
+
+  it("Ayarlar sayfası ThemeSwitcher'ı render eder", () => {
+    const ayarlar = readFileSync(join(ROOT, "src/pages/ayarlar/index.astro"), "utf8");
+    expect(ayarlar).toMatch(/from ["'].*components\/ThemeSwitcher\.astro["']/);
+    expect(ayarlar).toMatch(/<ThemeSwitcher\s*\/>/);
   });
 });

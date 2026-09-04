@@ -30,11 +30,19 @@ describe.skipIf(skip)("dist çıktısı", () => {
     expect(html).toContain('id="icerik"');
     expect(html).not.toMatch(/<select\b/);
     expect(html).not.toMatch(/gradient\(/);
-    expect(html).toMatch(/data-theme-switch/);
   });
 
   it("CSS paketlerinde gradient yoktur", () => {
     const css = readdirSync(join(DIST, "_astro")).filter((f) => f.endsWith(".css"));
     for (const f of css) expect(readFileSync(join(DIST, "_astro", f), "utf8")).not.toMatch(/gradient\(/);
+  });
+
+  it.skipIf(skip)("Görünüm (tema) anahtarı yalnızca Ayarlar sayfasındadır", () => {
+    const rels = files.map((f) => f.replace(DIST, ""));
+    const ayarlarRel = rels.find((r) => r.includes("ayarlar") && r.endsWith("index.html"));
+    expect(ayarlarRel, "ayarlar/index.html bulunamadı").toBeTruthy();
+    expect(readFileSync(join(DIST, ayarlarRel!), "utf8")).toMatch(/data-theme-switch/);
+    const withSwitch = rels.filter((r) => r !== ayarlarRel && readFileSync(join(DIST, r), "utf8").includes("data-theme-switch"));
+    expect(withSwitch).toEqual([]);
   });
 });

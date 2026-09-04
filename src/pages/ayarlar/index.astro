@@ -3,13 +3,14 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import AiBrief from "../../components/AiBrief.astro";
 import Kpi from "../../components/Kpi.astro";
 import Panel from "../../components/Panel.astro";
+import ThemeSwitcher from "../../components/ThemeSwitcher.astro";
 import Badge from "../../components/Badge.astro";
 import AiHint from "../../islands/AiHint";
 import Select from "../../islands/Select";
 import DataTable from "../../islands/DataTable";
 import { API_KEYS, INTEGRATIONS, WEBHOOKS } from "../../data/hr2";
 import { GEN } from "../../data/generate";
-import { ArrowsClockwise, Buildings, CreditCard, Code, Database, Globe, Key, Lightning, Play, Plugs, Plus, Robot, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react";
+import { ArrowsClockwise, Buildings, CreditCard, Code, Database, Globe, Key, Lightning, Palette, Play, Plugs, Plus, Robot, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react";
 
 const SECTIONS = [
   { id: "genel", label: "Genel", icon: Buildings },
@@ -84,6 +85,14 @@ const integrationTone = { "Bağlı": "good", "Hatalı": "critical", "Duraklatıl
               <Select client:load id="s-tz" label="Saat dilimi" options={[{ value: "europe-istanbul-utc-3", label: "Europe/Istanbul (UTC+3)" }]} />
               <Select client:load id="s-week" label="Çalışma haftası" options={[{ value: "pazartesi-cuma", label: "Pazartesi – Cuma" }, { value: "pazartesi-cumartesi", label: "Pazartesi – Cumartesi" }]} />
               <div class="field"><label class="field-label" for="s-leave">Yıllık izin (varsayılan) <span class="field-ai"><Sparkle size={11} weight="fill" /> AI: kıdeme göre 14/20/26</span></label><input id="s-leave" class="input" value="14 gün" /></div>
+            </div>
+          </Panel>
+
+          <Panel title="Görünüm" sub="Tema ve erişilebilirlik modu">
+            <Fragment slot="icon"><Palette size={15} /></Fragment>
+            <div class="row-between">
+              <span class="small muted">Açık / Koyu (WCAG 2.2 AA) · Erişilebilirlik (WCAG 2.2 AAA)</span>
+              <ThemeSwitcher />
             </div>
           </Panel>
         </div>

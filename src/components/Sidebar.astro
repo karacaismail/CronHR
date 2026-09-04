@@ -3,7 +3,6 @@ import { CaretDown } from "@phosphor-icons/react";
 import CronHRMark from "./CronHRMark";
 import { NAV_TREE, resolvePage } from "../data/nav";
 import { TAGLINES } from "../data/taglines";
-import ThemeSwitcher from "./ThemeSwitcher.astro";
 import TenantSwitcher from "../islands/TenantSwitcher";
 import AccountMenu from "../islands/AccountMenu";
 
@@ -62,7 +61,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   </nav>
 
   <div class="sidebar-foot">
-    <div class="row-between"><span class="small strong">Görünüm</span><ThemeSwitcher /></div>
     <AccountMenu client:load base={`${base}/`} name="İsmail Karaca" initials="İK" />
   </div>
 </aside>

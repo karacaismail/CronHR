@@ -22,7 +22,7 @@ describe("AccountMenu (sol alt 'options' dropdown)", () => {
     expect(screen.queryByRole("menu")).toBeNull();
   });
 
-  it("tıklayınca yukarı açılan bir menü gösterir (Yardım, Ayarlar, Profilim, Hesabım); ok aşağı döner", async () => {
+  it("tıklayınca yukarı açılan bir menü gösterir (Ayarlar, Profilim, Hesabım); ok aşağı döner", async () => {
     const user = userEvent.setup();
     setup();
     const trigger = screen.getByRole("button", { name: /karaca/i });
@@ -30,15 +30,15 @@ describe("AccountMenu (sol alt 'options' dropdown)", () => {
     expect(screen.getByRole("menu")).toBeInTheDocument();
     expect(trigger).toHaveAttribute("aria-expanded", "true");
     const items = screen.getAllByRole("menuitem").map((i) => i.textContent?.trim());
-    expect(items).toEqual(["Yardım ve mimari", "Ayarlar", "Profilim", "Hesabım"]);
+    expect(items).toEqual(["Ayarlar", "Profilim", "Hesabım"]);
   });
 
-  it("Yardım ve Ayarlar öğeleri doğru base'e bağlanır", async () => {
+  it("Ayarlar öğesi doğru base'e bağlanır (geliştirici/platform mimarisi menüde yer almaz)", async () => {
     const user = userEvent.setup();
     setup();
     await user.click(screen.getByRole("button", { name: /karaca/i }));
-    expect(screen.getByRole("menuitem", { name: /yardım ve mimari/i })).toHaveAttribute("href", "/CronHR/mimari/");
     expect(screen.getByRole("menuitem", { name: /^ayarlar$/i })).toHaveAttribute("href", "/CronHR/ayarlar/");
+    expect(screen.queryByRole("menuitem", { name: /mimari/i })).toBeNull();
   });
 
   it("Escape ile kapanır, odak tetikleyiciye döner", async () => {

@@ -35,6 +35,27 @@ npm run preview # dist/ önizleme
 Mimari omurga: **Vardiya planlar → PDKS ölçer → İzin açıklar → Puantaj hesaplar → Bordro paraya çevirir.**
 Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## AI etkileşim örnekleri (yeni)
+
+- **CronHR Copilot** (`src/islands/Copilot.tsx`, motor `src/ai/copilot.ts`): sayfa genelinde
+  sohbet çekmecesi. Çok turlu ("onlara ne önerirsin?" önceki konuya bağlanır), aksiyon üretir
+  (git / uygula — geri alınabilir), güven yüzdesi ve kaynak gösterir, kapsam dışı sorularda
+  dürüstçe "yardımcı olamam" der, beğen/beğenme geri bildirimi alır. Üst çubukta masaüstü
+  düğmesi, alt gezinmede mobil "AI" düğmesi.
+- **Proaktif AI içgörü akışı** (`src/ai/insights.ts`, `AiInsightFeed.tsx`): veriden hesaplanan
+  kartlar (kritik/uyarı/bilgi/iyi), her biri Uygula / Ertele / Kapat alır; durum kalıcıdır.
+  Dashboard'da görünür.
+- **Serbest metinden çalışan kaydı** (`src/ai/quickCreate.ts`, `QuickCreate.tsx`): ad, tarih,
+  departman, ünvan, konum, yönetici çıkarımı; alan bazında güven yüzdesi, düşük güvenli alanlar
+  sarı ile işaretlenip elle düzeltilebilir. Çalışanlar sayfasında.
+- **Bordro "ne olur?" simülatörü** (`src/ai/whatIf.ts`, `WhatIf.tsx`): fazla mesai sınırı, zam,
+  kadro kaydırıcılarıyla anlık tahmin ve açıklama; hiçbir şey kaydetmez.
+- **Grafik sapma tespiti** (`src/ai/anomaly.ts`): z-skoru ile uç noktalar işaretlenir
+  (`AreaChart` `markAnomalies`).
+- **Yazı asistanı** (`src/ai/composer.ts`): kısalt / resmileştir / çevir / taslak yaz.
+- **Toplu AI değerlendirme** (`src/ai/bulk.ts`): `DataTable`'da satır seçip "AI ile değerlendir";
+  Çalışanlar ve İzinler tablolarında `selectable` açık.
+
 ## Tablolar, veri ve AI simülasyonları
 
 - **DataTable** (`src/islands/DataTable.tsx`): arama, sütun filtreleri (çoklu seçim, sayısal aralık),

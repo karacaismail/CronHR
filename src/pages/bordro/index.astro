@@ -12,6 +12,7 @@ import { MONTHS, PAYROLL, employee, tl } from "../../data/hr";
 import { LockKey, Sparkle, ShieldCheck } from "@phosphor-icons/react";
 import Pipeline from "../../components/Pipeline.astro";
 import { PRE_PAYROLL_CHECKS } from "../../data/hr2";
+import WhatIf from "../../islands/WhatIf";
 
 const diff = PAYROLL.gross - PAYROLL.prevGross;
 const mtl = (v: number) => `${(v / 1_000_000).toFixed(2).replace(".", ",")} M ₺`;
@@ -95,7 +96,11 @@ const toneLabel = { critical: "Kritik", serious: "Dikkat", warning: "Uyarı", in
     </Panel>
   </div>
 
+  <Panel title="AI ile ne olur? simülasyonu" sub="Fazla mesai sınırı, zam ve kadro değişimini deneyin — hiçbir şey kaydedilmez">
+    <WhatIf client:load />
+  </Panel>
+
   <Panel title="Brüt maliyet trendi" sub="Son 12 ay · milyon ₺">
-    <AreaChart labels={MONTHS} series={[{ name: "Brüt maliyet", values: PAYROLL.costTrend }]} unit=" M" height={180} />
+    <AreaChart labels={MONTHS} series={[{ name: "Brüt maliyet", values: PAYROLL.costTrend }]} unit=" M" height={180} markAnomalies />
   </Panel>
 </AdminLayout>

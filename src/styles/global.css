@@ -2245,3 +2245,9 @@ body,
 @media (min-width: 64em) {
   .toast { inset-inline: auto 24px; inset-block-end: 24px; max-inline-size: 420px; }
 }
+
+.copilot-desktop-btn { display: none; }
+@media (min-width: 64em) {
+  .copilot-desktop-btn { display: inline-grid; color: var(--accent-ink); border-color: var(--accent-soft-2); }
+  .copilot-desktop-btn:hover { background: var(--accent-soft); }
+}

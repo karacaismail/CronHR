@@ -9,6 +9,7 @@ import Bars from "../../components/Bars.astro";
 import AiHint from "../../islands/AiHint";
 import { GEN } from "../../data/generate";
 import DataTable from "../../islands/DataTable";
+import QuickCreate from "../../islands/QuickCreate";
 import { DEPARTMENTS, EMPLOYEES, formatDate, riskLabel, riskTone } from "../../data/hr";
 import { Export, Plus, Sparkle } from "@phosphor-icons/react";
 
@@ -45,7 +46,7 @@ const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
       <Fragment slot="tools">
         <button type="button" class="btn btn-ai btn-sm" data-ask-ai="Ayrılma riski yüksek çalışanları listele"><Sparkle size={12} weight="fill" /> Riskli olanlar</button>
       </Fragment>
-      <div class="panel-body"><DataTable client:load preset="employees" title="Çalışanlar" rows={GEN.employees} pageSize={10} /></div>
+      <div class="panel-body"><DataTable client:load preset="employees" title="Çalışanlar" rows={GEN.employees} pageSize={10} selectable /></div>
       <Fragment slot="foot">{GEN.employees.length} çalışan · Satıra tıklayın: Employee 360 · AI skorları her gece yeniden hesaplanır</Fragment>
     </Panel>
 
@@ -54,11 +55,7 @@ const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
         <Bars items={DEPARTMENTS.map((d) => ({ label: d.name, value: d.headcount, tone: d.open > 0 ? "accent" : "info", hint: `${d.open} açık pozisyon` }))} unit=" kişi" />
       </Panel>
       <Panel title="AI ile hızlı kayıt" sub="Serbest metinden çalışan profili oluştur">
-        <textarea class="textarea" aria-label="Çalışan bilgisi" placeholder="Örn: Ayşe Kara, 15 Eylül'de Ürün ekibine Ürün Tasarımcısı olarak başlıyor, İstanbul hibrit, yöneticisi Elif Demir."></textarea>
-        <div class="row-between">
-          <span class="field-ai"><Sparkle size={12} weight="fill" /> Alanlar AI ile doldurulur, siz onaylarsınız.</span>
-          <button type="button" class="btn btn-ai btn-sm"><Sparkle size={12} weight="fill" /> Taslak oluştur</button>
-        </div>
+<QuickCreate client:load />
       </Panel>
     </div>
   </div>

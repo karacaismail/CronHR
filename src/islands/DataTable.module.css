@@ -382,3 +382,32 @@
 @media (prefers-reduced-motion: reduce) {
   .btn, .iconBtn { transition: none; }
 }
+
+/* ------------------------------------------------------- toplu AI işlem */
+
+.bulkBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--accent-soft-2, #e0e7ff);
+  border-radius: var(--radius, 8px);
+  background: var(--accent-soft, #eef2ff);
+  color: var(--accent-ink, #3730a3);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.bulkResult {
+  border: 1px solid var(--border, #e3e6eb);
+  border-radius: var(--radius, 8px);
+  padding: 10px 12px;
+  background: var(--ai-surface, #f7f7fd);
+}
+
+.bulkResult ul { margin: 8px 0 0; padding-inline-start: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; }
+.bulkResult li { line-height: 1.5; }
+
+.selectCol { inline-size: 1%; padding-inline-end: 4px !important; }
+.selectCol input { inline-size: 18px; block-size: 18px; }

@@ -8,6 +8,7 @@ import Avatar from "../components/Avatar.astro";
 import AreaChart from "../components/AreaChart.astro";
 import Bars from "../components/Bars.astro";
 import AiHint from "../islands/AiHint";
+import AiInsightFeed from "../islands/AiInsightFeed";
 import Pipeline from "../components/Pipeline.astro";
 import {
   ABSENCE_TREND,
@@ -48,6 +49,10 @@ const today = AUTOMATIONS.filter((a) => a.nextRun.startsWith("4 Eyl") || a.nextR
     askQuery="Bugün dikkat etmem gereken 3 şey ne?"
   />
 
+  <Panel title="AI içgörüleri" sub="Veriden hesaplanan öneriler · uygula, ertele veya kapat">
+    <AiInsightFeed client:load pageId="panel" base={base} />
+  </Panel>
+
   <Panel title="İşgücü zinciri · bugün" sub="Vardiya planlar › PDKS ölçer › İzin açıklar › Puantaj hesaplar › Bordro paraya çevirir">
     <Fragment slot="tools"><a class="btn btn-ghost btn-sm" href={`${base}/gorevler/`}>Görevlerim · 11</a></Fragment>
     <Pipeline compact />
@@ -74,7 +79,7 @@ const today = AUTOMATIONS.filter((a) => a.nextRun.startsWith("4 Eyl") || a.nextR
         <AiHint client:visible label="Yorumla" title="Trend yorumu" answer="Kadro 12 ayda %22 büyüdü ve büyüme yavaşlayarak plana oturdu. Devamsızlıkta Ocak ve Temmuz zirveleri mevsimsel; Eylül'deki düşüş Destek ekibinin yeni vardiya düzeniyle açıklanıyor. Önümüzdeki 60 gün için beklenen aralık %2,8–3,4." actions={["Rapora ekle", "Yönetime gönder"]} mode="popover" />
       </Fragment>
       <AreaChart labels={MONTHS} series={[{ name: "Kadro", values: HEADCOUNT_TREND, color: "var(--series-3)" }]} height={170} />
-      <AreaChart labels={MONTHS} series={[{ name: "Devamsızlık %", values: ABSENCE_TREND }]} unit="%" height={150} />
+      <AreaChart labels={MONTHS} series={[{ name: "Devamsızlık %", values: ABSENCE_TREND }]} unit="%" height={150} markAnomalies />
     </Panel>
 
     <Panel title="AI önceliklendirilmiş bildirimler" sub="Önem sırasına göre" flush>

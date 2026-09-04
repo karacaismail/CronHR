@@ -1,5 +1,7 @@
 import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowsDownUp, CaretLeft, CaretRight, Export, Funnel, MagnifyingGlass, Sparkle, X } from "@phosphor-icons/react";
+import { bulkVerdicts, type BulkResult } from "../ai/bulk";
+import { employeeById } from "../data/generate";
 import { applyAiQuery, describeAiQuery, matchesFilters, matchesSearch, parseAiQuery, sortRows } from "./aiQuery";
 import type { ColumnDef, FilterValue, NumberRange, Row, TableQuery } from "./tableTypes";
 import { PRESETS, type PresetName } from "./tablePresets";
@@ -21,6 +23,8 @@ export interface DataTableProps {
   forceCards?: boolean;
   /** Boş durum metni. */
   emptyText?: string;
+  /** Satır seçimi ve toplu AI değerlendirmesini aç. */
+  selectable?: boolean;
 }
 
 const PAGE_SIZES = [10, 25, 50];
@@ -65,6 +69,9 @@ export function DataTable(props: DataTableProps) {
   const [aiText, setAiText] = useState("");
   const [aiNote, setAiNote] = useState<string | null>(null);
   const [aiThinking, setAiThinking] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulk, setBulk] = useState<BulkResult | null>(null);
+  const [bulkThinking, setBulkThinking] = useState(false);
 
   const filtered = useMemo(() => {
     const rows = (props.rows as readonly Row[]).filter((r) => matchesFilters(r, columns, filters) && matchesSearch(r, columns, search));
@@ -152,6 +159,29 @@ export function DataTable(props: DataTableProps) {
     return String(v);
   };
 
+  const displayName = (row: Row): string => {
+    if (row.employeeId) return employeeById(String(row.employeeId)).name;
+    return String(row.name ?? row.title ?? row[rowKey] ?? "");
+  };
+
+  const toggleRow = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const allPageSelected = pageRows.length > 0 && pageRows.every((r) => selected.has(String(r[rowKey])));
+  const toggleAllOnPage = () => setSelected((s) => {
+    const n = new Set(s);
+    if (allPageSelected) pageRows.forEach((r) => n.delete(String(r[rowKey])));
+    else pageRows.forEach((r) => n.add(String(r[rowKey])));
+    return n;
+  });
+  const clearSelection = () => { setSelected(new Set()); setBulk(null); };
+  const runBulk = () => {
+    setBulkThinking(true);
+    const rows = filtered.filter((r) => selected.has(String((r as Row)[rowKey]))) as Row[];
+    window.setTimeout(() => {
+      setBulk(bulkVerdicts(props.preset ?? "default", rows));
+      setBulkThinking(false);
+    }, 500);
+  };
+
   const filterableCols = columns.filter((c) => c.filter);
   const primaryCol = columns.find((c) => c.primary) ?? columns[0];
 
@@ -176,6 +206,25 @@ export function DataTable(props: DataTableProps) {
           ) : null}
         </div>
       </div>
+
+      {props.selectable && selected.size > 0 ? (
+        <div className={styles.bulkBar} role="region" aria-label="Toplu işlem">
+          <span>{selected.size} seçili</span>
+          <button type="button" className={styles.aiBtn} onClick={runBulk} disabled={bulkThinking}><Sparkle size={13} weight="fill" aria-hidden="true" /> {bulkThinking ? "Değerlendiriyor" : "AI ile değerlendir"}</button>
+          <button type="button" className={`${styles.btn} ${styles.ghost}`} onClick={clearSelection}><X size={13} aria-hidden="true" /> Seçimi temizle</button>
+        </div>
+      ) : null}
+      {bulk ? (
+        <div className={styles.bulkResult} role="status">
+          <p className={styles.summary}><Sparkle size={12} weight="fill" aria-hidden="true" /> {bulk.summary}</p>
+          <ul>
+            {bulk.verdicts.map((v) => {
+              const row = (filtered as Row[]).find((r) => String(r[rowKey]) === v.id);
+              return <li key={v.id}><span className="badge" data-tone={v.verdict === "Onayla" ? "good" : v.verdict === "Reddet" ? "critical" : "warning"}>{v.verdict}</span> <strong>{row ? displayName(row) : v.id}</strong> — {v.reason}</li>;
+            })}
+          </ul>
+        </div>
+      ) : null}
 
       <form className={styles.ai} onSubmit={(e) => { e.preventDefault(); runAi(); }}>
         <span className={styles.aiOrb} aria-hidden="true"><Sparkle size={12} weight="fill" /></span>
@@ -254,6 +303,7 @@ export function DataTable(props: DataTableProps) {
           <table className={styles.table}>
             <thead>
               <tr>
+                {props.selectable ? <th scope="col" className={styles.selectCol}><label className={styles.srOnly}>Sayfadaki tümünü seç</label><input type="checkbox" aria-label="Sayfadaki tümünü seç" checked={allPageSelected} onChange={toggleAllOnPage} /></th> : null}
                 {columns.map((col) => {
                   const active = sort?.key === col.key;
                   return (
@@ -271,12 +321,16 @@ export function DataTable(props: DataTableProps) {
               </tr>
             </thead>
             <tbody>
-              {pageRows.map((row) => (
-                <tr key={String(row[rowKey])}>
-                  {columns.map((col) => <td key={col.key} style={{ textAlign: col.align ?? "start" }}>{cellValue(row, col)}</td>)}
-                  {rowAi ? <td className={styles.aiCol}>{rowAi(row)}</td> : null}
-                </tr>
-              ))}
+              {pageRows.map((row) => {
+                const id = String(row[rowKey]);
+                return (
+                  <tr key={id} aria-selected={props.selectable ? selected.has(id) : undefined}>
+                    {props.selectable ? <td className={styles.selectCol}><input type="checkbox" aria-label={`${displayName(row)} seç`} checked={selected.has(id)} onChange={() => toggleRow(id)} /></td> : null}
+                    {columns.map((col) => <td key={col.key} style={{ textAlign: col.align ?? "start" }}>{cellValue(row, col)}</td>)}
+                    {rowAi ? <td className={styles.aiCol}>{rowAi(row)}</td> : null}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

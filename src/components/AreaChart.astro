@@ -15,9 +15,14 @@ interface Props {
   unit?: string;
   height?: number;
   area?: boolean;
+  /** AI sapma tespiti: ilk seri üzerinde uç noktaları işaretle. */
+  markAnomalies?: boolean;
 }
 
-const { labels, series, unit = "", height = 200, area = true } = Astro.props;
+import { findAnomalies } from "../ai/anomaly";
+
+const { labels, series, unit = "", height = 200, area = true, markAnomalies = false } = Astro.props;
+const anomalies = markAnomalies && series[0] ? findAnomalies(series[0].values) : [];
 const palette = ["var(--series-1)", "var(--series-2)", "var(--series-3)", "var(--series-4)"];
 const width = 640;
 const pad = { top: 16, right: 54, bottom: 26, left: 10 };
@@ -58,11 +63,18 @@ const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1).repla
         <text x={x(i)} y={height - 8} font-size="10" text-anchor="middle" fill="var(--ink-faint)">{l}</text>
       ) : null
     ))}
+    {anomalies.map((i) => (
+      <g aria-hidden="true">
+        <circle cx={x(i)} cy={y(series[0].values[i])} r="7" fill="none" stroke="var(--critical)" stroke-width="1.5" stroke-dasharray="2 2" />
+        <circle cx={x(i)} cy={y(series[0].values[i]) - 12} r="2" fill="var(--critical)" />
+      </g>
+    ))}
   </svg>
   <figcaption class="chart-legend">
     {paths.map((p) => (
       <span class="chart-legend-item"><span class="chart-swatch" style={`background:${p.color}`}></span>{p.name}</span>
     ))}
+    {anomalies.length ? <span class="chart-legend-item chart-anomaly"><span class="chart-swatch chart-anomaly-dot"></span>AI: {anomalies.length} sapma işaretlendi</span> : null}
   </figcaption>
 </figure>
 
@@ -71,4 +83,6 @@ const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1).repla
   .chart-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--ink-muted); }
   .chart-legend-item { display: inline-flex; align-items: center; gap: 6px; }
   .chart-swatch { inline-size: 10px; block-size: 10px; border-radius: 3px; }
+  .chart-anomaly { color: var(--critical-ink); font-weight: 700; }
+  .chart-anomaly-dot { border-radius: 100%; background: var(--critical); }
 </style>

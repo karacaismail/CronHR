@@ -41,7 +41,7 @@ const heat = Array.from({ length: 42 }, (_, i) => [0, 0, 1, 0, 2, 0, 0, 1, 0, 3,
 
   <div class="grid grid-main">
     <Panel title="İzin talepleri" sub="AI görüşü, filtre ve doğal dil sorgusu" flush>
-      <div class="panel-body"><DataTable client:load preset="leaves" title="İzin talepleri" rows={GEN.leaves} pageSize={10} /></div>
+      <div class="panel-body"><DataTable client:load preset="leaves" title="İzin talepleri" rows={GEN.leaves} pageSize={10} selectable /></div>
     </Panel>
 
     <div class="stack" style="gap:16px">
@@ -67,6 +67,6 @@ const heat = Array.from({ length: 42 }, (_, i) => [0, 0, 1, 0, 2, 0, 0, 1, 0, 3,
   </div>
 
   <Panel title="Devamsızlık trendi" sub="Son 12 ay">
-    <AreaChart labels={MONTHS} series={[{ name: "Devamsızlık %", values: ABSENCE_TREND }]} unit="%" height={170} />
+    <AreaChart labels={MONTHS} series={[{ name: "Devamsızlık %", values: ABSENCE_TREND }]} unit="%" height={170} markAnomalies />
   </Panel>
 </AdminLayout>

@@ -5,7 +5,7 @@ import Sidebar from "../components/Sidebar.astro";
 import SubNav from "../components/SubNav.astro";
 import CommandBar from "../islands/CommandBar";
 import { resolvePage } from "../data/nav";
-import { Buildings, CaretUpDown, List, Plus, Question, SquaresFour, Tray, Users } from "@phosphor-icons/react";
+import { List, Plus, Question, SquaresFour, Tray, Users } from "@phosphor-icons/react";
 
 interface Props {
   pageId: string;
@@ -55,11 +55,6 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
         <header class="topbar" aria-label="Üst çubuk">
           <div class="topbar-side topbar-left">
             <button type="button" class="icon-btn menu-btn" data-drawer-toggle aria-label="Menüyü aç" aria-controls="kenar-cubugu" aria-expanded="false"><List size={18} /></button>
-            <button type="button" class="context-switch" title="Tenant / şirket değiştir">
-              <Buildings size={15} />
-              <span class="context-text"><span class="context-tenant">Karaca Holding</span><span class="context-company">Karaca Teknoloji A.Ş.</span></span>
-              <CaretUpDown size={13} color="var(--ink-faint)" />
-            </button>
           </div>
           <CommandBar client:load currentPageId={pageId} section={section} base={base} />
           <div class="topbar-side topbar-right">

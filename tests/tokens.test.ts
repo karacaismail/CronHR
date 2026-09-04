@@ -161,4 +161,16 @@ describe("Flat 2.0 sözleşmesi", () => {
     expect(rule, ".row-between kuralı bulunamadı").not.toBeNull();
     expect(rule![1]).toMatch(/flex-wrap:\s*wrap/);
   });
+
+  it("üst çubuğun (.topbar) sayfa zemininden ayrı, belirgin bir sınırı vardır (yüzey rengi + alt kenarlık)", () => {
+    const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
+    const rule = css.match(/\.topbar\s*\{([^}]*)\}/);
+    expect(rule, ".topbar kuralı bulunamadı").not.toBeNull();
+    const body = rule![1];
+    // Sayfa zemini (--bg) ile aynı renk kullanılırsa üst çubuğun nerede
+    // başlayıp bittiği belirsizleşir (regresyon).
+    expect(body).toMatch(/background:\s*var\(--surface\)/);
+    expect(body).not.toMatch(/background:\s*var\(--bg\)/);
+    expect(body).toMatch(/border-bottom:\s*1px solid var\(--border\)/);
+  });
 });

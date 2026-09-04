@@ -1,5 +1,6 @@
 ---
-import { CaretDown, Lightning } from "@phosphor-icons/react";
+import { CaretDown } from "@phosphor-icons/react";
+import CronHRMark from "./CronHRMark";
 import { NAV_TREE, resolvePage } from "../data/nav";
 import { TAGLINES } from "../data/taglines";
 import ThemeSwitcher from "./ThemeSwitcher.astro";
@@ -18,7 +19,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 <aside class="sidebar" id="kenar-cubugu" aria-label="Kenar çubuğu">
   <a class="brand" href={`${base}/`}>
     <span class="brand-row">
-      <span class="brand-mark"><Lightning size={20} weight="fill" /></span>
+      <span class="brand-mark"><CronHRMark size={20} /></span>
       <span class="brand-name">CronHR</span>
     </span>
     <span class="brand-tag" id="marka-motto">{TAGLINES[0]}</span>

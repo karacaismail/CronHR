@@ -12,7 +12,7 @@ const { name, sub, hue = 0, size = 30 } = Astro.props;
 ---
 
 <span class="person">
-  <span class="avatar" data-hue={hue % 6} style={`inline-size:${size}px;block-size:${size}px`} aria-hidden="true">{initials(name)}</span>
+  <span class="avatar" data-hue={hue % 9} style={`inline-size:${size}px;block-size:${size}px`} aria-hidden="true">{initials(name)}</span>
   <span style="min-width:0">
     <span class="person-name">{name}</span>
     {sub ? <span class="person-sub" style="display:block">{sub}</span> : null}

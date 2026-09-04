@@ -1,0 +1,21 @@
+export interface CronHRMarkProps {
+  size?: number;
+}
+
+/**
+ * CronHR marka işareti — kaynak: cblogo.png (potrace ile vektörleştirildi,
+ * src/data/logo-source.md'de not edilmiştir). currentColor kullanır; rengi
+ * çağıran belirler (bkz. Sidebar .brand-mark, CommandBar logo prop).
+ */
+export function CronHRMark({ size = 20 }: CronHRMarkProps) {
+  return (
+    <svg viewBox="0 0 312 204" width={size} height={size} xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <g transform="translate(-183.12,328) scale(0.1,-0.1)" fill="currentColor">
+        <path d="M3240 3078 c-2 -932 1 -1133 16 -1203 34 -149 120 -294 246 -409 456 -423 1215 -226 1406 364 116 356 -26 772 -332 974 -159 105 -278 140 -471 138 -72 0 -155 -7 -185 -14 l-55 -13 -3 -178 c-1 -97 1 -177 5 -177 5 0 24 4 43 10 69 18 186 27 254 19 236 -29 416 -238 418 -484 2 -215 -130 -401 -338 -476 -83 -31 -235 -31 -318 0 -128 46 -224 134 -283 258 -46 95 -50 148 -59 748 -4 264 -8 489 -9 500 -1 11 -3 48 -4 83 l-1 62 -165 0 -165 0 0 -202z" />
+        <path d="M2520 2935 c-388 -78 -661 -395 -687 -794 -27 -412 259 -792 662 -881 112 -24 275 -26 383 -4 96 20 223 79 281 130 l43 39 -81 147 -82 146 -76 -34 c-123 -56 -211 -76 -317 -72 -124 4 -200 40 -301 141 -171 171 -201 365 -88 579 74 142 204 238 350 258 82 11 200 0 293 -29 l60 -19 0 179 0 179 -27 11 c-93 36 -294 48 -413 24z" />
+      </g>
+    </svg>
+  );
+}
+
+export default CronHRMark;

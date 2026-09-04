@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Timer } from "@phosphor-icons/react";
+import CronHRMark from "../components/CronHRMark";
 import { AiCommandCard, type AiCommandMenuItem } from "../components/AiCommandCard";
 import { COMMAND_CARD_ITEMS, resolvePage } from "../data/nav";
 import { simulateHrQuery } from "./hrReports";
@@ -75,7 +75,7 @@ export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
     <AiCommandCard
       expanded={expanded}
       onExpandedChange={setExpanded}
-      logo={<Timer size={18} weight="fill" />}
+      logo={<CronHRMark size={18} />}
       logoLabel="CronHR"
       breadcrumbs={breadcrumbs}
       menuItems={menuItems}

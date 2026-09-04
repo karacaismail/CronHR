@@ -183,3 +183,56 @@ describe("Flat 2.0 sözleşmesi", () => {
     expect(body).toMatch(/border-bottom:\s*1px solid var\(--border\)/);
   });
 });
+
+describe("Primary ölçek ('cold black') ve kategorik gökkuşağı paleti", () => {
+  it("light temada --accent-1..9 basamaklı bir ölçek tanımlıdır; primary (--accent) ölçeğin en koyusudur", () => {
+    for (let i = 1; i <= 9; i++) {
+      expect(light[`accent-${i}`], `--accent-${i} tanımlı`).toBeDefined();
+    }
+    expect(light.accent.toLowerCase()).toBe(light["accent-9"].toLowerCase());
+    expect(light["accent-9"].toLowerCase()).toBe("#0b0f19");
+  });
+
+  it("9 kategorik avatar tonu vardır, her biri beyaz baş harfle AA (>=4.5:1) sağlar", () => {
+    const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
+    const hues = [...css.matchAll(/\.avatar\[data-hue="(\d)"\]\s*\{\s*background:\s*(#[0-9a-fA-F]{6});/g)];
+    expect(hues.length).toBe(9);
+    const seen = new Set<string>();
+    for (const [, idx, hex] of hues) {
+      seen.add(idx);
+      const r = contrast(hex, "#ffffff");
+      expect(r, `hue ${idx} (${hex}) beyaz üstünde >=4.5:1`).toBeGreaterThanOrEqual(4.5);
+    }
+    expect(seen.size).toBe(9);
+  });
+
+  it("a11y temasında 9 avatar tonunun da AAA (>=7:1) karşılığı vardır", () => {
+    const themesCss = readFileSync(join(ROOT, "src/styles/themes.css"), "utf8");
+    const hues = [...themesCss.matchAll(/:root\[data-theme="a11y"\] \.avatar\[data-hue="(\d)"\]\s*\{\s*background:\s*(#[0-9a-fA-F]{6});/g)];
+    expect(hues.length).toBe(9);
+    for (const [, idx, hex] of hues) {
+      const r = contrast(hex, "#ffffff");
+      expect(r, `a11y hue ${idx} (${hex}) beyaz üstünde >=7:1`).toBeGreaterThanOrEqual(7);
+    }
+  });
+
+  it("avatar bileşenleri artık 9 tona göre döngüye giriyor (% 6 kalmadı)", () => {
+    const files = [
+      "src/components/Avatar.astro",
+      "src/pages/calisanlar/[id]/index.astro",
+      "src/islands/tablePresets.tsx",
+    ];
+    for (const f of files) {
+      const content = readFileSync(join(ROOT, f), "utf8");
+      expect(content, `${f} içinde % 9 bekleniyor`).toMatch(/% 9/);
+    }
+  });
+
+  it("series-1..4 (grafik) renkleri birbirinden farklıdır ve yüzeyde >=3:1 sağlar", () => {
+    const values = [1, 2, 3, 4].map((i) => light[`series-${i}`]);
+    expect(new Set(values.map((v) => v.toLowerCase())).size).toBe(4);
+    for (const v of values) {
+      expect(contrast(v, light.surface)).toBeGreaterThanOrEqual(3);
+    }
+  });
+});

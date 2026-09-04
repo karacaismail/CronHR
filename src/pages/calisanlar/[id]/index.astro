@@ -29,7 +29,7 @@ const statusTone = { Aktif: "good", Deneme: "info", "İzinli": "neutral", "Ayrı
   </Fragment>
 
   <div class="panel profile-head">
-    <span class="avatar" data-hue={e.hue % 6} style="inline-size:56px;block-size:56px;font-size:16px" aria-hidden="true">{initials(e.name)}</span>
+    <span class="avatar" data-hue={e.hue % 9} style="inline-size:56px;block-size:56px;font-size:16px" aria-hidden="true">{initials(e.name)}</span>
     <div style="min-width:0">
       <div class="row" style="gap:8px;flex-wrap:wrap"><span class="strong" style="font-size:15px">{e.name}</span><Badge tone={statusTone[e.status]}>{e.status}</Badge><Badge tone={riskTone(e.attritionRisk)}>Risk {e.attritionRisk} · {riskLabel(e.attritionRisk)}</Badge></div>
       <div class="muted small" style="margin-block-start:4px">{d.employeeNo} · {d.employment.entity} · {d.employment.workplace} · Yönetici: {d.employment.manager} · Başlangıç {formatDate(e.startDate)}</div>

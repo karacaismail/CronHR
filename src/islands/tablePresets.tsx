@@ -31,7 +31,7 @@ function Badge({ tone, children, plain }: { tone: Tone; children: ReactNode; pla
 function Person({ name, sub, hue }: { name: string; sub?: string; hue?: number }) {
   return (
     <span className="person">
-      <span className="avatar" data-hue={(hue ?? 0) % 6} aria-hidden="true" style={{ inlineSize: 28, blockSize: 28 }}>{initials(name)}</span>
+      <span className="avatar" data-hue={(hue ?? 0) % 9} aria-hidden="true" style={{ inlineSize: 28, blockSize: 28 }}>{initials(name)}</span>
       <span style={{ minWidth: 0 }}>
         <span className="person-name">{name}</span>
         {sub ? <span className="person-sub" style={{ display: "block" }}>{sub}</span> : null}

@@ -1,9 +1,28 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CronHRMark from "../components/CronHRMark";
 import { AiCommandCard, type AiCommandMenuItem } from "../components/AiCommandCard";
+import { EXPAND_DURATION_MS } from "../components/AiCommandCard/AiCommandCard.motion";
 import { COMMAND_CARD_ITEMS, resolvePage } from "../data/nav";
 import { simulateHrQuery } from "./hrReports";
 import NotificationsMenu from "./NotificationsMenu";
+
+/**
+ * "AI'ya sor" çipleri (data-ask-ai) `cronhr:ask` olayını sorgu metniyle
+ * fırlatır; kart genişledikten sonra kompozitörün gerçek <input>'una
+ * yazıp formu programatik olarak gönderiyoruz — kilitli AiCommandCard'ın
+ * kaynağına dokunmadan, yalnızca zaten render ettiği herkese açık DOM'u
+ * (data-slot="ai-search-composer") kullanıyoruz.
+ */
+function submitIntoComposer(query: string): boolean {
+  const form = document.querySelector<HTMLFormElement>('[data-slot="ai-search-composer"]');
+  const input = form?.querySelector<HTMLInputElement>("input");
+  if (!form || !input) return false;
+  const setValue = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+  setValue?.call(input, query);
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  form.requestSubmit();
+  return true;
+}
 
 interface CommandBarProps {
   /** Aktif sayfa kimliği (nav.tsx: grup ya da yaprak). */
@@ -25,9 +44,26 @@ export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
   const [reducedByTheme, setReducedByTheme] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifAnchor, setNotifAnchor] = useState<DOMRect | null>(null);
+  const askTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
 
   useEffect(() => {
-    const onAsk = () => setExpanded(true);
+    const onAsk = (event: Event) => {
+      const query = (event as CustomEvent<{ query?: string }>).detail?.query?.trim();
+      if (askTimeoutRef.current) clearTimeout(askTimeoutRef.current);
+      if (!query) {
+        setExpanded(true);
+        return;
+      }
+      if (expandedRef.current) {
+        // Kart zaten açık: kompozitör zaten görünür, geçiş beklemeden gönder.
+        submitIntoComposer(query);
+        return;
+      }
+      setExpanded(true);
+      askTimeoutRef.current = setTimeout(() => submitIntoComposer(query), EXPAND_DURATION_MS + 60);
+    };
     const readTheme = () => setReducedByTheme(document.documentElement.dataset.theme === "a11y");
     readTheme();
     window.addEventListener("cronhr:ask", onAsk);
@@ -35,6 +71,7 @@ export function CommandBar({ currentPageId, section, base }: CommandBarProps) {
     return () => {
       window.removeEventListener("cronhr:ask", onAsk);
       window.removeEventListener("cronhr:theme", readTheme);
+      if (askTimeoutRef.current) clearTimeout(askTimeoutRef.current);
     };
   }, []);
 

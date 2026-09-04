@@ -115,4 +115,16 @@ describe("Marka satırı: logo/ad, mottodan bağımsız sabit bir satırdır (re
     const markRule = css.match(/\.brand-mark\s*\{([^}]*)\}/);
     expect(markRule![1]).toMatch(/flex:\s*none/);
   });
+
+  it(".brand-tag için 3 satırlık sabit alan ayrılmıştır (kısa metin bile aynı yüksekliği kaplar)", () => {
+    const css = read("src/styles/global.css");
+    const tagRule = css.match(/\.brand-tag\s*\{([^}]*)\}/);
+    expect(tagRule, ".brand-tag kuralı bulunamadı").not.toBeNull();
+    const body = tagRule![1];
+    // min-block-size, 1 satırlık metinde bile alanı 3 satıra sabitler;
+    // line-clamp, olası bir 4. satırı köşeye sıkışıp taşırmadan keser.
+    expect(body).toMatch(/min-block-size:\s*calc\(1\.35em \* 3\)/);
+    expect(body).toMatch(/-webkit-line-clamp:\s*3/);
+    expect(body).toMatch(/overflow:\s*hidden/);
+  });
 });

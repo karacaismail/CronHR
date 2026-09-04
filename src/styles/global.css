@@ -191,13 +191,19 @@ svg {
 }
 
 .brand-tag {
-  display: block;
+  display: -webkit-box;
   font-size: 11px;
   font-weight: 600;
   color: var(--ink-faint);
   letter-spacing: 0.02em;
   text-transform: uppercase;
   line-height: 1.35;
+  /* Motto tek satır da olsa üç satır da sarsa, bu alan hep aynı yükseklik:
+     altındaki tenant anahtarı/menü asla yukarı-aşağı kaymaz (regresyon). */
+  min-block-size: calc(1.35em * 3);
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .nav {

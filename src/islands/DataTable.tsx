@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowDown, ArrowUp, ArrowsDownUp, CaretLeft, CaretRight, Export, Funnel, MagnifyingGlass, Sparkle, X } from "@phosphor-icons/react";
+import { ArrowDown, ArrowUp, ArrowsDownUp, CaretLeft, CaretRight, Export, Funnel, MagnifyingGlass, Plus, Sparkle, X } from "@phosphor-icons/react";
 import { bulkVerdicts, type BulkResult } from "../ai/bulk";
 import { employeeById } from "../data/generate";
 import { applyAiQuery, describeAiQuery, matchesFilters, matchesSearch, parseAiQuery, sortRows } from "./aiQuery";
@@ -7,6 +7,23 @@ import type { ColumnDef, FilterValue, NumberRange, Row, TableQuery } from "./tab
 import { PRESETS, type PresetName } from "./tablePresets";
 import styles from "./DataTable.module.css";
 import { Select } from "./Select";
+import { RowActionsMenu } from "./RowActionsMenu";
+import { RecordForm } from "./RecordForm";
+
+function slug(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "table";
+}
+
+function loadStoredRows(key: string, fallback: readonly object[]): Row[] {
+  if (typeof window === "undefined") return fallback as Row[];
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (raw) return JSON.parse(raw) as Row[];
+  } catch {
+    /* bozuk depoyu yoksay */
+  }
+  return fallback as Row[];
+}
 
 export interface DataTableProps {
   title?: string;
@@ -75,10 +92,28 @@ export function DataTable(props: DataTableProps) {
   const filtersTriggerRef = useRef<HTMLButtonElement>(null);
   const filtersDialogRef = useRef<HTMLDivElement>(null);
 
+  const storageKey = `cronhr-rows-${slug(props.preset ?? props.title ?? "table")}-v1`;
+  const [rows, setRows] = useState<Row[]>(() => loadStoredRows(storageKey, props.rows));
+  const [formMode, setFormMode] = useState<"create" | Row | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
+  const [crudNote, setCrudNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try { window.localStorage.setItem(storageKey, JSON.stringify(rows)); } catch { /* depo dolu/erişilemez olabilir */ }
+  }, [rows, storageKey]);
+
+  useEffect(() => {
+    if (!deleteTarget) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDeleteTarget(null); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [deleteTarget]);
+
   const filtered = useMemo(() => {
-    const rows = (props.rows as readonly Row[]).filter((r) => matchesFilters(r, columns, filters) && matchesSearch(r, columns, search));
-    return sortRows(rows, columns, sort);
-  }, [props.rows, columns, filters, search, sort]);
+    const visible = rows.filter((r) => matchesFilters(r, columns, filters) && matchesSearch(r, columns, search));
+    return sortRows(visible, columns, sort);
+  }, [rows, columns, filters, search, sort]);
 
   const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
@@ -143,7 +178,7 @@ export function DataTable(props: DataTableProps) {
       if (q.sort) setSort(q.sort);
       setSearch(q.search);
       setPage(0);
-      const result = applyAiQuery(props.rows as readonly Row[], columns, q);
+      const result = applyAiQuery(rows, columns, q);
       setAiNote(`${describeAiQuery(q, columns)} · ${result.length} kayıt`);
       setAiThinking(false);
     }, 450);
@@ -190,6 +225,32 @@ export function DataTable(props: DataTableProps) {
   const closeFilters = () => { setShowFilters(false); filtersTriggerRef.current?.focus(); };
   const clearFiltersOnly = () => { setFilters({}); setPage(0); };
 
+  const openCreate = () => setFormMode("create");
+  const openEdit = (row: Row) => setFormMode(row);
+  const closeForm = () => setFormMode(null);
+
+  const submitForm = (values: Row) => {
+    if (formMode === "create") {
+      const suppliedId = values[rowKey];
+      const id = suppliedId !== undefined && suppliedId !== "" ? String(suppliedId) : `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+      setRows((rs) => [{ ...values, [rowKey]: id }, ...rs]);
+      setCrudNote("Yeni kayıt eklendi.");
+    } else if (formMode) {
+      const id = String((formMode as Row)[rowKey]);
+      setRows((rs) => rs.map((r) => (String(r[rowKey]) === id ? { ...r, ...values, [rowKey]: id } : r)));
+      setCrudNote("Kayıt güncellendi.");
+    }
+    setFormMode(null);
+  };
+
+  const runDelete = () => {
+    if (!deleteTarget) return;
+    const name = displayName(deleteTarget);
+    setRows((rs) => rs.filter((r) => String(r[rowKey]) !== String(deleteTarget[rowKey])));
+    setCrudNote(`${name} silindi.`);
+    setDeleteTarget(null);
+  };
+
   useEffect(() => {
     if (!showFilters) return;
     filtersDialogRef.current?.querySelector<HTMLElement>("input, button")?.focus();
@@ -207,6 +268,9 @@ export function DataTable(props: DataTableProps) {
           <input type="search" aria-label="Tabloda ara" placeholder="Ara" value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
         </label>
         <div className={styles.toolbarActions}>
+          <button type="button" className={styles.btnPrimary} onClick={openCreate}>
+            <Plus size={14} weight="bold" aria-hidden="true" /> Yeni ekle
+          </button>
           {filterableCols.length ? (
             <button ref={filtersTriggerRef} type="button" className={styles.btn} aria-haspopup="dialog" aria-expanded={showFilters} aria-controls={`${uid}-filters`} onClick={() => setShowFilters((v) => !v)}>
               <Funnel size={14} aria-hidden="true" /> Filtreler{activeFilterLabels.length ? <span className={styles.count}>{activeFilterLabels.length}</span> : null}
@@ -246,9 +310,10 @@ export function DataTable(props: DataTableProps) {
         <button type="submit" className={styles.aiBtn} disabled={aiThinking}>{aiThinking ? "Düşünüyor" : "Uygula"}</button>
       </form>
       {aiNote ? <p className={styles.aiNote} role="status">AI: {aiNote}</p> : null}
+      {crudNote ? <p className={styles.aiNote} role="status">{crudNote}</p> : null}
       {preset?.aiChips?.length ? (
         <div className={styles.chips}>
-          {preset.aiChips.map((c) => <button key={c} type="button" className={styles.chip} onClick={() => { setAiText(c); const q = parseAiQuery(c, columns); setFilters(q.filters); if (q.sort) setSort(q.sort); setSearch(q.search); setPage(0); setAiNote(`${describeAiQuery(q, columns)} · ${applyAiQuery(props.rows as readonly Row[], columns, q).length} kayıt`); }}><Sparkle size={11} weight="fill" aria-hidden="true" />{c}</button>)}
+          {preset.aiChips.map((c) => <button key={c} type="button" className={styles.chip} onClick={() => { setAiText(c); const q = parseAiQuery(c, columns); setFilters(q.filters); if (q.sort) setSort(q.sort); setSearch(q.search); setPage(0); setAiNote(`${describeAiQuery(q, columns)} · ${applyAiQuery(rows, columns, q).length} kayıt`); }}><Sparkle size={11} weight="fill" aria-hidden="true" />{c}</button>)}
         </div>
       ) : null}
 
@@ -319,7 +384,10 @@ export function DataTable(props: DataTableProps) {
             <li key={String(row[rowKey])} className={styles.card}>
               <div className={styles.cardHead}>
                 <div className={styles.cardPrimary}>{cellValue(row, primaryCol)}</div>
-                {rowAi ? rowAi(row) : null}
+                <span className={styles.cardActions}>
+                  {rowAi ? rowAi(row) : null}
+                  <RowActionsMenu label={displayName(row)} onEdit={() => openEdit(row)} onDelete={() => setDeleteTarget(row)} />
+                </span>
               </div>
               <dl className={styles.cardBody}>
                 {columns.filter((c) => c !== primaryCol && !c.hideOnCards).map((c) => (
@@ -352,6 +420,7 @@ export function DataTable(props: DataTableProps) {
                   );
                 })}
                 {rowAi ? <th scope="col" className={styles.aiCol}>AI</th> : null}
+                <th scope="col" className={styles.aiCol}><span className={styles.srOnly}>İşlemler</span></th>
               </tr>
             </thead>
             <tbody>
@@ -362,6 +431,7 @@ export function DataTable(props: DataTableProps) {
                     {props.selectable ? <td className={styles.selectCol}><input type="checkbox" aria-label={`${displayName(row)} seç`} checked={selected.has(id)} onChange={() => toggleRow(id)} /></td> : null}
                     {columns.map((col) => <td key={col.key} style={{ textAlign: col.align ?? "start" }}>{cellValue(row, col)}</td>)}
                     {rowAi ? <td className={styles.aiCol}>{rowAi(row)}</td> : null}
+                    <td className={styles.aiCol}><RowActionsMenu label={displayName(row)} onEdit={() => openEdit(row)} onDelete={() => setDeleteTarget(row)} /></td>
                   </tr>
                 );
               })}
@@ -381,6 +451,35 @@ export function DataTable(props: DataTableProps) {
           <button type="button" className={styles.iconBtn} aria-label="Sonraki sayfa" disabled={safePage >= pageCount - 1} onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}><CaretRight size={14} /></button>
         </div>
       </div>
+
+      {formMode ? (
+        <RecordForm
+          title={formMode === "create" ? `${props.title ?? "Kayıt"} · yeni kayıt` : `${props.title ?? "Kayıt"} · düzenle`}
+          columns={columns}
+          rowKey={rowKey}
+          initial={formMode === "create" ? null : (formMode as Row)}
+          onCancel={closeForm}
+          onSubmit={submitForm}
+        />
+      ) : null}
+
+      {deleteTarget ? (
+        <div className={`${styles.filtersBackdrop} overlay-scrim`} onClick={() => setDeleteTarget(null)}>
+          <div role="alertdialog" aria-modal="true" aria-label="Silme onayı" className={styles.filtersModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.filtersHead}>
+              <h3>Kaydı sil</h3>
+              <button type="button" className={styles.iconBtn} aria-label="Kapat" onClick={() => setDeleteTarget(null)}><X size={14} /></button>
+            </div>
+            <div className={styles.filters}>
+              <p>{displayName(deleteTarget)} kalıcı olarak silinsin mi? Bu işlem geri alınamaz.</p>
+            </div>
+            <div className={styles.filtersFoot}>
+              <button type="button" className={`${styles.btn} ${styles.ghost}`} onClick={() => setDeleteTarget(null)}>Vazgeç</button>
+              <button type="button" className={styles.btnDanger} onClick={runDelete}>Sil</button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

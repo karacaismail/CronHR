@@ -45,11 +45,11 @@ describe("Masaüstü mini ray + burger (sol üst) ile aç/kapa", () => {
     expect(rule![1]).toMatch(/background:\s*var\(--surface\)/);
   });
 
-  it("mini rayda etiket/atıf/rozet/alt menü gizlenir (yalnızca simgeler)", () => {
+  it("mini rayda menü (.nav, tüm ikonlarıyla) tamamen gizlenir — yalnızca burger ile açılan tam genişlikte geri görünür", () => {
     const block = desktopBlock(globalCss());
     const hideRule = block.match(/:root:not\(\[data-drawer="open"\]\) \.sidebar \.brand-name,[\s\S]*?\{ display: none; \}/);
     expect(hideRule, "mini ray gizleme kuralı bulunamadı").not.toBeNull();
-    for (const cls of [".brand-name", ".brand-quote", ".nav-label", ".nav-badge", ".nav-caret", ".nav-children", ".context-text"]) {
+    for (const cls of [".brand-name", ".brand-quote", ".nav", ".context-text"]) {
       expect(hideRule![0]).toContain(cls);
     }
   });

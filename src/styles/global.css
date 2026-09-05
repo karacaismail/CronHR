@@ -2457,19 +2457,14 @@ body,
   }
   :root[data-drawer="open"] .drawer-backdrop { opacity: 1; pointer-events: auto; }
 
-  /* Mini ray (varsayılan): yalnızca simgeler — etiket/atıf/rozet/alt menü gizli. */
+  /* Mini ray (varsayılan): tamamen boş, yarı saydam bir şerit — menü
+   * (nav ikonları dahil) yalnızca burger ile açılan tam genişlikte görünür. */
   :root:not([data-drawer="open"]) .sidebar .brand-name,
   :root:not([data-drawer="open"]) .sidebar .brand-quote,
-  :root:not([data-drawer="open"]) .sidebar .nav-label,
-  :root:not([data-drawer="open"]) .sidebar .nav-badge,
-  :root:not([data-drawer="open"]) .sidebar .nav-caret,
-  :root:not([data-drawer="open"]) .sidebar .nav-children,
+  :root:not([data-drawer="open"]) .sidebar .nav,
   :root:not([data-drawer="open"]) .sidebar .context-text { display: none; }
   :root:not([data-drawer="open"]) .brand { align-items: center; }
-  :root:not([data-drawer="open"]) .nav-item,
-  :root:not([data-drawer="open"]) .nav-summary,
-  :root:not([data-drawer="open"]) .sidebar .context-switch { justify-content: center; }
-  :root:not([data-drawer="open"]) .sidebar .context-switch { padding-inline: 0; }
+  :root:not([data-drawer="open"]) .sidebar .context-switch { justify-content: center; padding-inline: 0; }
 
   .content { padding-inline: var(--space-6); padding-block-end: 56px; }
   .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }

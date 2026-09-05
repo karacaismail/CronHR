@@ -32,9 +32,12 @@ describe.skipIf(skip)("dist çıktısı", () => {
     expect(html).not.toMatch(/gradient\(/);
   });
 
-  it("CSS paketlerinde gradient yoktur", () => {
+  it("CSS paketlerinde gradient yoktur (istisna: .is-skeleton parlaklık bandı — bkz. tests/tokens.test.ts)", () => {
     const css = readdirSync(join(DIST, "_astro")).filter((f) => f.endsWith(".css"));
-    for (const f of css) expect(readFileSync(join(DIST, "_astro", f), "utf8")).not.toMatch(/gradient\(/);
+    for (const f of css) {
+      const content = readFileSync(join(DIST, "_astro", f), "utf8").replace(/\.is-skeleton:{1,2}after\{[^}]*\}/g, "");
+      expect(content).not.toMatch(/gradient\(/);
+    }
   });
 
   it.skipIf(skip)("Görünüm (tema) anahtarı yalnızca Ayarlar sayfasındadır", () => {

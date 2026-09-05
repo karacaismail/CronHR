@@ -20,6 +20,24 @@ import { formatLike, parseNumeric, readMotionContext, revealTargets, shouldAnima
 gsap.registerPlugin(ScrollTrigger);
 
 const EASE = "power2.out";
+const SKELETON_DELAY_MS = 550;
+
+/** Gerçek gecikme yok (statik demo veri) — his için kasıtlı, kısa bir bekleme. */
+function skeletonThenReveal() {
+  const groups = revealTargets(document);
+  for (const group of groups) for (const el of group) el.classList.add("is-skeleton");
+  window.setTimeout(() => {
+    for (const group of groups) for (const el of group) el.classList.remove("is-skeleton");
+    revealPage();
+    countUp();
+    drawCharts();
+    parallax();
+  }, SKELETON_DELAY_MS);
+}
+
+function clearSkeletons() {
+  for (const el of document.querySelectorAll(".is-skeleton")) el.classList.remove("is-skeleton");
+}
 
 function revealPage() {
   const groups = revealTargets(document);
@@ -96,6 +114,7 @@ function microFeedback() {
 /** Güvenlik payı: rAF durursa (arka plan sekmesi, gizli pencere) içerik
  * 1,6 sn içinde yine de görünür olur; animasyon asla içeriği rehin almaz. */
 function finishAll() {
+  clearSkeletons();
   for (const t of gsap.globalTimeline.getChildren(true, true, true)) {
     if (!(t as { scrollTrigger?: unknown }).scrollTrigger) t.progress(1);
   }
@@ -114,15 +133,13 @@ export function startMotion() {
   document.documentElement.dataset.motion = shouldAnimate(ctx) ? "on" : "off";
   if (!shouldAnimate(ctx)) return;
   safetyNet();
-  revealPage();
-  countUp();
-  drawCharts();
-  parallax();
+  skeletonThenReveal();
   microFeedback();
   window.addEventListener("cronhr:theme", () => {
     const next = readMotionContext();
     document.documentElement.dataset.motion = shouldAnimate(next) ? "on" : "off";
     if (!shouldAnimate(next)) {
+      clearSkeletons();
       ScrollTrigger.getAll().forEach((t) => t.kill());
       gsap.globalTimeline.clear();
       gsap.set(".content > *, .grid > *, .ai-brief-orb, .page-head", { clearProps: "all" });

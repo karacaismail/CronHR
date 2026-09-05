@@ -78,14 +78,15 @@ describe("renk sözleşmesi", () => {
 describe("Flat 2.0 sözleşmesi", () => {
   const files = walk(join(ROOT, "src"), [".css", ".astro", ".tsx", ".ts"]);
 
-  it("hiçbir kaynakta gradient, blur, iç gölge, text-shadow yok (tek istisna: modal perdesi .overlay-scrim)", () => {
+  it("hiçbir kaynakta gradient, blur, iç gölge, text-shadow yok (istisnalar: modal perdesi .overlay-scrim, iskelet parlaklığı .is-skeleton::after)", () => {
     const bad = files.filter((f) => {
       let content = readFileSync(f, "utf8");
       if (f.endsWith("global.css")) {
         // .overlay-scrim: her modalın ortak arka plan perdesi (blur 2px + soğuk
-        // gri %30). Flat 2.0'ın gradient/blur yasağının tek, kasıtlı istisnası;
-        // bkz. tests/overlay.test.ts.
-        content = content.replace(/\.overlay-scrim\s*{[^}]*}/g, "");
+        // gri %30). .is-skeleton::after: yükleme iskeletindeki kayan parlaklık
+        // bandı (kullanıcı: "skeleton shimmer" — kasıtlı, işlevsel). Flat 2.0'ın
+        // gradient/blur yasağının iki kasıtlı istisnası; bkz. tests/overlay.test.ts.
+        content = content.replace(/\.overlay-scrim\s*{[^}]*}/g, "").replace(/\.is-skeleton::after\s*{[^}]*}/g, "");
       }
       return /gradient\(|backdrop-filter|filter: ?blur|text-shadow|inset 0 [1-9-]/.test(content);
     });

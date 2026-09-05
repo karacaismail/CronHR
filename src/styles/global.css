@@ -12,6 +12,8 @@
   --surface-sunken: #eff1f5;
   --border: #e3e6eb;
   --border-strong: #d0d4db;
+  --skeleton-base: #eceef2;
+  --skeleton-shine: rgba(255, 255, 255, 0.8);
   --ink: #1c1e21;
   --ink-2: #3c4250;
   --ink-muted: #5b6371;
@@ -2309,6 +2311,56 @@ body,
   transition-property: background-color, color, border-color;
   transition-duration: 200ms;
   transition-timing-function: ease;
+}
+
+/* ------------------------------------------------- iskelet (skeleton) shimmer
+ * Sayfa her yüklendiğinde/gezinildiğinde .content'in doğrudan çocukları kısa
+ * bir süre gerçek görünümleriyle AYNI boyutta bir shimmer bloğuna döner
+ * (motion.ts: skeletonThenReveal). Teknik: içerik DOM'da kalır (düzen/boyut
+ * korunur), yalnızca .is-skeleton * rengi/arka planı şeffaflaşır ve üstüne
+ * kayan bir parlaklık bandı biner — bu yüzden tek bir sınıf HERHANGİ bir
+ * bileşende (KPI, panel, tablo, kart) işe yarar, ayrı bir iskelet şablonu
+ * gerekmez. */
+.is-skeleton {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--radius, 8px);
+  background: var(--skeleton-base) !important;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.is-skeleton * {
+  color: transparent !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  fill: transparent !important;
+  stroke: transparent !important;
+  opacity: 1 !important;
+}
+
+.is-skeleton input::placeholder,
+.is-skeleton textarea::placeholder {
+  color: transparent !important;
+}
+
+.is-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, var(--skeleton-shine) 50%, transparent 70%);
+  background-size: 220% 100%;
+  animation: skeleton-shimmer 1.3s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 160% 0; }
+  100% { background-position: -60% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-skeleton::after { animation: none; }
 }
 
 /* Hareket kapalı (reduced-motion / a11y modu): dönüşüm ve animasyon yok. */

@@ -1,16 +1,38 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { randomSkeletonDelay, SKELETON_DELAY_MAX_MS, SKELETON_DELAY_MIN_MS } from "../src/scripts/motion-core";
 
 /**
- * Her sayfa yüklendiğinde/gezinildiğinde içerik kısa bir süre (550ms) gerçek
- * boyutlarıyla aynı bir "skeleton shimmer" olarak görünür, sonra mevcut giriş
- * koreografisiyle (motion.ts: revealPage) ortaya çıkar. Statik demo veri
- * gerçekten yüklenmiyor — gecikme kasıtlı, his için.
+ * Her sayfa yüklendiğinde/gezinildiğinde içerik rastgele bir süre (550–2550ms
+ * arası, her seferinde farklı) gerçek boyutlarıyla aynı bir "skeleton
+ * shimmer" olarak görünür, sonra mevcut giriş koreografisiyle (motion.ts:
+ * revealPage) ortaya çıkar. Statik demo veri gerçekten yüklenmiyor — gecikme
+ * kasıtlı, his için.
  */
 const ROOT = join(__dirname, "..");
 const globalCss = () => readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
 const motionTs = () => readFileSync(join(ROOT, "src/scripts/motion.ts"), "utf8");
+
+describe("randomSkeletonDelay (saf, DOM'suz)", () => {
+  it("her zaman 550–2550ms aralığındadır", () => {
+    for (let i = 0; i < 200; i++) {
+      const ms = randomSkeletonDelay();
+      expect(ms).toBeGreaterThanOrEqual(SKELETON_DELAY_MIN_MS);
+      expect(ms).toBeLessThanOrEqual(SKELETON_DELAY_MAX_MS);
+    }
+  });
+
+  it("rastgele üreticiye bağlıdır (enjekte edilebilir) ve sınır değerlerde uçları verir", () => {
+    expect(randomSkeletonDelay(() => 0)).toBe(SKELETON_DELAY_MIN_MS);
+    expect(randomSkeletonDelay(() => 1)).toBe(SKELETON_DELAY_MAX_MS);
+  });
+
+  it("sabit bir değer değil — art arda çağrılar değişkenlik gösterir", () => {
+    const values = new Set(Array.from({ length: 20 }, () => randomSkeletonDelay()));
+    expect(values.size).toBeGreaterThan(1);
+  });
+});
 
 describe("İskelet (skeleton) shimmer — gecikmeli ön yükleme", () => {
   it("global.css: .is-skeleton içeriği görünmez kılar (boyut/düzen korunur), * için renk/arka plan şeffaf", () => {
@@ -47,11 +69,17 @@ describe("İskelet (skeleton) shimmer — gecikmeli ön yükleme", () => {
     expect(a11yBlock).toMatch(/--skeleton-base:/);
   });
 
-  it("motion.ts: sayfa yüklenince önce .is-skeleton eklenir, kasıtlı bir gecikmeden sonra kaldırılıp mevcut giriş koreografisi (revealPage/countUp/drawCharts/parallax) tetiklenir", () => {
+  it("motion-core.ts: SKELETON_DELAY_MIN_MS 550, SKELETON_DELAY_MAX_MS 2550", () => {
+    expect(SKELETON_DELAY_MIN_MS).toBe(550);
+    expect(SKELETON_DELAY_MAX_MS).toBe(2550);
+  });
+
+  it("motion.ts: sayfa yüklenince önce .is-skeleton eklenir, randomSkeletonDelay() ile rastgele bir gecikmeden sonra kaldırılıp mevcut giriş koreografisi (revealPage/countUp/drawCharts/parallax) tetiklenir", () => {
     const ts = motionTs();
+    expect(ts).toMatch(/randomSkeletonDelay[\s\S]*?\}\s*from\s*"\.\/motion-core"/);
     expect(ts).toMatch(/function skeletonThenReveal/);
     expect(ts).toMatch(/classList\.add\("is-skeleton"\)/);
-    expect(ts).toMatch(/window\.setTimeout\([\s\S]*?classList\.remove\("is-skeleton"\)[\s\S]*?revealPage\(\);[\s\S]*?countUp\(\);[\s\S]*?drawCharts\(\);[\s\S]*?parallax\(\);[\s\S]*?\},\s*SKELETON_DELAY_MS\)/);
+    expect(ts).toMatch(/window\.setTimeout\([\s\S]*?classList\.remove\("is-skeleton"\)[\s\S]*?revealPage\(\);[\s\S]*?countUp\(\);[\s\S]*?drawCharts\(\);[\s\S]*?parallax\(\);[\s\S]*?\},\s*randomSkeletonDelay\(\)\)/);
     expect(ts).toMatch(/startMotion[\s\S]*?skeletonThenReveal\(\)/);
   });
 

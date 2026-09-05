@@ -48,6 +48,15 @@ export function formatLike(template: string, value: number): string {
   return template.replace(m[0], formatted);
 }
 
+export const SKELETON_DELAY_MIN_MS = 550;
+export const SKELETON_DELAY_MAX_MS = 2550;
+
+/** Her sayfa yüklemesinde farklı: iskelet ne kadar sürede gerçek içeriğe
+ * döner (550–2550ms arası, "veri geliyor" hissi için kasıtlı). */
+export function randomSkeletonDelay(random: () => number = Math.random): number {
+  return SKELETON_DELAY_MIN_MS + random() * (SKELETON_DELAY_MAX_MS - SKELETON_DELAY_MIN_MS);
+}
+
 /** Sayfa akışında sırayla ortaya çıkacak gruplar: her doğrudan blok bir grup;
  * grid içindeki kartlar aynı grupta (stagger). */
 export function revealTargets(root: ParentNode): HTMLElement[][] {

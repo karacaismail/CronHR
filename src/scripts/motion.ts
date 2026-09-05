@@ -15,14 +15,13 @@
  */
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { formatLike, parseNumeric, readMotionContext, revealTargets, shouldAnimate } from "./motion-core";
+import { formatLike, parseNumeric, randomSkeletonDelay, readMotionContext, revealTargets, shouldAnimate } from "./motion-core";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const EASE = "power2.out";
-const SKELETON_DELAY_MS = 550;
 
-/** Gerçek gecikme yok (statik demo veri) — his için kasıtlı, kısa bir bekleme. */
+/** Gerçek gecikme yok (statik demo veri) — his için kasıtlı, rastgele bir bekleme. */
 function skeletonThenReveal() {
   const groups = revealTargets(document);
   for (const group of groups) for (const el of group) el.classList.add("is-skeleton");
@@ -32,7 +31,7 @@ function skeletonThenReveal() {
     countUp();
     drawCharts();
     parallax();
-  }, SKELETON_DELAY_MS);
+  }, randomSkeletonDelay());
 }
 
 function clearSkeletons() {
@@ -112,7 +111,8 @@ function microFeedback() {
 }
 
 /** Güvenlik payı: rAF durursa (arka plan sekmesi, gizli pencere) içerik
- * 1,6 sn içinde yine de görünür olur; animasyon asla içeriği rehin almaz. */
+ * en geç 3,2 sn içinde yine de görünür olur (iskelet gecikmesinin olası en
+ * uzun hali 2,55 sn + pay); animasyon asla içeriği rehin almaz. */
 function finishAll() {
   clearSkeletons();
   for (const t of gsap.globalTimeline.getChildren(true, true, true)) {
@@ -122,7 +122,7 @@ function finishAll() {
 }
 
 function safetyNet() {
-  window.setTimeout(finishAll, 1600);
+  window.setTimeout(finishAll, 3200);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") finishAll();
   }, { once: true });

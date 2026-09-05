@@ -147,7 +147,8 @@ svg {
 }
 
 .sidebar {
-  /* Mobil: kapalı çekmece. 64em ve üstünde yapışkan kolon. */
+  /* Mobil: kapalı çekmece. 64em ve üstünde ~72px yarı saydam mini ray,
+   * burger tıklanınca tam genişliğe büyür (bkz. 64em bloğu). */
   position: fixed;
   inset-block: 0;
   inset-inline-start: 0;
@@ -162,7 +163,12 @@ svg {
   border-right: 1px solid var(--border);
   padding: 18px 12px 14px;
   gap: 18px;
-  overflow-y: auto;
+  /* Dikey taşma yalnızca .nav içinde kayar (bkz. aşağıda); .sidebar'ın
+   * kendisi taşmayı kesmez — aksi halde tek eksenli bir dikey kaydırma
+   * bildirimi, yatay ekseni de örtük olarak kırpmaya çevirir (CSS 11.1.1)
+   * ve TenantSwitcher/AccountMenu açılır menüleri 72px'lik mini rayda
+   * kırpılırdı (regresyon, canlıda ölçülerek doğrulandı). */
+  overflow: visible;
 }
 
 .brand {
@@ -201,26 +207,54 @@ svg {
   line-height: 1.1;
 }
 
+/* Sabit ikinci blok: alıntı + atıf. Alıntı tek satır da olsa üç satır da
+   sarsa, bu alan hep aynı sabit yükseklik: altındaki tenant anahtarı/menü
+   asla kaymaz (regresyon, canlıda ölçülerek doğrulandı). */
+.brand-quote {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  block-size: calc(1.4em * 3 + 22px);
+}
+
 .brand-tag {
   display: block;
   font-size: 11px;
   font-weight: 600;
-  color: var(--ink-faint);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  line-height: 1.35;
-  /* Motto tek satır da olsa üç satır da sarsa, bu alan hep aynı sabit
-     yükseklik: altındaki tenant anahtarı/menü asla kaymaz (regresyon,
-     canlıda ölçülerek doğrulandı). Sabit yükseklik kısa metni doldurmadan
-     bırakır, olası uzun bir mottoyu ise kesip taşırmaz. */
-  block-size: calc(1.35em * 3);
+  color: var(--ink-2);
+  line-height: 1.4;
+  /* Gerçek, atıflı bir söz — cümle düzeninde; BÜYÜK HARF kullanılmaz. */
+  block-size: calc(1.4em * 3);
   overflow: hidden;
+}
+
+.brand-attribution {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  max-inline-size: 100%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--info-soft);
+  color: var(--info-ink);
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: none;
+  block-size: 18px;
 }
 
 .nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  /* Uzun listede yalnızca burası kayar; başlık/tenant/hesap her zaman
+   * sabit kalır (bkz. .sidebar'daki overflow:visible notu). */
+  flex: 1 1 auto;
+  min-block-size: 0;
+  overflow-y: auto;
 }
 
 .nav-group-label {
@@ -2397,9 +2431,46 @@ body,
 }
 
 @media (min-width: 64em) {
-  .app { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
-  .sidebar { position: sticky; top: 0; inset-inline-start: auto; inset-block-end: auto; inline-size: auto; translate: 0 0; z-index: auto; transition: none; box-shadow: none; }
-  .drawer-backdrop, .menu-btn, .bottom-nav { display: none; }
+  /* Masaüstünde kenar çubuğu varsayılan olarak ~72px'lik yarı saydam bir
+   * ikon rayı; sol üstteki burger düğmesi (topbar-left, artık masaüstünde
+   * de görünür) tıklanınca aynı .sidebar tam genişliğe büyür (mobil çekmece
+   * ile aynı data-drawer durumu paylaşılır — arka plan perdesi, Escape, dış
+   * tıklama hepsi bedava gelir). */
+  .app { grid-template-columns: 72px minmax(0, 1fr); }
+  .main { grid-column: 2; }
+  .sidebar {
+    translate: 0 0;
+    inline-size: 72px;
+    padding-inline: 10px;
+    z-index: 90;
+    transition: inline-size 220ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 200ms ease, box-shadow 200ms ease;
+    box-shadow: none;
+    background: color-mix(in srgb, var(--surface) 10%, transparent);
+  }
+  .bottom-nav { display: none; }
+
+  :root[data-drawer="open"] .sidebar {
+    inline-size: var(--sidebar-w);
+    padding-inline: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow-2);
+  }
+  :root[data-drawer="open"] .drawer-backdrop { opacity: 1; pointer-events: auto; }
+
+  /* Mini ray (varsayılan): yalnızca simgeler — etiket/atıf/rozet/alt menü gizli. */
+  :root:not([data-drawer="open"]) .sidebar .brand-name,
+  :root:not([data-drawer="open"]) .sidebar .brand-quote,
+  :root:not([data-drawer="open"]) .sidebar .nav-label,
+  :root:not([data-drawer="open"]) .sidebar .nav-badge,
+  :root:not([data-drawer="open"]) .sidebar .nav-caret,
+  :root:not([data-drawer="open"]) .sidebar .nav-children,
+  :root:not([data-drawer="open"]) .sidebar .context-text { display: none; }
+  :root:not([data-drawer="open"]) .brand { align-items: center; }
+  :root:not([data-drawer="open"]) .nav-item,
+  :root:not([data-drawer="open"]) .nav-summary,
+  :root:not([data-drawer="open"]) .sidebar .context-switch { justify-content: center; }
+  :root:not([data-drawer="open"]) .sidebar .context-switch { padding-inline: 0; }
+
   .content { padding-inline: var(--space-6); padding-block-end: 56px; }
   .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }

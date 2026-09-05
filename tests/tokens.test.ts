@@ -113,10 +113,18 @@ describe("Flat 2.0 sözleşmesi", () => {
     expect(bad.map((f) => f.replace(ROOT, ""))).toEqual([]);
   });
 
-  it("masaüstünde kenar çubuğu yapışkandır: top:0 bir inset kısayoluyla ezilmez", () => {
+  it("kenar çubuğu her kırılımda viewport'a sabittir (fixed + inset-block:0), üstten kaymaz", () => {
     const css = readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
-    // Birden çok `@media (min-width: 64em)` bloğu olabilir; .sidebar kuralını
-    // barındıranı bul (ilkini varsaymak kırılgan — bkz. regresyon).
+    // Taban kural (medya sorgusuz, mobil-öncelikli): position:fixed + inset-block:0
+    // masaüstünde de (64em bloğu position'ı bir daha ezmez) kenar çubuğunu tepeye
+    // sabitler — 72px mini ray ↔ tam genişlik geçişi yalnızca inline-size ile
+    // olur, position değişmez (regresyon: eskiden 64em'de sticky'e geri dönüyordu).
+    const baseRuleMatch = css.match(/\n\.sidebar\s*\{([^}]*)\}/);
+    expect(baseRuleMatch, "taban .sidebar kuralı bulunamadı").not.toBeNull();
+    const baseRule = baseRuleMatch![1];
+    expect(baseRule).toMatch(/position:\s*fixed/);
+    expect(baseRule).toMatch(/inset-block:\s*0/);
+
     const desktopBlocks = [...css.matchAll(/@media \(min-width: 64em\) \{([\s\S]*?)\n\}/g)];
     expect(desktopBlocks.length, "64em kırılım bloğu bulunamadı").toBeGreaterThan(0);
     const desktopBlock = desktopBlocks.map((m) => m[1]).find((b) => /\.sidebar\s*\{/.test(b));
@@ -124,11 +132,9 @@ describe("Flat 2.0 sözleşmesi", () => {
     const sidebarRuleMatch = desktopBlock!.match(/\.sidebar\s*\{([^}]*)\}/);
     expect(sidebarRuleMatch, ".sidebar kuralı 64em bloğunda bulunamadı").not.toBeNull();
     const rule = sidebarRuleMatch![1];
-    expect(rule).toMatch(/position:\s*sticky/);
-    expect(rule).toMatch(/top:\s*0/);
-    // `inset:` kısayolu, ondan önce gelen `top: 0` bildirimini sessizce ezer
-    // (regresyon: sidebar bir daha yapışkanlığını kaybetmesin).
-    expect(rule).not.toMatch(/(?<!-)inset:\s*auto/);
+    // 64em bloğu position'ı yeniden tanımlamaz (taban fixed geçerliliğini korur).
+    expect(rule).not.toMatch(/position:/);
+    expect(rule).not.toMatch(/(?<!-)inset(-block-start)?:\s*auto/);
   });
 
   it("mobil alt gezinme viewport'a sabittir: fixed + inset-block-end:0, bir transform/sticky ile yer değiştirmez", () => {

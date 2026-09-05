@@ -99,3 +99,23 @@
   .menu { animation: none; }
   .caret { transition: none; }
 }
+
+/* Masaüstü mini ray (kenar çubuğu ~72px, varsayılan kapalı durum):
+ * yalnızca avatar görünür, ad ve ok gizlenir. */
+@media (min-width: 64em) {
+  :global(:root:not([data-drawer="open"])) .trigger {
+    justify-content: center;
+    padding-inline: 0;
+  }
+  :global(:root:not([data-drawer="open"])) .name,
+  :global(:root:not([data-drawer="open"])) .caret {
+    display: none;
+  }
+  /* Dar rayda .root'un genişliğine (~48px) sabitlenmek yerine menü sabit
+   * bir genişlikte, rayın sağından taşarak açılır. */
+  :global(:root:not([data-drawer="open"])) .menu {
+    inset-inline: auto;
+    inset-inline-start: 0;
+    inline-size: 220px;
+  }
+}

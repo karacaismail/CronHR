@@ -52,6 +52,7 @@ export function AccountMenu({ base, name, initials }: AccountMenuProps) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
+        aria-label={`${name} — hesap menüsü`}
         onClick={() => setOpen((o) => !o)}
       >
         <span className="avatar" data-hue="0" aria-hidden="true">{initials}</span>

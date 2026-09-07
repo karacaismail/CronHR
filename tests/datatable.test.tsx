@@ -1,7 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { DataTable } from "../src/islands/DataTable";
+import { GEN } from "../src/data/generate";
 import type { ColumnDef } from "../src/islands/tableTypes";
 
 const COLS: ColumnDef[] = [
@@ -156,5 +159,31 @@ describe("DataTable", () => {
     await user.click(within(dialog).getByRole("button", { name: /Filtreleri temizle/ }));
     expect(screen.getByRole("searchbox", { name: /ara/i })).toHaveValue("Kişi 1");
     expect(screen.queryByText(/Departman: Satış/)).toBeNull();
+  });
+});
+
+describe("DataTable: 'employees' preset satır bağlantısı GitHub Pages alt yoluna (base) saygı gösterir", () => {
+  it("regresyon: çalışan detay linki DOM'dan (document.querySelector('a.brand')) değil, doğrudan `base` prop'undan üretilir — SSR'de yanlış (base'siz) href basıp yalnızca hydration sonrası düzelen kırılgan bir sızıntı vardı (üretimde 404)", () => {
+    render(<DataTable preset="employees" title="Çalışanlar" rows={GEN.employees.slice(0, 3)} pageSize={10} base="/CronHR" />);
+    const link = screen.getByRole("link", { name: new RegExp(GEN.employees[0].name) });
+    expect(link).toHaveAttribute("href", `/CronHR/calisanlar/${GEN.employees[0].id}/`);
+  });
+
+  it("`base` verilmezse boş önekle (kök) çalışır, çökmez", () => {
+    render(<DataTable preset="employees" title="Çalışanlar" rows={GEN.employees.slice(0, 3)} pageSize={10} />);
+    const link = screen.getByRole("link", { name: new RegExp(GEN.employees[0].name) });
+    expect(link).toHaveAttribute("href", `/calisanlar/${GEN.employees[0].id}/`);
+  });
+
+  it("tablePresets.tsx artık document.querySelector('a.brand') üzerinden SSR'de kırılan basePath() hack'ini içermez", () => {
+    const src = readFileSync(join(__dirname, "..", "src/islands/tablePresets.tsx"), "utf8");
+    expect(src).not.toMatch(/function basePath/);
+    expect(src).not.toMatch(/document\.querySelector.*a\.brand/);
+    expect(src).toMatch(/renderCell: \(row, col, base\)/);
+  });
+
+  it("calisanlar/index.astro, DataTable'a base prop'unu geçirir", () => {
+    const src = readFileSync(join(__dirname, "..", "src/pages/calisanlar/index.astro"), "utf8");
+    expect(src).toMatch(/<DataTable[^>]*\bbase=\{base\}/s);
   });
 });

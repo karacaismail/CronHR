@@ -15,7 +15,9 @@ export interface TablePreset {
   columns: ColumnDef[];
   rowKey: string;
   defaultSort?: { key: string; dir: "asc" | "desc" };
-  renderCell?: (row: Row, col: ColumnDef) => ReactNode | undefined;
+  /** base: Astro BASE_URL (GitHub Pages alt yolu), DataTable'ın kendi
+   * `base` prop'undan geçirilir — satır içi bağlantılar için gerekli. */
+  renderCell?: (row: Row, col: ColumnDef, base: string) => ReactNode | undefined;
   rowAi?: (row: Row) => ReactNode;
   aiSummary?: (rows: Row[]) => string;
   aiChips?: string[];
@@ -79,8 +81,8 @@ export const PRESETS: Record<"employees" | "leaves" | "timesheet" | "exceptions"
       { key: "engagement", label: "Katılım", type: "number", sortable: true, filter: true, hideOnCards: true },
     ],
     defaultSort: { key: "attritionRisk", dir: "desc" },
-    renderCell: (row, col) => {
-      if (col.key === "name") return <a href={`${basePath()}/calisanlar/${row.id}/`}><Person name={String(row.name)} sub={String(row.title)} hue={Number(row.hue)} /></a>;
+    renderCell: (row, col, base) => {
+      if (col.key === "name") return <a href={`${base}/calisanlar/${row.id}/`}><Person name={String(row.name)} sub={String(row.title)} hue={Number(row.hue)} /></a>;
       if (col.key === "startDate") return <span className="muted">{formatDate(String(row.startDate))}</span>;
       if (col.key === "status") return badgeCell(row.status);
       if (col.key === "attritionRisk") { const r = Number(row.attritionRisk); return <Meter value={r} tone={riskTone(r) === "good" ? "good" : riskTone(r) === "warning" ? "warning" : "critical"} label={riskLabel(r)} />; }
@@ -337,10 +339,4 @@ function topValue(rows: Row[], key: string): string {
   let n = 0;
   for (const [k, v] of counts) if (v > n) { best = k; n = v; }
   return best;
-}
-
-function basePath(): string {
-  if (typeof document === "undefined") return "";
-  const m = document.querySelector<HTMLAnchorElement>("a.brand")?.getAttribute("href") ?? "/";
-  return m.replace(/\/$/, "");
 }

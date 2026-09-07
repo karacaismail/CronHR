@@ -42,6 +42,9 @@ export interface DataTableProps {
   emptyText?: string;
   /** Satır seçimi ve toplu AI değerlendirmesini aç. */
   selectable?: boolean;
+  /** Astro'nun BASE_URL'i (GitHub Pages alt yolu) — preset içi satır içi
+   * bağlantılar (ör. çalışan detayı) için. Belirtilmezse "" (kök) varsayılır. */
+  base?: string;
 }
 
 const PAGE_SIZES = [10, 25, 50];
@@ -188,7 +191,7 @@ export function DataTable(props: DataTableProps) {
 
   const cellValue = (row: Row, col: ColumnDef): ReactNode => {
     if (renderCell) {
-      const custom = renderCell(row, col);
+      const custom = renderCell(row, col, props.base ?? "");
       if (custom !== undefined) return custom;
     }
     const v = row[col.key];

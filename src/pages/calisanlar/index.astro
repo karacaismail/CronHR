@@ -46,7 +46,7 @@ const remote = EMPLOYEES.filter((e) => e.location === "Uzaktan").length;
       <Fragment slot="tools">
         <button type="button" class="btn btn-ai btn-sm" data-ask-ai="Ayrılma riski yüksek çalışanları listele"><Sparkle size={12} weight="fill" /> Riskli olanlar</button>
       </Fragment>
-      <div class="panel-body"><DataTable client:load preset="employees" title="Çalışanlar" rows={GEN.employees} pageSize={10} selectable /></div>
+      <div class="panel-body"><DataTable client:load preset="employees" title="Çalışanlar" rows={GEN.employees} pageSize={10} selectable base={base} /></div>
       <Fragment slot="foot">{GEN.employees.length} çalışan · Satıra tıklayın: Employee 360 · AI skorları her gece yeniden hesaplanır</Fragment>
     </Panel>
 

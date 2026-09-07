@@ -21,6 +21,10 @@ import {
  * 12 komut kartı) gösterir. Portallar ve Entegrasyonlar kenar çubuğundan ve
  * Ayarlar üzerinden erişilir.
  */
+/** "new" = az önce eklendi (pill: Yeni). "soon" = MVP'de olmasa da olur;
+ * sayfası her zaman kilitli bir iskelette kalır, veri gizli ama silinmez. */
+export type NavStatus = "new" | "soon";
+
 export interface NavLeaf {
   readonly id: string;
   readonly label: string;
@@ -28,6 +32,7 @@ export interface NavLeaf {
   readonly description: string;
   readonly badge?: string;
   readonly badgeTone?: "accent" | "warning";
+  readonly status?: NavStatus;
   readonly suggestions?: readonly string[];
 }
 
@@ -41,6 +46,7 @@ export interface NavGroup {
   readonly children?: readonly NavLeaf[];
   readonly badge?: string;
   readonly badgeTone?: "accent" | "warning";
+  readonly status?: NavStatus;
   /** Komuta kartındaki 12 karttan biri mi? */
   readonly inCommandCard: boolean;
   readonly suggestions: readonly string[];
@@ -97,8 +103,8 @@ export const NAV_TREE: readonly NavGroup[] = [
     ],
     children: [
       { id: "calisanlar", label: "Çalışanlar", href: "/calisanlar/", description: "Kadro listesi ve risk sinyalleri" },
-      { id: "organizasyon", label: "Organizasyon", href: "/organizasyon/", description: "Şirket, işyeri, departman, ekip" },
-      { id: "pozisyonlar", label: "Pozisyonlar", href: "/pozisyonlar/", description: "Pozisyon, kademe, bütçe" },
+      { id: "organizasyon", label: "Organizasyon", href: "/organizasyon/", description: "Şirket, işyeri, departman, ekip", status: "new" },
+      { id: "pozisyonlar", label: "Pozisyonlar", href: "/pozisyonlar/", description: "Pozisyon, kademe, bütçe", status: "new" },
       { id: "ozluk", label: "Özlük", href: "/ozluk/", description: "Employee 360 dosyaları" },
       { id: "belgeler", label: "Belgeler", href: "/belgeler/", description: "Sözleşme, sertifika, form", badge: "3", badgeTone: "warning" },
     ],
@@ -120,12 +126,12 @@ export const NAV_TREE: readonly NavGroup[] = [
       "Bu sayfayı açıkla",
     ],
     children: [
-      { id: "izinler", label: "İzinler", href: "/izin-devam/", description: "Talep, bakiye, yokluk", badge: "5", badgeTone: "warning" },
+      { id: "izinler", label: "İzinler", href: "/izin-devam/", description: "Talep, bakiye, yokluk", badge: "5", badgeTone: "warning", status: "new" },
       { id: "vardiya", label: "Vardiyalar", href: "/vardiya/", description: "Planlanan çalışma zamanı" },
       { id: "pdks", label: "PDKS", href: "/pdks/", description: "Cihazlar ve ham hareketler" },
-      { id: "puantaj", label: "Puantaj", href: "/puantaj/", description: "Hesaplanmış çalışma" },
-      { id: "fazla-mesai", label: "Fazla Mesai", href: "/fazla-mesai/", description: "Talep, onay, sınır" },
-      { id: "takvim", label: "Takvim", href: "/takvim/", description: "Çalışma ve tatil takvimleri" },
+      { id: "puantaj", label: "Puantaj", href: "/puantaj/", description: "Hesaplanmış çalışma", status: "new" },
+      { id: "fazla-mesai", label: "Fazla Mesai", href: "/fazla-mesai/", description: "Talep, onay, sınır", status: "new" },
+      { id: "takvim", label: "Takvim", href: "/takvim/", description: "Çalışma ve tatil takvimleri", status: "new" },
     ],
   },
   {
@@ -145,10 +151,10 @@ export const NAV_TREE: readonly NavGroup[] = [
     children: [
       { id: "bordrolar", label: "Bordrolar", href: "/bordro/", description: "Dönem çalıştırmaları" },
       { id: "ucretler", label: "Ücretler", href: "/ucretler/", description: "Ücret yapısı ve tarihli geçmiş" },
-      { id: "degisken-odemeler", label: "Değişken Ödemeler", href: "/degisken-odemeler/", description: "Prim, bonus, komisyon" },
-      { id: "kesintiler", label: "Kesintiler", href: "/kesintiler/", description: "Avans, icra, borç" },
-      { id: "sgk", label: "SGK", href: "/sgk/", description: "İşyeri, meslek kodu, oranlar" },
-      { id: "beyannameler", label: "Beyannameler", href: "/beyannameler/", description: "E-Bildirge, MUHSGK" },
+      { id: "degisken-odemeler", label: "Değişken Ödemeler", href: "/degisken-odemeler/", description: "Prim, bonus, komisyon", status: "new" },
+      { id: "kesintiler", label: "Kesintiler", href: "/kesintiler/", description: "Avans, icra, borç", status: "new" },
+      { id: "sgk", label: "SGK", href: "/sgk/", description: "İşyeri, meslek kodu, oranlar", status: "new" },
+      { id: "beyannameler", label: "Beyannameler", href: "/beyannameler/", description: "E-Bildirge, MUHSGK", status: "soon" },
       { id: "odemeler", label: "Ödemeler", href: "/odemeler/", description: "Banka dosyaları, muhasebe fişi" },
     ],
   },
@@ -168,9 +174,9 @@ export const NAV_TREE: readonly NavGroup[] = [
     ],
     children: [
       { id: "onboarding", label: "Onboarding", href: "/onboarding/", description: "İşe giriş kontrol listeleri" },
-      { id: "transferler", label: "Transferler", href: "/transferler/", description: "Departman ve konum değişimi" },
-      { id: "terfiler", label: "Terfiler", href: "/terfiler/", description: "Ünvan ve kademe değişimi" },
-      { id: "offboarding", label: "Offboarding", href: "/offboarding/", description: "Ayrılış ve çıkış mülakatı" },
+      { id: "transferler", label: "Transferler", href: "/transferler/", description: "Departman ve konum değişimi", status: "new" },
+      { id: "terfiler", label: "Terfiler", href: "/terfiler/", description: "Ünvan ve kademe değişimi", status: "soon" },
+      { id: "offboarding", label: "Offboarding", href: "/offboarding/", description: "Ayrılış ve çıkış mülakatı", status: "soon" },
     ],
   },
   {
@@ -181,6 +187,7 @@ export const NAV_TREE: readonly NavGroup[] = [
     href: "/ise-alim/",
     badge: "7",
     badgeTone: "accent",
+    status: "new",
     inCommandCard: true,
     suggestions: [
       "İşe alım hattının durumunu göster",
@@ -197,6 +204,7 @@ export const NAV_TREE: readonly NavGroup[] = [
     icon: Target,
     description: "Hedefler, OKR ve değerlendirme",
     href: "/performans/",
+    status: "soon",
     inCommandCard: true,
     suggestions: [
       "Ekip başına hedef ilerlemesini karşılaştır",
@@ -213,6 +221,7 @@ export const NAV_TREE: readonly NavGroup[] = [
     icon: GraduationCap,
     description: "Programlar, sertifika, yetkinlik",
     href: "/egitim/",
+    status: "soon",
     inCommandCard: true,
     suggestions: [
       "Zorunlu eğitimi tamamlamayanları listele",
@@ -229,8 +238,7 @@ export const NAV_TREE: readonly NavGroup[] = [
     icon: Scales,
     description: "Disiplin, şikayet, talep, yardım masası",
     href: "/hr-vakalari/",
-    badge: "2",
-    badgeTone: "warning",
+    status: "soon",
     inCommandCard: true,
     suggestions: [
       "Açık vakaları önceliğe göre sırala",
@@ -262,11 +270,12 @@ export const NAV_TREE: readonly NavGroup[] = [
     label: "Portallar",
     icon: IdentificationBadge,
     description: "Çalışan ve yönetici self-servis",
+    status: "soon",
     inCommandCard: false,
     suggestions: ["İzin bakiyemi göster", "Bu ayki bordromu açıkla", "Ekibimde bugün kim izinli?", "Bu sayfayı açıkla", "Onay bekleyen taleplerimi listele", "Vardiya değişimi talep et"],
     children: [
-      { id: "calisan-portali", label: "Çalışan Portalı", href: "/calisan-portali/", description: "ESS: benim bilgilerim ve taleplerim" },
-      { id: "yonetici-portali", label: "Yönetici Portalı", href: "/yonetici-portali/", description: "MSS: ekibim ve onaylarım" },
+      { id: "calisan-portali", label: "Çalışan Portalı", href: "/calisan-portali/", description: "ESS: benim bilgilerim ve taleplerim", status: "soon" },
+      { id: "yonetici-portali", label: "Yönetici Portalı", href: "/yonetici-portali/", description: "MSS: ekibim ve onaylarım", status: "soon" },
     ],
   },
   {

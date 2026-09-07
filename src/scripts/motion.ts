@@ -34,6 +34,16 @@ function skeletonThenReveal() {
   }, randomSkeletonDelay());
 }
 
+/** "Yakında" sayfası (nav.tsx: status "soon"): iskelet kalıcıdır, hiç
+ * kaldırılmaz. Veri DOM'da durur (silinmez), yalnızca hiç görünmez. */
+function lockSkeleton() {
+  for (const group of revealTargets(document)) for (const el of group) el.classList.add("is-skeleton-locked");
+}
+
+function isComingSoon(): boolean {
+  return document.querySelector(".content")?.getAttribute("data-coming-soon") === "true";
+}
+
 function clearSkeletons() {
   for (const el of document.querySelectorAll(".is-skeleton")) el.classList.remove("is-skeleton");
 }
@@ -131,9 +141,11 @@ function safetyNet() {
 export function startMotion() {
   const ctx = readMotionContext();
   document.documentElement.dataset.motion = shouldAnimate(ctx) ? "on" : "off";
+  const comingSoon = isComingSoon();
+  if (comingSoon) lockSkeleton();
   if (!shouldAnimate(ctx)) return;
   safetyNet();
-  skeletonThenReveal();
+  if (!comingSoon) skeletonThenReveal();
   microFeedback();
   window.addEventListener("cronhr:theme", () => {
     const next = readMotionContext();

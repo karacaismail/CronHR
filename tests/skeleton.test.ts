@@ -35,27 +35,26 @@ describe("randomSkeletonDelay (saf, DOM'suz)", () => {
 });
 
 describe("İskelet (skeleton) shimmer — gecikmeli ön yükleme", () => {
-  it("global.css: .is-skeleton içeriği görünmez kılar (boyut/düzen korunur), * için renk/arka plan şeffaf", () => {
+  it("global.css: .is-skeleton (ve kalıcı varyantı .is-skeleton-locked) içeriği görünmez kılar, * için renk/arka plan şeffaf", () => {
     const css = globalCss();
-    const root = css.match(/\n\.is-skeleton\s*\{([^}]*)\}/);
-    expect(root, ".is-skeleton kuralı bulunamadı").not.toBeNull();
+    const root = css.match(/\n\.is-skeleton,\s*\n\.is-skeleton-locked\s*\{([^}]*)\}/);
+    expect(root, ".is-skeleton, .is-skeleton-locked kuralı bulunamadı").not.toBeNull();
     expect(root![1]).toMatch(/background:\s*var\(--skeleton-base\)/);
     expect(root![1]).toMatch(/pointer-events:\s*none/);
 
-    const children = css.match(/\n\.is-skeleton \*\s*\{([^}]*)\}/);
-    expect(children, ".is-skeleton * kuralı bulunamadı").not.toBeNull();
+    const children = css.match(/\n\.is-skeleton \*,\s*\n\.is-skeleton-locked \*\s*\{([^}]*)\}/);
+    expect(children, ".is-skeleton *, .is-skeleton-locked * kuralı bulunamadı").not.toBeNull();
     expect(children![1]).toMatch(/color:\s*transparent/);
 
-    const placeholder = css.match(/\n\.is-skeleton input::placeholder,\s*\n\.is-skeleton textarea::placeholder\s*\{([^}]*)\}/);
-    expect(placeholder, ".is-skeleton input/textarea::placeholder kuralı bulunamadı (regresyon: gerçek yer tutucu metni şeffaf katmanın altından sızardı)").not.toBeNull();
+    expect(css).toMatch(/\.is-skeleton input::placeholder,\s*\n\.is-skeleton textarea::placeholder,\s*\n\.is-skeleton-locked input::placeholder,\s*\n\.is-skeleton-locked textarea::placeholder\s*\{/);
   });
 
-  it("global.css: kayan parlaklık bandı @keyframes skeleton-shimmer ile animasyonlu, reduced-motion'da durur", () => {
+  it("global.css: kayan parlaklık bandı @keyframes skeleton-shimmer ile animasyonlu, reduced-motion'da durur (kalıcı .is-skeleton-locked dahil)", () => {
     const css = globalCss();
     expect(css).toMatch(/@keyframes skeleton-shimmer/);
-    expect(css).toMatch(/\.is-skeleton::after\s*\{[^}]*animation:\s*skeleton-shimmer/);
-    const reducedBlock = css.match(/@media \(prefers-reduced-motion: reduce\) \{\s*\.is-skeleton::after \{ animation: none; \}/);
-    expect(reducedBlock, "reduced-motion'da .is-skeleton::after animasyonu durdurulmuyor").not.toBeNull();
+    expect(css).toMatch(/\.is-skeleton::after,\s*\n\.is-skeleton-locked::after\s*\{[^}]*animation:\s*skeleton-shimmer/);
+    const reducedBlock = css.match(/@media \(prefers-reduced-motion: reduce\) \{\s*\n\s*\.is-skeleton::after,\s*\n\s*\.is-skeleton-locked::after \{ animation: none; \}/);
+    expect(reducedBlock, "reduced-motion'da .is-skeleton(-locked)::after animasyonu durdurulmuyor").not.toBeNull();
   });
 
   it("her temada --skeleton-base ve --skeleton-shine tanımlıdır (light/dark/a11y)", () => {
@@ -83,10 +82,11 @@ describe("İskelet (skeleton) shimmer — gecikmeli ön yükleme", () => {
     expect(ts).toMatch(/startMotion[\s\S]*?skeletonThenReveal\(\)/);
   });
 
-  it("motion.ts: reduced-motion/a11y'de iskelet hiç eklenmez (startMotion erken döner) ve güvenlik ağı/temayı kapatma yolu iskeleti temizler", () => {
+  it("motion.ts: reduced-motion/a11y'de geçici iskelet hiç eklenmez (startMotion erken döner) ve güvenlik ağı/temayı kapatma yolu yalnızca geçici iskeleti temizler (kalıcıya dokunmaz)", () => {
     const ts = motionTs();
-    expect(ts).toMatch(/if \(!shouldAnimate\(ctx\)\) return;\s*\n\s*safetyNet\(\);\s*\n\s*skeletonThenReveal\(\);/);
+    expect(ts).toMatch(/const comingSoon = isComingSoon\(\);\s*\n\s*if \(comingSoon\) lockSkeleton\(\);\s*\n\s*if \(!shouldAnimate\(ctx\)\) return;/);
     expect(ts).toMatch(/function finishAll\(\) \{\s*\n\s*clearSkeletons\(\);/);
     expect(ts).toMatch(/if \(!shouldAnimate\(next\)\) \{\s*\n\s*clearSkeletons\(\);/);
+    expect(ts).toMatch(/function clearSkeletons\(\) \{\s*\n\s*for \(const el of document\.querySelectorAll\("\.is-skeleton"\)\)/);
   });
 });

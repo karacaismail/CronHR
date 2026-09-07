@@ -83,10 +83,11 @@ describe("Flat 2.0 sözleşmesi", () => {
       let content = readFileSync(f, "utf8");
       if (f.endsWith("global.css")) {
         // .overlay-scrim: her modalın ortak arka plan perdesi (blur 2px + soğuk
-        // gri %30). .is-skeleton::after: yükleme iskeletindeki kayan parlaklık
-        // bandı (kullanıcı: "skeleton shimmer" — kasıtlı, işlevsel). Flat 2.0'ın
-        // gradient/blur yasağının iki kasıtlı istisnası; bkz. tests/overlay.test.ts.
-        content = content.replace(/\.overlay-scrim\s*{[^}]*}/g, "").replace(/\.is-skeleton::after\s*{[^}]*}/g, "");
+        // gri %30). .is-skeleton(-locked)::after: yükleme iskeletindeki kayan
+        // parlaklık bandı (kullanıcı: "skeleton shimmer" — kasıtlı, işlevsel).
+        // Flat 2.0'ın gradient/blur yasağının iki kasıtlı istisnası; bkz.
+        // tests/overlay.test.ts.
+        content = content.replace(/\.overlay-scrim\s*{[^}]*}/g, "").replace(/\.is-skeleton::after,\s*\n\.is-skeleton-locked::after\s*{[^}]*}/g, "");
       }
       return /gradient\(|backdrop-filter|filter: ?blur|text-shadow|inset 0 [1-9-]/.test(content);
     });

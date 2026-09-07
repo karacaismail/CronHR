@@ -323,6 +323,26 @@ svg {
   color: var(--warning-ink);
 }
 
+.nav-status {
+  margin-inline-start: auto;
+  flex: none;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+
+.nav-status[data-status="new"] {
+  background: var(--good-soft);
+  color: var(--good-ink);
+}
+
+.nav-status[data-status="soon"] {
+  background: var(--surface-sunken);
+  color: var(--ink-faint);
+}
+
 .sidebar-foot {
   margin-block-start: auto;
   border: 1px solid var(--border);
@@ -2313,6 +2333,20 @@ body,
   transition-timing-function: ease;
 }
 
+/* Görsel olarak gizli, ekran okuyucuya açık (regresyon: display:none/visibility
+ * hidden ekran okuyucudan da gizler). */
+.sr-only {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ------------------------------------------------- iskelet (skeleton) shimmer
  * Sayfa her yüklendiğinde/gezinildiğinde .content'in doğrudan çocukları kısa
  * bir süre gerçek görünümleriyle AYNI boyutta bir shimmer bloğuna döner
@@ -2320,8 +2354,13 @@ body,
  * korunur), yalnızca .is-skeleton * rengi/arka planı şeffaflaşır ve üstüne
  * kayan bir parlaklık bandı biner — bu yüzden tek bir sınıf HERHANGİ bir
  * bileşende (KPI, panel, tablo, kart) işe yarar, ayrı bir iskelet şablonu
- * gerekmez. */
-.is-skeleton {
+ * gerekmez.
+ * .is-skeleton-locked: "Yakında" sayfaları (nav.tsx: status "soon") için
+ * aynı görünüm ama KALICI — motion.ts asla kaldırmaz, güvenlik ağı da
+ * dokunmaz. Veri DOM'da kalır (silinmez), yalnızca gerçek içerik hiç
+ * görünmez. */
+.is-skeleton,
+.is-skeleton-locked {
   position: relative;
   isolation: isolate;
   border-radius: var(--radius, 8px);
@@ -2330,7 +2369,8 @@ body,
   pointer-events: none;
 }
 
-.is-skeleton * {
+.is-skeleton *,
+.is-skeleton-locked * {
   color: transparent !important;
   background: transparent !important;
   border-color: transparent !important;
@@ -2341,11 +2381,14 @@ body,
 }
 
 .is-skeleton input::placeholder,
-.is-skeleton textarea::placeholder {
+.is-skeleton textarea::placeholder,
+.is-skeleton-locked input::placeholder,
+.is-skeleton-locked textarea::placeholder {
   color: transparent !important;
 }
 
-.is-skeleton::after {
+.is-skeleton::after,
+.is-skeleton-locked::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -2360,7 +2403,8 @@ body,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .is-skeleton::after { animation: none; }
+  .is-skeleton::after,
+  .is-skeleton-locked::after { animation: none; }
 }
 
 /* Hareket kapalı (reduced-motion / a11y modu): dönüşüm ve animasyon yok. */

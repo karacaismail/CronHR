@@ -35,7 +35,7 @@ describe.skipIf(skip)("dist çıktısı", () => {
   it("CSS paketlerinde gradient yoktur (istisna: .is-skeleton parlaklık bandı — bkz. tests/tokens.test.ts)", () => {
     const css = readdirSync(join(DIST, "_astro")).filter((f) => f.endsWith(".css"));
     for (const f of css) {
-      const content = readFileSync(join(DIST, "_astro", f), "utf8").replace(/\.is-skeleton:{1,2}after\{[^}]*\}/g, "");
+      const content = readFileSync(join(DIST, "_astro", f), "utf8").replace(/\.is-skeleton:{1,2}after,\.is-skeleton-locked:{1,2}after\{[^}]*\}/g, "");
       expect(content).not.toMatch(/gradient\(/);
     }
   });

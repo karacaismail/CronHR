@@ -22,6 +22,9 @@ const page = resolvePage(pageId);
 const base = import.meta.env.BASE_URL;
 const docTitle = `${title ?? page.label} · CronHR`;
 const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label);
+/** "Yakında" (nav.tsx: status "soon"): sayfa kalıcı iskelette kalır, veri
+ * gizli ama silinmez (bkz. motion.ts: lockSkeleton). */
+const isComingSoon = (page.leaf?.status ?? page.group.status) === "soon";
 ---
 
 <html lang="tr">
@@ -61,7 +64,8 @@ const eyebrowText = eyebrow ?? (page.leaf ? page.group.label : page.group.label)
             <button type="button" class="btn btn-primary btn-sm" title="Yeni kayıt oluştur"><Plus size={13} weight="bold" /> Oluştur</button>
           </div>
         </header>
-        <main class="content" id="icerik" tabindex="-1">
+        <main class="content" id="icerik" tabindex="-1" data-coming-soon={isComingSoon ? "true" : undefined}>
+          {isComingSoon ? <p class="sr-only">Bu özellik yakında kullanıma açılacak.</p> : null}
           <header class="page-head">
             <div>
               <p class="page-eyebrow">{eyebrowText}</p>

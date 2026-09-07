@@ -13,6 +13,7 @@ interface Props {
 const { currentId } = Astro.props;
 const current = resolvePage(currentId);
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const STATUS_LABEL = { new: "Yeni", soon: "Yakında" } as const;
 ---
 
 <aside class="sidebar" id="kenar-cubugu" aria-label="Kenar çubuğu">
@@ -38,6 +39,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
           <a class="nav-item" href={`${base}${group.href}`} aria-current={isActiveGroup ? "page" : undefined} title={group.label}>
             <Icon size={17} />
             <span class="nav-label">{group.label}</span>
+            {group.status ? <span class="nav-status" data-status={group.status}>{STATUS_LABEL[group.status]}</span> : null}
             {group.badge ? <span class="nav-badge" data-tone={group.badgeTone}>{group.badge}</span> : null}
           </a>
         );
@@ -47,6 +49,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
           <summary class="nav-item nav-summary" data-active={isActiveGroup} title={group.label}>
             <Icon size={17} />
             <span class="nav-label">{group.label}</span>
+            {group.status ? <span class="nav-status" data-status={group.status}>{STATUS_LABEL[group.status]}</span> : null}
             {group.badge ? <span class="nav-badge" data-tone={group.badgeTone}>{group.badge}</span> : null}
             <span class="nav-caret"><CaretDown size={12} /></span>
           </summary>
@@ -54,6 +57,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
             {group.children.map((leaf) => (
               <a class="nav-item nav-leaf" href={`${base}${leaf.href}`} aria-current={current.leaf?.id === leaf.id ? "page" : undefined}>
                 <span class="nav-label">{leaf.label}</span>
+                {leaf.status ? <span class="nav-status" data-status={leaf.status}>{STATUS_LABEL[leaf.status]}</span> : null}
                 {leaf.badge ? <span class="nav-badge" data-tone={leaf.badgeTone}>{leaf.badge}</span> : null}
               </a>
             ))}

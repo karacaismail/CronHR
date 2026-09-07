@@ -109,3 +109,34 @@ describe("AdminLayout.astro + motion.ts: 'Yakında' sayfaları kalıcı iskelett
     expect(motion()).toMatch(/function isComingSoon\(\)[\s\S]*?getAttribute\("data-coming-soon"\) === "true"/);
   });
 });
+
+describe("global.css: .is-skeleton-locked HER kutuda görünür 'Yakında' yazısı gösterir (yalnızca .is-skeleton değil)", () => {
+  const css = () => readFileSync(join(ROOT, "src/styles/global.css"), "utf8");
+
+  it(".is-skeleton-locked::before içerik olarak 'Yakında' ekler, ortalanmış ve şeffaf katmandan (color:transparent) etkilenmez", () => {
+    const c = css();
+    const rule = c.match(/\.is-skeleton-locked::before\s*\{([^}]*)\}/);
+    expect(rule, ".is-skeleton-locked::before kuralı bulunamadı").not.toBeNull();
+    expect(rule![1]).toMatch(/content:\s*"Yakında"/);
+    expect(rule![1]).toMatch(/display:\s*flex/);
+    expect(rule![1]).toMatch(/align-items:\s*center/);
+    expect(rule![1]).toMatch(/justify-content:\s*center/);
+    // .is-skeleton-locked * { color: transparent !important } yalnızca gerçek
+    // DOM soyundan gelenleri hedefler, ::before kendi rengini taşımalı.
+    expect(rule![1]).toMatch(/color:\s*var\(--ink-faint\)/);
+  });
+
+  it("'Yakında' yazısı, kayan parlaklık bandının (::after) ÜSTÜNDE kalır (z-index)", () => {
+    const c = css();
+    const before = c.match(/\.is-skeleton-locked::before\s*\{([^}]*)\}/)![1];
+    const after = c.match(/\.is-skeleton::after,\s*\n\.is-skeleton-locked::after\s*\{([^}]*)\}/)![1];
+    const beforeZ = Number(before.match(/z-index:\s*(\d+)/)![1]);
+    const afterZ = Number(after.match(/z-index:\s*(\d+)/)![1]);
+    expect(beforeZ).toBeGreaterThan(afterZ);
+  });
+
+  it("normal (geçici) .is-skeleton kutularında 'Yakında' yazısı YOK — yalnızca kalıcı .is-skeleton-locked'da", () => {
+    const c = css();
+    expect(c).not.toMatch(/\.is-skeleton::before/);
+  });
+});

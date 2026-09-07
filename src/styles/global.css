@@ -2387,11 +2387,30 @@ body,
   color: transparent !important;
 }
 
+/* Kalıcı iskeletin HER kutusunda "Yakında" yazısı görünür — kullanıcı
+ * (görsel geri bildirim üzerine): şeffaf shimmer tek başına "neden hep
+ * yükleniyor" belirsizliği yaratıyordu. */
+.is-skeleton-locked::before {
+  content: "Yakında";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
 .is-skeleton::after,
 .is-skeleton-locked::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(100deg, transparent 30%, var(--skeleton-shine) 50%, transparent 70%);
   background-size: 220% 100%;
   animation: skeleton-shimmer 1.3s ease-in-out infinite;
